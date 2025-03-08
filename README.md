@@ -1,15 +1,8 @@
-# Smile Dental Care With Next.js and Prisma
+# Done & Paid
 
-A modern dental care management system built with Next.js 14, featuring role-based access control, multi-language support, appointment scheduling, and a sleek user interface.
+A modern invoice management system built with Next.js 14, helping you spend more time fixing things and less time figuring out invoices.
 
-![Dashboard Overview](https://res.cloudinary.com/mdataullah/image/upload/v1740428657/Scenshot_4_oz1mhy.png)
-
-## Language Support
-
-The application supports multiple languages with easy switching between them:
-
-- Server-side language detection: `const isBn = await getLanguage();`
-- Client-side language detection: `const isBn = getClientLanguage();`
+![Dashboard Overview](./public/hero.png)
 
 ## Features
 
@@ -42,6 +35,7 @@ The application supports multiple languages with easy switching between them:
   - Form validation
   - Error handling
   - Toast notifications
+  - PWA support
 
 ## Tech Stack
 
@@ -58,7 +52,7 @@ The application supports multiple languages with easy switching between them:
 
 - Node.js 18+
 - PostgreSQL
-- npm/yarn
+- npm/pnpm
 - Git
 
 ## Environment Variables
@@ -83,16 +77,11 @@ NEXT_PUBLIC_APP_URL=
 
 ## Installation
 
-1. Clone the repository:
-
-```shell
-git clone https://github.com/ataullah1/Smile-Dental.git
-```
+1. Clone the repository
 
 2. Install dependencies:
 
 ```shell
-cd Smile-Dental
 pnpm install
 ```
 
@@ -100,7 +89,7 @@ pnpm install
 
 ```shell
 npx prisma generate
-pnpx prisma db push
+npx prisma db push
 ```
 
 4. Start the development server:
@@ -144,9 +133,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [NextAuth.js](https://next-auth.js.org/)
 - [Shadcn UI](https://ui.shadcn.com/)
 - [Prisma](https://www.prisma.io/)
-
-## Contact
-
-Ataullah - [GitHub](https://github.com/ataullah1)
-
-Project Link: [https://github.com/ataullah1/Smile-Dental.git](https://github.com/ataullah1/Smile-Dental.git)
