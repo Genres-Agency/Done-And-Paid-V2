@@ -50,7 +50,7 @@ import { Icons } from "@/src/components/icons";
 import { LogoutButton } from "@/src/components/auth/logout-button";
 
 export const company = {
-  name: "Smile Dental Care",
+  name: "Done And Paid",
   logo: GalleryVerticalEnd,
   plan: "Administrator",
 };

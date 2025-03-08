@@ -1,23 +1,15 @@
 import { Poppins } from "next/font/google";
 
-import { cn } from "@/src/lib/utils";
-
-const font = Poppins({
-  subsets: ["latin"],
-  weight: ["600"],
-});
-
 interface HeaderProps {
+  heading: string;
   label: string;
 }
 
-export const Header = ({ label }: HeaderProps) => {
+export const Header = ({ heading, label }: HeaderProps) => {
   return (
-    <div className="w-full flex flex-col gap-y-4 items-center justify-center">
-      <h1 className={cn("text-3xl font-semibold", font.className)}>
-        Smile Dental Care
-      </h1>
-      <p className="text-muted-foreground text-sm">{label}</p>
+    <div className="flex flex-col space-y-2 text-center mb-4">
+      <h1 className="text-2xl font-semibold tracking-tight">{heading}</h1>
+      <p className="text-sm text-muted-foreground">{label}</p>
     </div>
   );
 };
