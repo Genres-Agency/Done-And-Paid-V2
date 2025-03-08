@@ -1,0 +1,205 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  DENTIST
+  STAFF
+  PATIENT
+  BANNED
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum BlogStatus {
+  PUBLISHED
+  PRIVATE
+  SCHEDULED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ServiceStatus {
+  PUBLISHED
+  PRIVATE
+}
+
+model Branch {
+  id           String        @id @default(cuid())
+  nameEn       String
+  nameBn       String
+  addressEn    String
+  addressBn    String
+  phoneNumber  String
+  email        String?
+  openingHours String?
+  image        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  users        User[]
+  appointments Appointment[]
+}
+
+model Review {
+  id        String       @id @default(cuid())
+  rating    Int
+  commentEn String?
+  commentBn String?
+  status    ReviewStatus @default(PENDING)
+  userId    String?
+  mediaId   String? // Foreign key for Media
+  user      User?        @relation(fields: [userId], references: [id])
+  media     Media?       @relation(fields: [mediaId], references: [id])
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model Service {
+  id            String        @id @default(cuid())
+  titleEn       String
+  titleBn       String
+  descriptionEn String
+  descriptionBn String
+  price         Float
+  duration      String
+  mediaId       String? // Foreign key for Media
+  media         Media?        @relation(fields: [mediaId], references: [id])
+  status        ServiceStatus @default(PUBLISHED)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  appointments  Appointment[]
+}
+
+model Blog {
+  id          String     @id @default(cuid())
+  titleEn     String
+  titleBn     String
+  slugEn      String     @unique
+  slugBn      String     @unique
+  contentEn   String
+  contentBn   String
+  categoryEn  String?
+  categoryBn  String?
+  mediaId     String? // Foreign key for Media
+  media       Media?     @relation(fields: [mediaId], references: [id])
+  status      BlogStatus @default(PUBLISHED)
+  scheduledAt DateTime? // This field will store the scheduled publication time
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Appointment {
+  id        String            @id @default(cuid())
+  patientId String?
+  serviceId String?
+  dentistId String?
+  branchId  String?
+  name      String
+  phone     String
+  email     String?
+  date      DateTime?
+  address   String?
+  status    AppointmentStatus @default(SCHEDULED)
+  notes     String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  patient User?    @relation("PatientAppointments", fields: [patientId], references: [id])
+  dentist User?    @relation("DentistAppointments", fields: [dentistId], references: [id])
+  service Service? @relation(fields: [serviceId], references: [id])
+  branch  Branch?  @relation(fields: [branchId], references: [id])
+}
+
+// Update User model to include branch relationship and reviews
+model User {
+  id                 String          @id @default(cuid())
+  name               String?
+  email              String?         @unique
+  password           String?
+  role               UserRole        @default(PATIENT)
+  accounts           Account[]
+  image              String?
+  phoneNumber        String?
+  address            String?
+  bio                String?
+  branchId           String?
+  branch             Branch?         @relation(fields: [branchId], references: [id])
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  isTwoFactorEnabled Boolean         @default(false)
+  appointments       Appointment[]   @relation("PatientAppointments")
+  dentistSchedule    Appointment[]   @relation("DentistAppointments")
+  medicalRecords     MedicalRecord[]
+  reviews            Review[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Media {
+  id          String    @id @default(cuid())
+  title       String
+  url         String
+  type        MediaType
+  description String?
+  size        Int // in bytes
+  mimeType    String // e.g., "image/jpeg", "video/mp4"
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Blog        Blog[]
+  Service     Service[]
+  Review      Review[]
+}
+
+model MedicalRecord {
+  id           String   @id @default(cuid())
+  patientId    String
+  diagnosis    String
+  treatment    String
+  prescription String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  patient User @relation(fields: [patientId], references: [id])
+}
