@@ -9,43 +9,15 @@ export const navItems: NavItem[] = [
     shortcut: ["g", "d"],
   },
   {
-    title: "Appointments",
-    icon: "calendar",
-    shortcut: ["g", "a"],
-    allowedRoles: [
-      UserRole.ADMIN,
-      UserRole.SUPERADMIN,
-      UserRole.DENTIST,
-      UserRole.STAFF,
-    ],
-    items: [
-      { title: "All Appointments", url: "/dashboard/appointments" },
-      {
-        title: "Wating",
-        url: "/dashboard/appointments/waiting-list",
-        disabled: true,
-      },
-      {
-        title: "Complited",
-        url: "/dashboard/appointments/complited",
-        disabled: true,
-      },
-      {
-        title: "Calendar View",
-        url: "/dashboard/appointments/calendar",
-        disabled: true,
-      },
-    ],
-  },
-  {
     title: "USERs",
     icon: "users",
     shortcut: ["g", "p"],
     allowedRoles: [
       UserRole.ADMIN,
       UserRole.SUPERADMIN,
-      UserRole.DENTIST,
-      UserRole.STAFF,
+      UserRole.MANAGER,
+      UserRole.SALESPERSON,
+      UserRole.ACCOUNTANT,
     ],
     items: [
       { title: "All USERs", url: "/dashboard/USERs" },
@@ -57,7 +29,7 @@ export const navItems: NavItem[] = [
     title: "Services",
     icon: "service",
     shortcut: ["g", "v"],
-    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.DENTIST],
+    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.MANAGER],
     items: [
       { title: "Add Service", url: "/dashboard/services/post-service" },
       { title: "All Services", url: "/dashboard/services" },
@@ -72,7 +44,7 @@ export const navItems: NavItem[] = [
     title: "Blogs & Articles",
     icon: "blog",
     shortcut: ["g", "i"],
-    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.DENTIST],
+    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.MANAGER],
     items: [
       { title: "Add Blog", url: "/dashboard/blog/add" },
       { title: "All Blogs", url: "/dashboard/blog" },
@@ -115,8 +87,9 @@ export const navItems: NavItem[] = [
     allowedRoles: [
       UserRole.ADMIN,
       UserRole.SUPERADMIN,
-      UserRole.DENTIST,
-      UserRole.STAFF,
+      UserRole.MANAGER,
+      UserRole.ACCOUNTANT,
+      UserRole.SALESPERSON,
     ],
     items: [
       { title: "USER Messages", url: "/dashboard/communications/messages" },
@@ -134,8 +107,9 @@ export const navItems: NavItem[] = [
     allowedRoles: [
       UserRole.ADMIN,
       UserRole.SUPERADMIN,
-      UserRole.DENTIST,
-      UserRole.STAFF,
+      UserRole.MANAGER,
+      UserRole.ACCOUNTANT,
+      UserRole.SALESPERSON,
     ],
     items: [
       { title: "Media Library", url: "/dashboard/media" },
