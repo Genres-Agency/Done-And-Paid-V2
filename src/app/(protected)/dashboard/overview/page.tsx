@@ -9,7 +9,7 @@ import {
 import { DateRangePicker } from "./_components/date-range-picker";
 import { Calendar, Users2, Activity, Clock } from "lucide-react";
 import { fetchDashboardData } from "./data";
-import { RecentAppointments } from "./_components/recent-invoice";
+import { RecentInvoices } from "./_components/recent-invoice";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -18,12 +18,11 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const {
-    totalServices,
-    totalUSERs,
-    totalAppointments,
-    activeAppointments,
+    totalInvoices,
+    totalCustomers,
+    totalRevenue,
+    pendingInvoices,
     monthlyData,
-    recentAppointments,
     stats,
   } = await fetchDashboardData();
 
@@ -39,59 +38,59 @@ export default async function DashboardPage() {
         <Card className="bg-gradient-to-br from-blue-500 to-blue-600">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">
-              Total Appointments
+              Total Invoices
             </CardTitle>
             <Calendar className="h-4 w-4 text-white" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">
-              {totalAppointments}
-            </div>
+            <div className="text-2xl font-bold text-white">{totalInvoices}</div>
             <p className="text-xs text-blue-100">
-              +{stats.appointmentGrowth}% from last month
+              +{stats.paymentRate}% from last month
             </p>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-purple-500 to-purple-600">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">
-              Total USERs
+              Total Customers
             </CardTitle>
             <Users2 className="h-4 w-4 text-white" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalUSERs}</div>
+            <div className="text-2xl font-bold text-white">
+              {totalCustomers}
+            </div>
             <p className="text-xs text-purple-100">
-              +{stats.USERGrowth}% from last month
+              +{stats.customerGrowth}% from last month
             </p>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-amber-500 to-amber-600">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">
-              Total Services
+              Total Revenue
             </CardTitle>
             <Activity className="h-4 w-4 text-white" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalServices}</div>
+            <div className="text-2xl font-bold text-white">${totalRevenue}</div>
             <p className="text-xs text-amber-100">
-              +{stats.completionRate}% from last month
+              +{stats.revenueGrowth}% from last month
             </p>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-green-500 to-green-600">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">
-              Active Appointments
+              Pending Invoices
             </CardTitle>
             <Clock className="h-4 w-4 text-white" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {activeAppointments}
+              {pendingInvoices}
             </div>
-            <p className="text-xs text-green-100">Scheduled in next 24h</p>
+            <p className="text-xs text-green-100">Awaiting payment</p>
           </CardContent>
         </Card>
       </div>
@@ -101,15 +100,22 @@ export default async function DashboardPage() {
             <CardTitle>Overview</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
-            <Overview monthlyData={monthlyData} />
+            <Overview
+              monthlyData={monthlyData.map((data) => ({
+                ...data,
+                _sum: {
+                  amount: data._sum.total,
+                },
+              }))}
+            />
           </CardContent>
         </Card>
         <Card className="col-span-3">
           <CardHeader>
-            <CardTitle>Recent Appointments</CardTitle>
+            <CardTitle>Recent Invoices</CardTitle>
           </CardHeader>
           <CardContent>
-            <RecentAppointments />
+            <RecentInvoices />
           </CardContent>
         </Card>
       </div>
