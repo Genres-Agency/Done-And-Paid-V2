@@ -76,7 +76,7 @@ export const config = {
             email: user.email,
             name: user.name,
             image: user.image,
-            role: UserRole.PATIENT,
+            role: UserRole.USER,
           },
         });
         return true;

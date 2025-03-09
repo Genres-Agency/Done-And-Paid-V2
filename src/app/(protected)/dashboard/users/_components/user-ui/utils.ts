@@ -27,13 +27,13 @@ export const getAvailableRoles = (
       UserRole.ADMIN,
       UserRole.DENTIST,
       UserRole.STAFF,
-      UserRole.PATIENT,
+      UserRole.USER,
       UserRole.SUPERADMIN,
     ];
   }
 
   if (currentUserRole === UserRole.ADMIN) {
-    return [UserRole.PATIENT, UserRole.STAFF, UserRole.ADMIN];
+    return [UserRole.USER, UserRole.STAFF, UserRole.ADMIN];
   }
 
   return [];

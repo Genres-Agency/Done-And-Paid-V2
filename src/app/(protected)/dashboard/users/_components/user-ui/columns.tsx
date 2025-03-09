@@ -62,7 +62,7 @@ const getRoleColor = (role: UserRole) => {
       return "text-green-700 bg-green-50 dark:text-green-300 dark:bg-green-900/30 border border-green-200 dark:border-green-800";
     case UserRole.STAFF:
       return "text-gray-700 bg-gray-50 dark:text-gray-300 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-800";
-    case UserRole.PATIENT:
+    case UserRole.USER:
       return "text-yellow-700 bg-yellow-50 dark:text-yellow-300 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800";
     case UserRole.BANNED:
       return "text-red-700 bg-red-50 dark:text-red-300 dark:bg-red-900/30 border border-red-200 dark:border-red-800";
@@ -151,7 +151,7 @@ const RoleCell = ({ row }: { row: any }) => {
             {role === UserRole.ADMIN && <Shield className="h-4 w-4" />}
             {role === UserRole.DENTIST && <DockIcon className="h-4 w-4" />}
             {role === UserRole.STAFF && <User2 className="h-4 w-4" />}
-            {role === UserRole.PATIENT && (
+            {role === UserRole.USER && (
               <PanelTopInactiveIcon className="h-4 w-4" />
             )}
             {role}

@@ -13,148 +13,53 @@ datasource db {
 enum UserRole {
   SUPERADMIN
   ADMIN
-  DENTIST
-  STAFF
-  PATIENT
+  USER
+  MANAGER
+  ACCOUNTANT
+  SALESPERSON
   BANNED
 }
 
-enum AppointmentStatus {
-  SCHEDULED
-  CONFIRMED
-  COMPLETED
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIALLY_PAID
+  OVERDUE
   CANCELLED
 }
 
-enum MediaType {
-  IMAGE
-  VIDEO
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CREDIT_CARD
+  DEBIT_CARD
+  CHEQUE
+  ONLINE
 }
 
-enum BlogStatus {
-  PUBLISHED
-  PRIVATE
-  SCHEDULED
+enum TransactionType {
+  INCOME
+  EXPENSE
+  REFUND
 }
 
-enum ReviewStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum ServiceStatus {
-  PUBLISHED
-  PRIVATE
-}
-
-model Branch {
-  id           String        @id @default(cuid())
-  nameEn       String
-  nameBn       String
-  addressEn    String
-  addressBn    String
-  phoneNumber  String
-  email        String?
-  openingHours String?
-  image        String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  users        User[]
-  appointments Appointment[]
-}
-
-model Review {
-  id        String       @id @default(cuid())
-  rating    Int
-  commentEn String?
-  commentBn String?
-  status    ReviewStatus @default(PENDING)
-  userId    String?
-  mediaId   String? // Foreign key for Media
-  user      User?        @relation(fields: [userId], references: [id])
-  media     Media?       @relation(fields: [mediaId], references: [id])
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-}
-
-model Service {
-  id            String        @id @default(cuid())
-  titleEn       String
-  titleBn       String
-  descriptionEn String
-  descriptionBn String
-  price         Float
-  duration      String
-  mediaId       String? // Foreign key for Media
-  media         Media?        @relation(fields: [mediaId], references: [id])
-  status        ServiceStatus @default(PUBLISHED)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  appointments  Appointment[]
-}
-
-model Blog {
-  id          String     @id @default(cuid())
-  titleEn     String
-  titleBn     String
-  slugEn      String     @unique
-  slugBn      String     @unique
-  contentEn   String
-  contentBn   String
-  categoryEn  String?
-  categoryBn  String?
-  mediaId     String? // Foreign key for Media
-  media       Media?     @relation(fields: [mediaId], references: [id])
-  status      BlogStatus @default(PUBLISHED)
-  scheduledAt DateTime? // This field will store the scheduled publication time
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-}
-
-model Appointment {
-  id        String            @id @default(cuid())
-  patientId String?
-  serviceId String?
-  dentistId String?
-  branchId  String?
-  name      String
-  phone     String
-  email     String?
-  date      DateTime?
-  address   String?
-  status    AppointmentStatus @default(SCHEDULED)
-  notes     String?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-
-  patient User?    @relation("PatientAppointments", fields: [patientId], references: [id])
-  dentist User?    @relation("DentistAppointments", fields: [dentistId], references: [id])
-  service Service? @relation(fields: [serviceId], references: [id])
-  branch  Branch?  @relation(fields: [branchId], references: [id])
-}
-
-// Update User model to include branch relationship and reviews
 model User {
-  id                 String          @id @default(cuid())
+  id                 String        @id @default(cuid())
   name               String?
-  email              String?         @unique
+  email              String?       @unique
   password           String?
-  role               UserRole        @default(PATIENT)
+  role               UserRole      @default(USER)
   accounts           Account[]
   image              String?
   phoneNumber        String?
   address            String?
   bio                String?
-  branchId           String?
-  branch             Branch?         @relation(fields: [branchId], references: [id])
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-  isTwoFactorEnabled Boolean         @default(false)
-  appointments       Appointment[]   @relation("PatientAppointments")
-  dentistSchedule    Appointment[]   @relation("DentistAppointments")
-  medicalRecords     MedicalRecord[]
-  reviews            Review[]
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  isTwoFactorEnabled Boolean       @default(false)
+  invoicesCreated    Invoice[]     @relation("CreatedBy")
+  invoicesApproved   Invoice[]     @relation("ApprovedBy")
+  transactions       Transaction[]
 }
 
 model Account {
@@ -176,30 +81,117 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-model Media {
+model Customer {
   id          String    @id @default(cuid())
-  title       String
-  url         String
-  type        MediaType
-  description String?
-  size        Int // in bytes
-  mimeType    String // e.g., "image/jpeg", "video/mp4"
+  name        String
+  email       String?
+  phoneNumber String?
+  address     String?
+  company     String?
+  taxNumber   String?
+  notes       String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  Blog        Blog[]
-  Service     Service[]
-  Review      Review[]
+  invoices    Invoice[]
 }
 
-model MedicalRecord {
-  id           String   @id @default(cuid())
-  patientId    String
-  diagnosis    String
-  treatment    String
-  prescription String?
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model Supplier {
+  id          String    @id @default(cuid())
+  name        String
+  email       String?
+  phoneNumber String?
+  address     String?
+  company     String?
+  taxNumber   String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
 
-  patient User @relation(fields: [patientId], references: [id])
+model Product {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  sku          String        @unique
+  price        Float
+  cost         Float
+  supplierId   String
+  supplier     Supplier      @relation(fields: [supplierId], references: [id])
+  inventory    Inventory?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  invoiceItems InvoiceItem[]
+}
+
+model Inventory {
+  id        String   @id @default(cuid())
+  productId String   @unique
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  minStock  Int      @default(10)
+  maxStock  Int?
+  location  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  customerId    String
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  items         InvoiceItem[]
+  subtotal      Float
+  tax           Float
+  discount      Float         @default(0)
+  total         Float
+  notes         String?
+  dueDate       DateTime
+  paymentStatus PaymentStatus @default(PENDING)
+  createdById   String
+  createdBy     User          @relation("CreatedBy", fields: [createdById], references: [id])
+  approvedById  String?
+  approvedBy    User?         @relation("ApprovedBy", fields: [approvedById], references: [id])
+  payments      Payment[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model InvoiceItem {
+  id        String   @id @default(cuid())
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Float
+  total     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  invoiceId     String
+  invoice       Invoice       @relation(fields: [invoiceId], references: [id])
+  amount        Float
+  paymentMethod PaymentMethod
+  reference     String?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  type        TransactionType
+  amount      Float
+  description String?
+  date        DateTime
+  reference   String?
+  userId      String
+  user        User            @relation(fields: [userId], references: [id])
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 }

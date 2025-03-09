@@ -38,7 +38,7 @@ export const navItems: NavItem[] = [
     ],
   },
   {
-    title: "Patients",
+    title: "USERs",
     icon: "users",
     shortcut: ["g", "p"],
     allowedRoles: [
@@ -48,9 +48,9 @@ export const navItems: NavItem[] = [
       UserRole.STAFF,
     ],
     items: [
-      { title: "All Patients", url: "/dashboard/patients" },
-      { title: "Add Patient", url: "/dashboard/patients/add" },
-      { title: "Medical Records", url: "/dashboard/patients/records" },
+      { title: "All USERs", url: "/dashboard/USERs" },
+      { title: "Add USER", url: "/dashboard/USERs/add" },
+      { title: "Medical Records", url: "/dashboard/USERs/records" },
     ],
   },
   {
@@ -91,7 +91,7 @@ export const navItems: NavItem[] = [
     items: [
       { title: "Add User", url: "/dashboard/users/add-user" },
       { title: "All User", url: "/dashboard/users" },
-      { title: "All Patient", url: "/dashboard/users/patient" },
+      { title: "All USER", url: "/dashboard/users/USER" },
       { title: "All Dentist", url: "/dashboard/users/dentist" },
       { title: "Admins", url: "/dashboard/users/admins" },
     ],
@@ -103,7 +103,7 @@ export const navItems: NavItem[] = [
     allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN],
     items: [
       { title: "Financial Reports", url: "/dashboard/reports/financial" },
-      { title: "Patient Statistics", url: "/dashboard/reports/patients" },
+      { title: "USER Statistics", url: "/dashboard/reports/USERs" },
       { title: "Treatment Analytics", url: "/dashboard/reports/treatments" },
       { title: "Performance Metrics", url: "/dashboard/reports/performance" },
     ],
@@ -119,7 +119,7 @@ export const navItems: NavItem[] = [
       UserRole.STAFF,
     ],
     items: [
-      { title: "Patient Messages", url: "/dashboard/communications/messages" },
+      { title: "USER Messages", url: "/dashboard/communications/messages" },
       {
         title: "Appointment Reminders",
         url: "/dashboard/communications/reminders",

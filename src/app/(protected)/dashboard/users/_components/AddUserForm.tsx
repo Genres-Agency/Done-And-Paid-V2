@@ -50,7 +50,7 @@ const formSchema = z.object({
     UserRole.ADMIN,
     UserRole.DENTIST,
     UserRole.STAFF,
-    UserRole.PATIENT,
+    UserRole.USER,
   ]),
 });
 
@@ -75,7 +75,7 @@ export default function AddUserForm() {
       name: "",
       email: "",
       password: "",
-      role: UserRole.PATIENT,
+      role: UserRole.USER,
     },
   });
 

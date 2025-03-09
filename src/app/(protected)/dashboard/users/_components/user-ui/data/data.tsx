@@ -24,8 +24,8 @@ export const getCategoryOptions = (categories: any[]) => {
 
 export const userRoles = [
   {
-    value: UserRole.PATIENT,
-    label: "Patient",
+    value: UserRole.USER,
+    label: "USER",
     iconName: "user",
   },
   {

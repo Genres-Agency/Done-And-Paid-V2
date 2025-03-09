@@ -25,12 +25,15 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/src/components/ui/tabs";
-import { format, parseISO, startOfMonth } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 
 interface MonthlyData {
   createdAt: Date;
   _count: {
     id: number;
+  };
+  _sum: {
+    amount: number;
   };
 }
 
@@ -42,13 +45,13 @@ export function Overview({ monthlyData }: { monthlyData: MonthlyData[] }) {
 
     const existingMonth = acc.find((d) => d.name === monthKey);
     if (existingMonth) {
-      existingMonth.total += item._count.id;
-      existingMonth.articles += item._count.id;
+      existingMonth.invoices += item._count.id;
+      existingMonth.revenue += item._sum.amount || 0;
     } else {
       acc.push({
         name: monthKey,
-        total: item._count.id,
-        articles: item._count.id,
+        invoices: item._count.id,
+        revenue: item._sum.amount || 0,
       });
     }
     return acc;
@@ -64,7 +67,7 @@ export function Overview({ monthlyData }: { monthlyData: MonthlyData[] }) {
       <TabsContent value="bar" className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Appointment Trends</CardTitle>
+            <CardTitle>Invoice Trends</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={350}>
@@ -85,16 +88,16 @@ export function Overview({ monthlyData }: { monthlyData: MonthlyData[] }) {
                 />
                 <Tooltip />
                 <Bar
-                  dataKey="total"
+                  dataKey="invoices"
                   fill="hsl(var(--chart-1))"
                   radius={[4, 4, 0, 0]}
-                  name="Total Appointments"
+                  name="Total Invoices"
                 />
                 <Bar
-                  dataKey="articles"
+                  dataKey="revenue"
                   fill="hsl(var(--chart-2))"
                   radius={[4, 4, 0, 0]}
-                  name="Completed Appointments"
+                  name="Revenue"
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -104,7 +107,7 @@ export function Overview({ monthlyData }: { monthlyData: MonthlyData[] }) {
       <TabsContent value="line" className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Service Growth</CardTitle>
+            <CardTitle>Revenue Growth</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={350}>
@@ -126,17 +129,17 @@ export function Overview({ monthlyData }: { monthlyData: MonthlyData[] }) {
                 <Tooltip />
                 <Line
                   type="monotone"
-                  dataKey="total"
+                  dataKey="invoices"
                   stroke="hsl(var(--chart-3))"
                   strokeWidth={2}
-                  name="Total Appointments"
+                  name="Total Invoices"
                 />
                 <Line
                   type="monotone"
-                  dataKey="articles"
+                  dataKey="revenue"
                   stroke="hsl(var(--chart-4))"
                   strokeWidth={2}
-                  name="Completed Appointments"
+                  name="Revenue"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -146,7 +149,7 @@ export function Overview({ monthlyData }: { monthlyData: MonthlyData[] }) {
       <TabsContent value="area" className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Appointment Distribution</CardTitle>
+            <CardTitle>Revenue Distribution</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={350}>
@@ -168,21 +171,21 @@ export function Overview({ monthlyData }: { monthlyData: MonthlyData[] }) {
                 <Tooltip />
                 <Area
                   type="monotone"
-                  dataKey="total"
+                  dataKey="invoices"
                   stackId="1"
                   stroke="hsl(var(--chart-1))"
                   fill="hsl(var(--chart-1))"
                   fillOpacity={0.2}
-                  name="Total Appointments"
+                  name="Total Invoices"
                 />
                 <Area
                   type="monotone"
-                  dataKey="articles"
+                  dataKey="revenue"
                   stackId="1"
                   stroke="hsl(var(--chart-2))"
                   fill="hsl(var(--chart-2))"
                   fillOpacity={0.2}
-                  name="Completed Appointments"
+                  name="Revenue"
                 />
               </AreaChart>
             </ResponsiveContainer>

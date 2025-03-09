@@ -9,7 +9,7 @@ import {
 import { DateRangePicker } from "./_components/date-range-picker";
 import { Calendar, Users2, Activity, Clock } from "lucide-react";
 import { fetchDashboardData } from "./data";
-import { RecentAppointments } from "./_components/recent-appointments";
+import { RecentAppointments } from "./_components/recent-invoice";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const {
     totalServices,
-    totalPatients,
+    totalUSERs,
     totalAppointments,
     activeAppointments,
     monthlyData,
@@ -55,14 +55,14 @@ export default async function DashboardPage() {
         <Card className="bg-gradient-to-br from-purple-500 to-purple-600">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">
-              Total Patients
+              Total USERs
             </CardTitle>
             <Users2 className="h-4 w-4 text-white" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalPatients}</div>
+            <div className="text-2xl font-bold text-white">{totalUSERs}</div>
             <p className="text-xs text-purple-100">
-              +{stats.patientGrowth}% from last month
+              +{stats.USERGrowth}% from last month
             </p>
           </CardContent>
         </Card>
