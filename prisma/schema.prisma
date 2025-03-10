@@ -242,3 +242,26 @@ model QuoteItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Store {
+  id                 String   @id @default(cuid())
+  name               String
+  legalName          String?
+  taxNumber          String?
+  email              String?
+  phoneNumber        String?
+  address            String?
+  city               String?
+  state              String?
+  country            String?
+  postalCode         String?
+  logo               String?
+  website            String?
+  currency           String   @default("USD")
+  businessHours      String?
+  description        String?
+  termsAndConditions String?  @db.Text
+  privacyPolicy      String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}

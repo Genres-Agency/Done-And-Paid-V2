@@ -2,6 +2,7 @@ import { Separator } from "@/src/components/ui/separator";
 import { SettingsForm } from "./_components/settings-form";
 import { ProfileForm } from "./_components/profile-form";
 import { SecurityForm } from "./_components/security-form";
+import { StoreForm } from "./_components/store-form";
 import PageContainer from "../../_components/page-container";
 import {
   Tabs,
@@ -25,6 +26,7 @@ export default async function SettingsPage() {
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="security">Security</TabsTrigger>
+            <TabsTrigger value="store">Store</TabsTrigger>
           </TabsList>
           <TabsContent value="general">
             <SettingsForm />
@@ -34,6 +36,9 @@ export default async function SettingsPage() {
           </TabsContent>
           <TabsContent value="security">
             <SecurityForm />
+          </TabsContent>
+          <TabsContent value="store">
+            <StoreForm />
           </TabsContent>
         </Tabs>
       </div>
