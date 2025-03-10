@@ -1,3 +1,5 @@
+"use client";
+
 import { Separator } from "@/src/components/ui/separator";
 import { ProfileSettingsForm } from "./_components/profile-settings-form";
 import { SecurityForm } from "./_components/security-form";
@@ -11,8 +13,21 @@ import {
 } from "@/src/components/ui/tabs";
 import { Heading } from "@/src/components/heading";
 import { Card } from "@/src/components/ui/card";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default async function SettingsPage() {
+export default function SettingsPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get("tab") || "profile"
+  );
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    router.push(`/dashboard/settings?tab=${value}`);
+  };
+
   return (
     <PageContainer>
       <div className="space-y-8">
@@ -23,28 +38,13 @@ export default async function SettingsPage() {
           />
         </div>
         <Separator className="my-6" />
-        <Card className="border-none shadow-sm">
-          <Tabs defaultValue="profile" className="w-full">
+        <Card>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
             <div className="border-b">
-              <TabsList className="w-full justify-start gap-6 rounded-none border-b-0 bg-transparent p-0">
-                <TabsTrigger
-                  value="profile"
-                  className="relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
-                >
-                  Profile
-                </TabsTrigger>
-                <TabsTrigger
-                  value="security"
-                  className="relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
-                >
-                  Security
-                </TabsTrigger>
-                <TabsTrigger
-                  value="store"
-                  className="relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
-                >
-                  Store Information
-                </TabsTrigger>
+              <TabsList className="w-full justify-start">
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+                <TabsTrigger value="security">Security</TabsTrigger>
+                <TabsTrigger value="store">Store</TabsTrigger>
               </TabsList>
             </div>
             <div className="p-6">
