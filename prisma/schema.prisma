@@ -60,6 +60,9 @@ model User {
   invoicesCreated    Invoice[]     @relation("CreatedBy")
   invoicesApproved   Invoice[]     @relation("ApprovedBy")
   transactions       Transaction[]
+  Quote              Quote[]
+  Quote              Quote[]
+  Quote              Quote[]
 }
 
 model Account {
@@ -93,6 +96,7 @@ model Customer {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   invoices    Invoice[]
+  Quote       Quote[]
 }
 
 model Supplier {
@@ -122,6 +126,7 @@ model Product {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   invoiceItems InvoiceItem[]
+  QuoteItem    QuoteItem[]
 }
 
 model Inventory {
@@ -194,4 +199,49 @@ model Transaction {
   user        User            @relation(fields: [userId], references: [id])
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+}
+
+enum QuoteStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  CONVERTED
+  EXPIRED
+}
+
+model Quote {
+  id           String      @id @default(cuid())
+  quoteNumber  String      @unique
+  customerId   String
+  customer     Customer    @relation(fields: [customerId], references: [id])
+  items        QuoteItem[]
+  subtotal     Float
+  tax          Float
+  discount     Float       @default(0)
+  total        Float
+  notes        String?
+  validUntil   DateTime
+  status       QuoteStatus @default(DRAFT)
+  createdById  String
+  createdBy    User        @relation("CreatedBy", fields: [createdById], references: [id])
+  approvedById String?
+  approvedBy   User?       @relation("ApprovedBy", fields: [approvedById], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  User         User?       @relation(fields: [userId], references: [id])
+  userId       String?
+}
+
+model QuoteItem {
+  id        String   @id @default(cuid())
+  quoteId   String
+  quote     Quote    @relation(fields: [quoteId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Float
+  total     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

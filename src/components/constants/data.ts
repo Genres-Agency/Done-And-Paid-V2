@@ -9,75 +9,56 @@ export const navItems: NavItem[] = [
     shortcut: ["g", "d"],
   },
   {
-    title: "USERs",
-    icon: "users",
+    title: "Invoices",
+    icon: "file",
+    shortcut: ["g", "i"],
+    allowedRoles: [
+      UserRole.ADMIN,
+      UserRole.SUPERADMIN,
+      UserRole.MANAGER,
+      UserRole.ACCOUNTANT,
+    ],
+    items: [
+      { title: "Create Invoice", url: "/dashboard/invoices/create" },
+      { title: "All Invoices", url: "/dashboard/invoices" },
+      { title: "Pending Payments", url: "/dashboard/invoices/pending" },
+      { title: "Payment History", url: "/dashboard/invoices/payments" },
+    ],
+  },
+  {
+    title: "Products",
+    icon: "package",
     shortcut: ["g", "p"],
+    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.MANAGER],
+    items: [
+      { title: "Add Product", url: "/dashboard/products/add" },
+      { title: "All Products", url: "/dashboard/products" },
+      { title: "Inventory", url: "/dashboard/products/inventory" },
+    ],
+  },
+  {
+    title: "Customers",
+    icon: "users",
+    shortcut: ["g", "c"],
     allowedRoles: [
       UserRole.ADMIN,
       UserRole.SUPERADMIN,
       UserRole.MANAGER,
       UserRole.SALESPERSON,
-      UserRole.ACCOUNTANT,
     ],
     items: [
-      { title: "All USERs", url: "/dashboard/USERs" },
-      { title: "Add USER", url: "/dashboard/USERs/add" },
-      { title: "Medical Records", url: "/dashboard/USERs/records" },
+      { title: "Add Customer", url: "/dashboard/customers/add" },
+      { title: "All Customers", url: "/dashboard/customers" },
     ],
   },
   {
-    title: "Services",
-    icon: "service",
-    shortcut: ["g", "v"],
-    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.MANAGER],
-    items: [
-      { title: "Add Service", url: "/dashboard/services/post-service" },
-      { title: "All Services", url: "/dashboard/services" },
-      {
-        title: "Treatment Plans",
-        url: "/dashboard/services/treatments",
-        disabled: true,
-      },
-    ],
-  },
-  {
-    title: "Blogs & Articles",
-    icon: "blog",
-    shortcut: ["g", "i"],
-    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.MANAGER],
-    items: [
-      { title: "Add Blog", url: "/dashboard/blog/add" },
-      { title: "All Blogs", url: "/dashboard/blog" },
-      {
-        title: "Blog Categories",
-        url: "/dashboard/blog/categories",
-        disabled: true,
-      },
-    ],
-  },
-  {
-    title: "User Management",
-    icon: "staff",
+    title: "Suppliers",
+    icon: "truck",
     shortcut: ["g", "s"],
-    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN],
+    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.MANAGER],
     items: [
-      { title: "Add User", url: "/dashboard/users/add-user" },
-      { title: "All User", url: "/dashboard/users" },
-      { title: "All USER", url: "/dashboard/users/USER" },
-      { title: "All Dentist", url: "/dashboard/users/dentist" },
-      { title: "Admins", url: "/dashboard/users/admins" },
-    ],
-  },
-  {
-    title: "Reports",
-    icon: "chart",
-    shortcut: ["g", "r"],
-    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN],
-    items: [
-      { title: "Financial Reports", url: "/dashboard/reports/financial" },
-      { title: "USER Statistics", url: "/dashboard/reports/USERs" },
-      { title: "Treatment Analytics", url: "/dashboard/reports/treatments" },
-      { title: "Performance Metrics", url: "/dashboard/reports/performance" },
+      { title: "Add Supplier", url: "/dashboard/suppliers/add" },
+      { title: "All Suppliers", url: "/dashboard/suppliers" },
     ],
   },
   {
@@ -92,9 +73,9 @@ export const navItems: NavItem[] = [
       UserRole.SALESPERSON,
     ],
     items: [
-      { title: "USER Messages", url: "/dashboard/communications/messages" },
+      { title: "Messages", url: "/dashboard/communications/messages" },
       {
-        title: "Appointment Reminders",
+        title: "Payment Reminders",
         url: "/dashboard/communications/reminders",
       },
       { title: "Staff Notifications", url: "/dashboard/communications/staff" },
@@ -102,7 +83,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: "Media",
-    icon: "media",
+    icon: "image",
     shortcut: ["g", "m"],
     allowedRoles: [
       UserRole.ADMIN,
@@ -125,9 +106,40 @@ export const navItems: NavItem[] = [
     shortcut: ["g", "t"],
     allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN],
     items: [
-      { title: "Clinic Settings", url: "/dashboard/settings" },
+      { title: "Business Settings", url: "/dashboard/settings" },
       { title: "Email Templates", url: "/dashboard/settings/email" },
       { title: "System Settings", url: "/dashboard/settings/system" },
+    ],
+  },
+
+  {
+    title: "Reports",
+    icon: "barChart",
+    shortcut: ["g", "r"],
+    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.ACCOUNTANT],
+    items: [
+      { title: "Financial Reports", url: "/dashboard/reports/financial" },
+      { title: "Sales Analytics", url: "/dashboard/reports/sales" },
+      { title: "Inventory Reports", url: "/dashboard/reports/inventory" },
+      { title: "Transaction History", url: "/dashboard/reports/transactions" },
+    ],
+  },
+  {
+    title: "Quotes",
+    icon: "fileText",
+    shortcut: ["g", "q"],
+    allowedRoles: [
+      UserRole.ADMIN,
+      UserRole.SUPERADMIN,
+      UserRole.MANAGER,
+      UserRole.ACCOUNTANT,
+      UserRole.SALESPERSON,
+    ],
+    items: [
+      { title: "Create Quote", url: "/dashboard/quotes/create" },
+      { title: "All Quotes", url: "/dashboard/quotes" },
+      { title: "Pending Quotes", url: "/dashboard/quotes/pending" },
+      { title: "Expired Quotes", url: "/dashboard/quotes/expired" },
     ],
   },
 ];
