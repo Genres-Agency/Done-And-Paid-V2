@@ -81,11 +81,22 @@ export function AppSidebar() {
             <CollapsibleTrigger asChild>
               <SidebarMenuButton
                 tooltip={item.disabled ? "Coming Soon" : item.title}
-                isActive={pathname === item.url}
+                isActive={
+                  pathname === item.url ||
+                  (item.items &&
+                    item.items.some((subItem) => pathname === subItem.url))
+                }
                 className={item.disabled ? "opacity-50 cursor-not-allowed" : ""}
               >
                 {item.icon && <Icon />}
-                <span>{item.title}</span>
+                {item.url ? (
+                  <Link href={item.url || "/"}>
+                    <span>{item.title}</span>
+                  </Link>
+                ) : (
+                  <span>{item.title}</span>
+                )}
+
                 {item.disabled && (
                   <div className="ml-auto flex items-center gap-1.5 text-muted-foreground">
                     <Clock className="h-4 w-4 animate-pulse" />
@@ -103,7 +114,10 @@ export function AppSidebar() {
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton
                         asChild={!subItem.disabled}
-                        isActive={pathname === subItem.url}
+                        isActive={
+                          pathname === subItem.url ||
+                          pathname.startsWith(subItem.url + "/")
+                        }
                         className={
                           subItem.disabled
                             ? "opacity-50 cursor-not-allowed"

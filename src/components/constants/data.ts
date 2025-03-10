@@ -11,6 +11,7 @@ export const navItems: NavItem[] = [
   {
     title: "Invoices",
     icon: "file",
+    // url: "/dashboard/invoices",
     shortcut: ["g", "i"],
     allowedRoles: [
       UserRole.ADMIN,
@@ -46,6 +47,7 @@ export const navItems: NavItem[] = [
   {
     title: "Products",
     icon: "package",
+    url: "/dashboard/products",
     shortcut: ["g", "p"],
     allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.MANAGER],
     items: [

@@ -23,8 +23,8 @@ enum UserRole {
 enum PaymentStatus {
   PENDING
   PAID
-  PARTIALLY_PAID
   OVERDUE
+  PARTIALLY_PAID
   CANCELLED
 }
 

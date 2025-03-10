@@ -17,7 +17,7 @@ const Page = async () => {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold text-red-600 mb-2">Error</h2>
+        <h2 className="text-2xl font-semibold text-red-600 mb-2">Error</h2>
           <p className="text-gray-600">
             Failed to fetch services. Please try again later.
           </p>
