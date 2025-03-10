@@ -19,8 +19,7 @@ export default async function SettingsPage() {
         <div className="space-y-2">
           <Heading
             title="Settings"
-            description="  Configure your account settings, profile information, security
-            preferences, and store details."
+            description="Configure your account settings, profile information, security preferences, and store details."
           />
         </div>
         <Separator className="my-6" />
@@ -32,7 +31,7 @@ export default async function SettingsPage() {
                   value="profile"
                   className="relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
                 >
-                  Profile & General
+                  Profile
                 </TabsTrigger>
                 <TabsTrigger
                   value="security"
