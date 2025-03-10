@@ -121,18 +121,6 @@ export const navItems: NavItem[] = [
     ],
   },
   {
-    title: "Settings",
-    icon: "settings",
-    shortcut: ["g", "t"],
-    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN],
-    items: [
-      { title: "Business Settings", url: "/dashboard/settings" },
-      { title: "Email Templates", url: "/dashboard/settings/email" },
-      { title: "System Settings", url: "/dashboard/settings/system" },
-    ],
-  },
-
-  {
     title: "Reports",
     icon: "barChart",
     shortcut: ["g", "r"],
@@ -143,5 +131,12 @@ export const navItems: NavItem[] = [
       { title: "Inventory Reports", url: "/dashboard/reports/inventory" },
       { title: "Transaction History", url: "/dashboard/reports/transactions" },
     ],
+  },
+  {
+    title: "Settings",
+    icon: "settings",
+    shortcut: ["g", "t"],
+    url: "/dashboard/settings",
+    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN],
   },
 ];
