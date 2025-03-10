@@ -53,6 +53,7 @@ import {
   Truck,
   BarChart2,
   MessageSquareDashedIcon,
+  FileTextIcon,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -163,7 +164,7 @@ export const Icons = {
   categories: FolderTree,
   usersList: Users,
   lineChart: LineChart,
-  fileText: FileText,
+  fileText: FileTextIcon,
   dollarSign: DollarSign,
   bellRing: BellRing,
 };
