@@ -60,9 +60,8 @@ model User {
   invoicesCreated    Invoice[]     @relation("CreatedBy")
   invoicesApproved   Invoice[]     @relation("ApprovedBy")
   transactions       Transaction[]
-  Quote              Quote[]
-  Quote              Quote[]
-  Quote              Quote[]
+  quotesCreated      Quote[]       @relation("QuoteCreatedBy")
+  quotesApproved     Quote[]       @relation("QuoteApprovedBy")
 }
 
 model Account {
@@ -224,13 +223,11 @@ model Quote {
   validUntil   DateTime
   status       QuoteStatus @default(DRAFT)
   createdById  String
-  createdBy    User        @relation("CreatedBy", fields: [createdById], references: [id])
+  createdBy    User        @relation("QuoteCreatedBy", fields: [createdById], references: [id])
   approvedById String?
-  approvedBy   User?       @relation("ApprovedBy", fields: [approvedById], references: [id])
+  approvedBy   User?       @relation("QuoteApprovedBy", fields: [approvedById], references: [id])
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
-  User         User?       @relation(fields: [userId], references: [id])
-  userId       String?
 }
 
 model QuoteItem {
