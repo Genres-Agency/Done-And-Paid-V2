@@ -2,6 +2,10 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { UserRole } from "@prisma/client";
 import CreateInvoiceForm from "../_components/create-invoice-form";
+import { Heading } from "@/src/components/heading";
+import Link from "next/link";
+import { Separator } from "@/src/components/ui/separator";
+import PageContainer from "../../../_components/page-container";
 
 export const metadata: Metadata = {
   title: "Create Invoice | Done & Paid",
@@ -17,9 +21,23 @@ const allowedRoles = [
 
 export default async function CreateInvoicePage() {
   return (
-    <div className="container mx-auto py-6">
-      <h1 className="text-2xl font-bold mb-6">Create New Invoice</h1>
-      <CreateInvoiceForm />
-    </div>
+    <PageContainer>
+      <div className="space-y-4">
+        <div className="flex items-start justify-between">
+          <Heading
+            title={`Create New Invoices`}
+            description="Create your invoices"
+          />
+          <Link
+            href="/dashboard/invoices/create"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md"
+          >
+            View Invoice
+          </Link>
+        </div>
+        <Separator />
+        <CreateInvoiceForm />
+      </div>
+    </PageContainer>
   );
 }
