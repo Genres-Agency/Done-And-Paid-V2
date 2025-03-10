@@ -91,11 +91,27 @@ export const config = {
 
     async session({ token, session }: { token: JWT; session: Session }) {
       if (token.sub && session.user) {
-        session.user.id = token.sub;
-        session.user.name = token.name as string;
-        session.user.email = token.email as string;
-        session.user.role = token.role as UserRole;
-        session.user.image = token.picture as string | undefined;
+        const user = await db.user.findUnique({
+          where: { id: token.sub },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            image: true,
+            phoneNumber: true,
+            address: true,
+            bio: true,
+            isTwoFactorEnabled: true,
+          },
+        });
+
+        if (user) {
+          session.user = {
+            ...session.user,
+            ...user,
+          };
+        }
       }
       return session;
     },

@@ -95,9 +95,9 @@ export function ProfileSettingsForm() {
     defaultValues: {
       name: user?.name || "",
       email: user?.email || "",
-      phoneNumber: "",
-      address: "",
-      bio: "",
+      phoneNumber: user?.phoneNumber || "",
+      address: user?.address || "",
+      bio: user?.bio || "",
       image: user?.image || "",
     },
   });
@@ -139,35 +139,55 @@ export function ProfileSettingsForm() {
   };
 
   const handleSaveImage = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      toast.error("Please select an image first");
+      return;
+    }
 
     try {
-      const imageUrl = await uploadToImageBB(selectedFile);
-      form.setValue("image", imageUrl);
-      setShowMediaSelector(false);
-      setSelectedFile(null);
-      setPreviewUrl(null);
-      toast.success("Profile picture updated successfully");
+      startTransition(async () => {
+        const imageUrl = await uploadToImageBB(selectedFile);
+        const currentFormValues = form.getValues();
+        const response = await settings({
+          ...currentFormValues,
+          image: imageUrl,
+        });
+
+        if (response.error) {
+          toast.error(response.error);
+          return;
+        }
+
+        await update();
+        initialValues.current = { ...initialValues.current, image: imageUrl };
+        setShowMediaSelector(false);
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        setIsChanged(false);
+        toast.success("Profile picture updated successfully");
+      });
     } catch (error) {
       toast.error("Failed to upload image");
     }
   };
 
   const onSubmit = async (values: ProfileFormValues) => {
-    startTransition(() => {
-      settings(values)
-        .then((data) => {
-          if (data.error) {
-            toast.error(data.error);
-          }
-          if (data.success) {
-            toast.success(data.success);
-            update();
-            initialValues.current = values;
-            setIsChanged(false);
-          }
-        })
-        .catch(() => toast.error("Something went wrong!"));
+    startTransition(async () => {
+      try {
+        const response = await settings(values);
+
+        if (response.error) {
+          toast.error(response.error);
+          return;
+        }
+
+        await update();
+        initialValues.current = values;
+        setIsChanged(false);
+        toast.success("Profile updated successfully");
+      } catch (error) {
+        toast.error("Something went wrong!");
+      }
     });
   };
 
@@ -226,13 +246,28 @@ export function ProfileSettingsForm() {
           <AvatarFallback>{user?.name?.[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="space-y-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowMediaSelector(true)}
-            disabled={isPending}
-          >
-            Change Picture
-          </Button>
+          {!selectedFile ? (
+            <Button
+              variant="outline"
+              onClick={() => setShowMediaSelector(true)}
+              disabled={isPending}
+            >
+              Change Picture
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={handleConceal}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleSaveImage} disabled={isPending}>
+                {isPending ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          )}
           <p className="text-sm text-muted-foreground">
             JPG, GIF or PNG. Max size of 2MB.
           </p>

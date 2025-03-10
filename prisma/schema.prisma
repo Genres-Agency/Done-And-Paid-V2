@@ -265,3 +265,20 @@ model Store {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model Media {
+  id          String    @id @default(cuid())
+  title       String
+  url         String
+  type        MediaType
+  description String?
+  size        Int
+  mimeType    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}

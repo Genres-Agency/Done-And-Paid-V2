@@ -38,6 +38,11 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
     ...(values.isTwoFactorEnabled !== undefined && {
       isTwoFactorEnabled: values.isTwoFactorEnabled,
     }),
+    ...(values.phoneNumber !== undefined && {
+      phoneNumber: values.phoneNumber,
+    }),
+    ...(values.address !== undefined && { address: values.address }),
+    ...(values.bio !== undefined && { bio: values.bio }),
   };
 
   // Store update data
