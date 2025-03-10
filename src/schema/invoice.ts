@@ -27,6 +27,7 @@ export const InvoiceSchema = z.object({
   customerPhone: z.string().min(1, "Customer phone is required"),
   customerAddress: z.string().min(1, "Customer address is required"),
   customerShippingAddress: z.string().optional(),
+  customerLogo: z.string().optional(),
   customerId: z.string().optional(),
   customerLoyaltyPoints: z.number().optional(),
 
@@ -53,6 +54,8 @@ export const InvoiceSchema = z.object({
     "ONLINE",
   ]),
   paidAmount: z.number().min(0, "Paid amount must be positive"),
+  discount: z.number().min(0, "Discount must be positive").optional(),
+  tax: z.number().min(0, "Tax must be positive").optional(),
   lateFeePolicy: z.string().optional(),
   advancePayment: z
     .number()

@@ -24,7 +24,7 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Separator } from "@/src/components/ui/separator";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp, Settings2 } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/src/components/ui/calendar";
 import {
@@ -41,10 +41,22 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { Switch } from "@/src/components/ui/switch";
+import { Badge } from "@/src/components/ui/badge";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/src/components/ui/collapsible";
 
 export function InvoiceForm() {
   const [isLoading, setIsLoading] = useState(true);
   const [storeData, setStoreData] = useState<any>(null);
+  const [showBusinessInfo, setShowBusinessInfo] = useState(false);
+  const [showCustomerLogo, setShowCustomerLogo] = useState(false);
+  const [showShippingAddress, setShowShippingAddress] = useState(false);
+  const [showPaymentInfo, setShowPaymentInfo] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(InvoiceSchema),
@@ -62,6 +74,27 @@ export function InvoiceForm() {
     control: form.control,
     name: "items",
   });
+
+  // Calculate totals
+  const calculateTotals = () => {
+    const items = form.getValues("items");
+    const subtotal = items.reduce(
+      (sum, item) => sum + item.quantity * item.unitPrice,
+      0
+    );
+    const discount = form.getValues("discount") || 0;
+    const tax = form.getValues("tax") || 0;
+    const discountAmount = (subtotal * discount) / 100;
+    const taxAmount = ((subtotal - discountAmount) * tax) / 100;
+    const total = subtotal - discountAmount + taxAmount;
+
+    return {
+      subtotal,
+      discountAmount,
+      taxAmount,
+      total,
+    };
+  };
 
   // Fetch store data on mount
   useEffect(() => {
@@ -99,18 +132,15 @@ export function InvoiceForm() {
 
   const onSubmit = async (values: InvoiceFormValues) => {
     try {
-      // Calculate totals
-      const subtotal = values.items.reduce(
-        (sum, item) => sum + item.quantity * item.unitPrice,
-        0
-      );
-      const total =
-        subtotal +
-        (values.items.reduce((sum, item) => sum + (item.tax || 0), 0) / 100) *
-          subtotal;
-
+      const { subtotal, discountAmount, taxAmount, total } = calculateTotals();
       // TODO: Implement invoice creation logic
-      console.log("Invoice data:", { ...values, subtotal, total });
+      console.log("Invoice data:", {
+        ...values,
+        subtotal,
+        discountAmount,
+        taxAmount,
+        total,
+      });
       toast.success("Invoice created successfully!");
     } catch (error) {
       toast.error("Failed to create invoice");
@@ -126,80 +156,92 @@ export function InvoiceForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         {/* Business Information */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Business Information</CardTitle>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowBusinessInfo(!showBusinessInfo)}
+            >
+              <Settings2 className="h-4 w-4" />
+            </Button>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="businessName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Business Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="businessTaxNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tax Number</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="businessAddress"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Address</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="businessPhone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Business Phone</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="businessEmail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Business Email</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="email" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
+          <Collapsible open={showBusinessInfo}>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="businessName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Business Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="businessTaxNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tax Number</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="businessAddress"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Business Address</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="businessPhone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Business Phone</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="businessEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Business Email</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="email" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
         </Card>
 
         {/* Customer Information */}
@@ -264,19 +306,73 @@ export function InvoiceForm() {
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="customerShippingAddress"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Shipping Address (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="flex flex-col space-y-4">
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <h4 className="text-sm font-medium">
+                    Additional Information
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    Add customer logo and shipping address
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowCustomerLogo(!showCustomerLogo);
+                    setShowShippingAddress(!showShippingAddress);
+                  }}
+                >
+                  {showCustomerLogo ? "Hide" : "Show"}
+                </Button>
+              </div>
+              {(showCustomerLogo || showShippingAddress) && (
+                <div className="space-y-4 rounded-lg border p-4">
+                  {showCustomerLogo && (
+                    <FormField
+                      control={form.control}
+                      name="customerLogo"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Customer Logo</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  // Handle file upload here
+                                  field.onChange(file);
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                  {showShippingAddress && (
+                    <FormField
+                      control={form.control}
+                      name="customerShippingAddress"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Shipping Address</FormLabel>
+                          <FormControl>
+                            <Textarea {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </div>
               )}
-            />
+            </div>
           </CardContent>
         </Card>
 
@@ -428,7 +524,7 @@ export function InvoiceForm() {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-3">
                   <FormField
                     control={form.control}
                     name={`items.${index}.name`}
@@ -442,21 +538,6 @@ export function InvoiceForm() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name={`items.${index}.description`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid gap-4 md:grid-cols-4">
                   <FormField
                     control={form.control}
                     name={`items.${index}.quantity`}
@@ -498,48 +579,6 @@ export function InvoiceForm() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name={`items.${index}.discount`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Discount (%)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`items.${index}.tax`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tax (%)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
               </div>
             ))}
@@ -553,123 +592,275 @@ export function InvoiceForm() {
               <Plus className="mr-2 h-4 w-4" />
               Add Item
             </Button>
+
+            {/* Totals */}
+            <div className="mt-6 space-y-2 rounded-lg border p-4">
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span>{calculateTotals().subtotal.toFixed(2)}</span>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="discount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Discount</FormLabel>
+                      <div className="flex gap-2">
+                        <FormControl>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(
+                                value === "percentage" ? "percentage" : "fixed"
+                              );
+                            }}
+                            defaultValue="percentage"
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="percentage">
+                                Percentage (%)
+                              </SelectItem>
+                              <SelectItem value="fixed">
+                                Fixed Amount
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="Amount"
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value);
+                              field.onChange(value);
+                            }}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="tax"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tax</FormLabel>
+                      <div className="flex gap-2">
+                        <FormControl>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(
+                                value === "percentage" ? "percentage" : "fixed"
+                              );
+                            }}
+                            defaultValue="percentage"
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="percentage">
+                                Percentage (%)
+                              </SelectItem>
+                              <SelectItem value="fixed">
+                                Fixed Amount
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="Amount"
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value);
+                              field.onChange(value);
+                            }}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex justify-between">
+                <span>Discount Amount:</span>
+                <span>{calculateTotals().discountAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Tax Amount:</span>
+                <span>{calculateTotals().taxAmount.toFixed(2)}</span>
+              </div>
+              <Separator />
+              <div className="flex justify-between font-bold">
+                <span>Total:</span>
+                <span>{calculateTotals().total.toFixed(2)}</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         {/* Payment Information */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Payment Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="paymentMethod"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Payment Method</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select payment method" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="CASH">Cash</SelectItem>
-                      <SelectItem value="BANK_TRANSFER">
-                        Bank Transfer
-                      </SelectItem>
-                      <SelectItem value="CREDIT_CARD">Credit Card</SelectItem>
-                      <SelectItem value="DEBIT_CARD">Debit Card</SelectItem>
-                      <SelectItem value="CHEQUE">Cheque</SelectItem>
-                      <SelectItem value="ONLINE">Online Payment</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowPaymentInfo(!showPaymentInfo)}
+            >
+              {showPaymentInfo ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
               )}
-            />
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="paidAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Paid Amount</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="installmentOption"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        Installment Payment
-                      </FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
+            </Button>
+          </CardHeader>
+          <Collapsible open={showPaymentInfo}>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="paymentMethod"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Payment Method</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select payment method" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="CASH">Cash</SelectItem>
+                          <SelectItem value="BANK_TRANSFER">
+                            Bank Transfer
+                          </SelectItem>
+                          <SelectItem value="CREDIT_CARD">
+                            Credit Card
+                          </SelectItem>
+                          <SelectItem value="DEBIT_CARD">Debit Card</SelectItem>
+                          <SelectItem value="CHEQUE">Cheque</SelectItem>
+                          <SelectItem value="ONLINE">Online Payment</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="paidAmount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Paid Amount</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseFloat(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="installmentOption"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            Installment Payment
+                          </FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
         </Card>
 
         {/* Notes & Terms */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Notes & Terms</CardTitle>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setShowNotes(!showNotes);
+                setShowTerms(!showTerms);
+              }}
+            >
+              {showNotes ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Additional Notes</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="termsAndConditions"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Terms & Conditions</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
+          <Collapsible open={showNotes}>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Additional Notes</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="termsAndConditions"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Terms & Conditions</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
         </Card>
 
         <Button type="submit">Create Invoice</Button>
