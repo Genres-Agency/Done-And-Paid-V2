@@ -126,28 +126,34 @@ export function StoreForm({ initialData }: StoreFormProps) {
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Store Information</CardTitle>
+    <Card className="w-full border-none shadow-sm">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-2xl font-semibold tracking-tight">
+          Store Information
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
                 name="storeName"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Store Name</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Store Name
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ""}
                         placeholder="Enter store name"
                         disabled={isPending}
+                        className="transition-colors focus:border-primary/50"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -155,36 +161,44 @@ export function StoreForm({ initialData }: StoreFormProps) {
                 control={form.control}
                 name="storeLegalName"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Legal Name</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Legal Name
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ""}
                         placeholder="Enter legal name"
                         disabled={isPending}
+                        className="transition-colors focus:border-primary/50"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
                 name="storeTaxNumber"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tax Number</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Tax Number
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ""}
                         placeholder="Enter tax number"
                         disabled={isPending}
+                        className="transition-colors focus:border-primary/50"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -192,37 +206,45 @@ export function StoreForm({ initialData }: StoreFormProps) {
                 control={form.control}
                 name="storeEmail"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Store Email</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Store Email
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ""}
                         type="email"
                         placeholder="Enter store email"
                         disabled={isPending}
+                        className="transition-colors focus:border-primary/50"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
                 name="storePhoneNumber"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Phone Number
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ""}
                         placeholder="Enter phone number"
                         disabled={isPending}
+                        className="transition-colors focus:border-primary/50"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -230,17 +252,20 @@ export function StoreForm({ initialData }: StoreFormProps) {
                 control={form.control}
                 name="storeWebsite"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Website</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Website
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         value={field.value ?? ""}
                         placeholder="Enter website URL"
                         disabled={isPending}
+                        className="transition-colors focus:border-primary/50"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -250,35 +275,39 @@ export function StoreForm({ initialData }: StoreFormProps) {
               control={form.control}
               name="storeAddress"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-sm font-medium">Address</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ""}
                       placeholder="Enter store address"
                       disabled={isPending}
+                      className="transition-colors focus:border-primary/50"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FormField
                 control={form.control}
                 name="storeCity"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">City</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ""}
                         placeholder="Enter city"
                         disabled={isPending}
+                        className="transition-colors focus:border-primary/50"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -286,16 +315,18 @@ export function StoreForm({ initialData }: StoreFormProps) {
                 control={form.control}
                 name="storeState"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>State</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">State</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ""}
                         placeholder="Enter state"
                         disabled={isPending}
+                        className="transition-colors focus:border-primary/50"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -303,36 +334,44 @@ export function StoreForm({ initialData }: StoreFormProps) {
                 control={form.control}
                 name="storePostalCode"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Postal Code</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Postal Code
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ""}
                         placeholder="Enter postal code"
                         disabled={isPending}
+                        className="transition-colors focus:border-primary/50"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
                 name="storeCountry"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Country</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Country
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ""}
                         placeholder="Enter country"
                         disabled={isPending}
+                        className="transition-colors focus:border-primary/50"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -340,16 +379,20 @@ export function StoreForm({ initialData }: StoreFormProps) {
                 control={form.control}
                 name="storeCurrency"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Currency</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Currency
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ""}
                         placeholder="Enter currency (e.g., USD)"
                         disabled={isPending}
+                        className="transition-colors focus:border-primary/50"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -359,16 +402,20 @@ export function StoreForm({ initialData }: StoreFormProps) {
               control={form.control}
               name="storeBusinessHours"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Hours</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-sm font-medium">
+                    Business Hours
+                  </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ""}
                       placeholder="Enter business hours"
                       disabled={isPending}
+                      className="transition-colors focus:border-primary/50"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -377,16 +424,20 @@ export function StoreForm({ initialData }: StoreFormProps) {
               control={form.control}
               name="storeDescription"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-sm font-medium">
+                    Description
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
+                      value={field.value ?? ""}
                       placeholder="Enter store description"
                       disabled={isPending}
+                      className="min-h-[100px] transition-colors focus:border-primary/50"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -395,16 +446,20 @@ export function StoreForm({ initialData }: StoreFormProps) {
               control={form.control}
               name="storeTermsAndConditions"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Terms and Conditions</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-sm font-medium">
+                    Terms and Conditions
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
+                      value={field.value ?? ""}
                       placeholder="Enter terms and conditions"
                       disabled={isPending}
+                      className="min-h-[150px] transition-colors focus:border-primary/50"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -413,16 +468,20 @@ export function StoreForm({ initialData }: StoreFormProps) {
               control={form.control}
               name="storePrivacyPolicy"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Privacy Policy</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-sm font-medium">
+                    Privacy Policy
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
+                      value={field.value ?? ""}
                       placeholder="Enter privacy policy"
                       disabled={isPending}
+                      className="min-h-[150px] transition-colors focus:border-primary/50"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -430,7 +489,7 @@ export function StoreForm({ initialData }: StoreFormProps) {
             <Button
               type="submit"
               disabled={!isChanged || isPending}
-              className="w-full"
+              className="w-full transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPending ? "Saving..." : "Save Changes"}
             </Button>

@@ -36,6 +36,9 @@ export const SettingsSchema = z.object({
   newPassword: z.optional(z.string().min(6)),
   isTwoFactorEnabled: z.optional(z.boolean()),
   image: z.optional(z.string()),
+  phoneNumber: z.optional(z.string()),
+  address: z.optional(z.string()),
+  bio: z.optional(z.string()),
   // Store settings
   storeName: z.optional(z.string()),
   storeLegalName: z.optional(z.string()),
@@ -53,7 +56,7 @@ export const SettingsSchema = z.object({
   storeBusinessHours: z.optional(z.string()),
   storeDescription: z.optional(z.string()),
   storeTermsAndConditions: z.optional(z.string()),
-  storePrivacyPolicy: z.optional(z.string())
+  storePrivacyPolicy: z.optional(z.string()),
 });
 
 export type SettingsValues = z.infer<typeof SettingsSchema>;
