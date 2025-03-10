@@ -26,6 +26,24 @@ export const navItems: NavItem[] = [
     ],
   },
   {
+    title: "Quotes",
+    icon: "fileText",
+    shortcut: ["g", "q"],
+    allowedRoles: [
+      UserRole.ADMIN,
+      UserRole.SUPERADMIN,
+      UserRole.MANAGER,
+      UserRole.ACCOUNTANT,
+      UserRole.SALESPERSON,
+    ],
+    items: [
+      { title: "Create Quote", url: "/dashboard/quotes/create" },
+      { title: "All Quotes", url: "/dashboard/quotes" },
+      { title: "Pending Quotes", url: "/dashboard/quotes/pending" },
+      { title: "Expired Quotes", url: "/dashboard/quotes/expired" },
+    ],
+  },
+  {
     title: "Products",
     icon: "package",
     shortcut: ["g", "p"],
@@ -122,24 +140,6 @@ export const navItems: NavItem[] = [
       { title: "Sales Analytics", url: "/dashboard/reports/sales" },
       { title: "Inventory Reports", url: "/dashboard/reports/inventory" },
       { title: "Transaction History", url: "/dashboard/reports/transactions" },
-    ],
-  },
-  {
-    title: "Quotes",
-    icon: "fileText",
-    shortcut: ["g", "q"],
-    allowedRoles: [
-      UserRole.ADMIN,
-      UserRole.SUPERADMIN,
-      UserRole.MANAGER,
-      UserRole.ACCOUNTANT,
-      UserRole.SALESPERSON,
-    ],
-    items: [
-      { title: "Create Quote", url: "/dashboard/quotes/create" },
-      { title: "All Quotes", url: "/dashboard/quotes" },
-      { title: "Pending Quotes", url: "/dashboard/quotes/pending" },
-      { title: "Expired Quotes", url: "/dashboard/quotes/expired" },
     ],
   },
 ];

@@ -163,6 +163,7 @@ export const Icons = {
   categories: FolderTree,
   usersList: Users,
   lineChart: LineChart,
+  fileText: FileText,
   dollarSign: DollarSign,
   bellRing: BellRing,
 };
