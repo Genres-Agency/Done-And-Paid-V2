@@ -47,6 +47,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/src/components/ui/collapsible";
+import { LoadingPage } from "@/src/components/loading";
 
 export function InvoiceForm() {
   const [isLoading, setIsLoading] = useState(true);
@@ -148,7 +149,7 @@ export function InvoiceForm() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingPage />;
   }
 
   return (
