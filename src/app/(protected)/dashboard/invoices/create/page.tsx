@@ -1,11 +1,11 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { UserRole } from "@prisma/client";
-import CreateInvoiceForm from "../_components/create-invoice-form";
 import { Heading } from "@/src/components/heading";
 import Link from "next/link";
 import { Separator } from "@/src/components/ui/separator";
 import PageContainer from "../../../_components/page-container";
+import { InvoiceForm } from "./_components/invoice-form";
 
 export const metadata: Metadata = {
   title: "Create Invoice | Done & Paid",
@@ -36,7 +36,7 @@ export default async function CreateInvoicePage() {
           </Link>
         </div>
         <Separator />
-        <CreateInvoiceForm />
+        <InvoiceForm />
       </div>
     </PageContainer>
   );
