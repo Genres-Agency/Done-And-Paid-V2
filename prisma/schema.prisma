@@ -83,21 +83,6 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-model Customer {
-  id          String    @id @default(cuid())
-  name        String
-  email       String?
-  phoneNumber String?
-  address     String?
-  company     String?
-  taxNumber   String?
-  notes       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  invoices    Invoice[]
-  Quote       Quote[]
-}
-
 model Supplier {
   id          String    @id @default(cuid())
   name        String
@@ -140,26 +125,73 @@ model Inventory {
   updatedAt DateTime @updatedAt
 }
 
+model Customer {
+  id              String    @id @default(cuid())
+  name            String
+  email           String?
+  phoneNumber     String?
+  address         String?
+  company         String?
+  companyLogo     String?
+  taxNumber       String?
+  billingAddress  String?
+  shippingAddress String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  invoices        Invoice[]
+  Quote           Quote[]
+}
+
 model Invoice {
-  id            String        @id @default(cuid())
-  invoiceNumber String        @unique
+  id            String   @id @default(cuid())
+  invoiceNumber String   @unique
   customerId    String
-  customer      Customer      @relation(fields: [customerId], references: [id])
-  items         InvoiceItem[]
-  subtotal      Float
-  tax           Float
-  discount      Float         @default(0)
-  total         Float
-  notes         String?
-  dueDate       DateTime
-  paymentStatus PaymentStatus @default(PENDING)
-  createdById   String
-  createdBy     User          @relation("CreatedBy", fields: [createdById], references: [id])
-  approvedById  String?
-  approvedBy    User?         @relation("ApprovedBy", fields: [approvedById], references: [id])
-  payments      Payment[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  customer      Customer @relation(fields: [customerId], references: [id])
+
+  // Business Information
+  businessName      String
+  businessLogo      String?
+  businessAddress   String
+  businessPhone     String
+  businessEmail     String
+  businessWebsite   String?
+  businessTaxNumber String?
+
+  // Invoice Items (stored as JSON)
+  items Json
+
+  // Invoice Details
+  invoiceDate         DateTime
+  dueDate             DateTime
+  currency            String   @default("USD")
+  language            String   @default("en")
+  referenceNumber     String?
+  purchaseOrderNumber String?
+  salespersonName     String?
+
+  // Financial Details
+  subtotal   Float
+  tax        Float @default(0)
+  discount   Float @default(0)
+  total      Float
+  paidAmount Float @default(0)
+
+  // Additional Information
+  notes              String?
+  termsAndConditions String?
+  paymentMethod      PaymentMethod?
+  paymentStatus      PaymentStatus  @default(PENDING)
+
+  // Metadata
+  createdById  String
+  createdBy    User          @relation("CreatedBy", fields: [createdById], references: [id])
+  approvedById String?
+  approvedBy   User?         @relation("ApprovedBy", fields: [approvedById], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  InvoiceItem  InvoiceItem[]
+  Payment      Payment[]
 }
 
 model InvoiceItem {

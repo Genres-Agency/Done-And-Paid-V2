@@ -30,6 +30,10 @@ export const InvoiceSchema = z.object({
   customerLogo: z.string().optional(),
   customerId: z.string().optional(),
   customerLoyaltyPoints: z.number().optional(),
+  customerCompany: z.string().optional(),
+  customerTaxNumber: z.string().optional(),
+  customerBillingAddress: z.string().optional(),
+  customerNotes: z.string().optional(),
 
   // Invoice Details
   invoiceNumber: z.string().min(1, "Invoice number is required"),

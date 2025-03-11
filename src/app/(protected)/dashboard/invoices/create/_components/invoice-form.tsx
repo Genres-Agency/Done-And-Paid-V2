@@ -23,7 +23,15 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Separator } from "@/src/components/ui/separator";
-import { Plus, Trash2, ChevronDown, ChevronUp, Settings2 } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  Settings2,
+  EyeOff,
+  Eye,
+} from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/src/components/ui/calendar";
 import {
@@ -44,7 +52,6 @@ import {
   Collapsible,
   CollapsibleContent,
 } from "@/src/components/ui/collapsible";
-import { LoadingPage } from "@/src/components/loading";
 import { MediaSelectorModal } from "@/src/app/(protected)/dashboard/media/_components/MediaSelectorModal";
 import { BusinessInfoSkeleton } from "./business-info-skeleton";
 
@@ -59,10 +66,7 @@ import { upsertCustomer } from "../../../customers/customer.action";
 export function InvoiceForm() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [storeData, setStoreData] = useState<any>(null);
   const [showBusinessInfo, setShowBusinessInfo] = useState(false);
-  const [showCustomerLogo, setShowCustomerLogo] = useState(false);
-  const [showShippingAddress, setShowShippingAddress] = useState(false);
   const [showPaymentInfo, setShowPaymentInfo] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
@@ -71,12 +75,9 @@ export function InvoiceForm() {
     useState(false);
   const [showCustomerLogoSelector, setShowCustomerLogoSelector] =
     useState(false);
-  const [selectedBusinessLogo, setSelectedBusinessLogo] = useState<File | null>(
-    null
-  );
-  const [selectedCustomerLogo, setSelectedCustomerLogo] = useState<File | null>(
-    null
-  );
+  const [showAdditionalCustomerInfo, setShowAdditionalCustomerInfo] =
+    useState(false);
+
   const [previewCustomerLogo, setPreviewCustomerLogo] = useState<string | null>(
     null
   );
@@ -127,7 +128,6 @@ export function InvoiceForm() {
   };
 
   const handleBusinessLogoSelect = async (file: File | null) => {
-    setSelectedBusinessLogo(file);
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -138,7 +138,6 @@ export function InvoiceForm() {
   };
 
   const handleCustomerLogoSelect = async (file: File | null) => {
-    setSelectedCustomerLogo(file);
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -156,7 +155,6 @@ export function InvoiceForm() {
         const data = await response.json();
 
         if (data.store) {
-          setStoreData(data.store);
           setDefaultBusinessLogo(data.store.logo);
           // Set business information from store data
           form.reset({
@@ -191,22 +189,58 @@ export function InvoiceForm() {
         email: values.customerEmail,
         phoneNumber: values.customerPhone,
         address: values.customerAddress,
+        company: values.customerCompany,
+        companyLogo: values.customerLogo,
+        taxNumber: values.customerTaxNumber,
+        billingAddress: values.customerBillingAddress,
+        shippingAddress: values.customerShippingAddress,
+        notes: values.customerNotes,
       });
 
-      // Create invoice using server action
+      // Create invoice using server action with all form data
       const invoice = await createInvoice({
+        // Customer Information
         customerId: customer.id,
+
+        // Business Information
+        businessName: values.businessName,
+        businessLogo: values.businessLogo,
+        businessAddress: values.businessAddress,
+        businessPhone: values.businessPhone,
+        businessEmail: values.businessEmail,
+        businessWebsite: values.businessWebsite,
+        businessTaxNumber: values.businessTaxNumber,
+
+        // Invoice Items
         items: values.items.map((item) => ({
-          productId: "", // Since we're not using products yet
+          name: item.name,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
+          description: item.description,
         })),
+
+        // Invoice Details
+        invoiceDate: values.invoiceDate,
+        dueDate: values.dueDate,
+        currency: values.currency,
+        language: values.language,
+        referenceNumber: values.referenceNumber,
+        purchaseOrderNumber: values.purchaseOrderNumber,
+        salespersonName: values.salespersonName,
+
+        // Financial Details
         subtotal: calculateTotals().subtotal,
         tax: values.tax || 0,
         discount: values.discount || 0,
         total: calculateTotals().total,
+        paidAmount: values.paidAmount,
+
+        // Additional Information
         notes: values.notes,
-        dueDate: values.dueDate,
+        termsAndConditions: values.termsAndConditions,
+        paymentMethod: values.paymentMethod,
+
+        // Metadata
         createdById: session?.user?.id || "",
       });
 
@@ -277,7 +311,7 @@ export function InvoiceForm() {
                             alt="Business Logo"
                             width={80}
                             height={80}
-                            className="h-20 w-auto"
+                            className="h-20 w-auto rounded-md"
                           />
                           <Button
                             type="button"
@@ -286,7 +320,8 @@ export function InvoiceForm() {
                             className=""
                             onClick={() => setShowBusinessLogoSelector(true)}
                           >
-                            <Settings2 className="h-4 w-4" /> Custom Logo
+                            <Settings2 className="h-4 w-4" />
+                            Upload Custom Logo
                           </Button>
                         </div>
                       ) : (
@@ -376,7 +411,7 @@ export function InvoiceForm() {
 
           {/* Customer Information */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle>Customer Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -436,93 +471,124 @@ export function InvoiceForm() {
                   )}
                 />
               </div>
-              <div className="flex flex-col space-y-4">
-                <div className="flex items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <h4 className="text-sm font-medium">
-                      Additional Information
-                    </h4>
-                    <p className="text-sm text-muted-foreground">
-                      Add customer logo and shipping address
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setShowCustomerLogo(!showCustomerLogo);
-                      setShowShippingAddress(!showShippingAddress);
-                    }}
-                  >
-                    {showCustomerLogo ? "Hide" : "Show"}
-                  </Button>
-                </div>
-                {(showCustomerLogo || showShippingAddress) && (
-                  <div className="space-y-4 rounded-lg border p-4">
-                    {showCustomerLogo && (
-                      <FormField
-                        control={form.control}
-                        name="customerLogo"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Customer Logo</FormLabel>
-                            <div className="flex items-center gap-4">
-                              {previewCustomerLogo ? (
-                                <div className="relative">
-                                  <img
-                                    src={previewCustomerLogo}
-                                    alt="Customer Logo"
-                                    className="h-20 w-auto"
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="absolute -right-2 -top-2"
-                                    onClick={() => {
-                                      setPreviewCustomerLogo(null);
-                                      field.onChange("");
-                                    }}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              ) : (
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={() =>
-                                    setShowCustomerLogoSelector(true)
-                                  }
-                                >
-                                  Upload Logo
-                                </Button>
-                              )}
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
-                    {showShippingAddress && (
-                      <FormField
-                        control={form.control}
-                        name="customerShippingAddress"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Shipping Address</FormLabel>
-                            <FormControl>
-                              <Textarea {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
-                  </div>
-                )}
+
+              <div>
+                <div className="flex flex-col space-y-4">
+                  <div className="flex items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <h4 className="text-sm font-medium">
+                        Additional Information
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        Add customer logo and shipping address
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setShowAdditionalCustomerInfo(
+                          !showAdditionalCustomerInfo
+                        )
+                      }
+                    >
+                      {showAdditionalCustomerInfo ? (
+                        <span className="flex items-center gap-2">
+                          <EyeOff /> Hide
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <Eye />
+                          Show
+                        </span>
+                      )}
+                    </Button>
+                  </div>{" "}
+                </div>{" "}
               </div>
+              {showAdditionalCustomerInfo && (
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="customerCompany"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="customerLogo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Logo</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="customerTaxNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tax Number</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="customerBillingAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Billing Address</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="customerShippingAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Shipping Address</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="customerNotes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Notes</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
 

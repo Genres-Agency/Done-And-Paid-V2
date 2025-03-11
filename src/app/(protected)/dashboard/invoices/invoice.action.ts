@@ -1,21 +1,51 @@
 "use server";
 
 import prisma from "@/prisma";
-import { PaymentStatus } from "@prisma/client";
+import { PaymentStatus, PaymentMethod } from "@prisma/client";
 
 type CreateInvoiceData = {
+  // Customer Information
   customerId: string;
+
+  // Business Information
+  businessName: string;
+  businessLogo?: string;
+  businessAddress: string;
+  businessPhone: string;
+  businessEmail: string;
+  businessWebsite?: string;
+  businessTaxNumber?: string;
+
+  // Invoice Items
   items: {
-    productId: string;
+    name: string;
     quantity: number;
     unitPrice: number;
+    description?: string;
   }[];
+
+  // Invoice Details
+  invoiceDate: Date;
+  dueDate: Date;
+  currency?: string;
+  language?: string;
+  referenceNumber?: string;
+  purchaseOrderNumber?: string;
+  salespersonName?: string;
+
+  // Financial Details
   subtotal: number;
   tax: number;
   discount: number;
   total: number;
+  paidAmount?: number;
+
+  // Additional Information
   notes?: string;
-  dueDate: Date;
+  termsAndConditions?: string;
+  paymentMethod?: PaymentMethod;
+
+  // Metadata
   createdById: string;
 };
 
@@ -52,25 +82,45 @@ export async function createInvoice(data: CreateInvoiceData) {
     data: {
       invoiceNumber,
       customerId: data.customerId,
+
+      // Business Information
+      businessName: data.businessName,
+      businessLogo: data.businessLogo,
+      businessAddress: data.businessAddress,
+      businessPhone: data.businessPhone,
+      businessEmail: data.businessEmail,
+      businessWebsite: data.businessWebsite,
+      businessTaxNumber: data.businessTaxNumber,
+
+      // Invoice Items
+      items: data.items,
+
+      // Invoice Details
+      invoiceDate: data.invoiceDate || new Date(),
+      dueDate: data.dueDate,
+      currency: data.currency || "USD",
+      language: data.language || "en",
+      referenceNumber: data.referenceNumber,
+      purchaseOrderNumber: data.purchaseOrderNumber,
+      salespersonName: data.salespersonName,
+
+      // Financial Details
       subtotal: data.subtotal,
       tax: data.tax,
       discount: data.discount,
       total: data.total,
+      paidAmount: data.paidAmount || 0,
+
+      // Additional Information
       notes: data.notes,
-      dueDate: data.dueDate,
-      createdById: data.createdById,
+      termsAndConditions: data.termsAndConditions,
+      paymentMethod: data.paymentMethod,
       paymentStatus: PaymentStatus.PENDING,
-      items: {
-        create: data.items.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          total: item.quantity * item.unitPrice,
-        })),
-      },
+
+      // Metadata
+      createdById: data.createdById,
     },
     include: {
-      items: true,
       customer: true,
       createdBy: true,
     },
