@@ -63,6 +63,20 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { upsertCustomer } from "../../../customers/customer.action";
 
+// Define the type for upsertCustomer
+export type UpsertCustomerData = {
+  name: string;
+  email: string;
+  phoneNumber?: string;
+  address?: string;
+  company?: string;
+  companyLogo?: string;
+  taxNumber?: string;
+  billingAddress?: string;
+  shippingAddress?: string;
+  notes?: string;
+};
+
 export function InvoiceForm() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -195,7 +209,7 @@ export function InvoiceForm() {
         billingAddress: values.customerBillingAddress,
         shippingAddress: values.customerShippingAddress,
         notes: values.customerNotes,
-      });
+      } as UpsertCustomerData);
 
       // Create invoice using server action with all form data
       const invoice = await createInvoice({
@@ -480,7 +494,7 @@ export function InvoiceForm() {
                         Additional Information
                       </h4>
                       <p className="text-sm text-muted-foreground">
-                        Add customer logo and shipping address
+                        Add customer logo, shipping address and others data.
                       </p>
                     </div>
                     <Button
@@ -509,6 +523,37 @@ export function InvoiceForm() {
               </div>
               {showAdditionalCustomerInfo && (
                 <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    {previewCustomerLogo ? (
+                      <div className="relative">
+                        <img
+                          src={previewCustomerLogo}
+                          alt="Customer Logo"
+                          className="h-20 w-auto rounded-md"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute -right-2 -top-2"
+                          onClick={() => {
+                            setPreviewCustomerLogo(null);
+                            form.setValue("customerLogo", "");
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowCustomerLogoSelector(true)}
+                      >
+                        Upload Customer Logo
+                      </Button>
+                    )}
+                  </div>
                   <FormField
                     control={form.control}
                     name="customerCompany"
@@ -516,20 +561,10 @@ export function InvoiceForm() {
                       <FormItem>
                         <FormLabel>Company</FormLabel>
                         <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="customerLogo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Company Logo</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            className="rounded-md border-gray-300"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -542,7 +577,10 @@ export function InvoiceForm() {
                       <FormItem>
                         <FormLabel>Tax Number</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            className="rounded-md border-gray-300"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -555,7 +593,10 @@ export function InvoiceForm() {
                       <FormItem>
                         <FormLabel>Billing Address</FormLabel>
                         <FormControl>
-                          <Textarea {...field} />
+                          <Textarea
+                            {...field}
+                            className="rounded-md border-gray-300"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -568,7 +609,10 @@ export function InvoiceForm() {
                       <FormItem>
                         <FormLabel>Shipping Address</FormLabel>
                         <FormControl>
-                          <Textarea {...field} />
+                          <Textarea
+                            {...field}
+                            className="rounded-md border-gray-300"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -581,7 +625,10 @@ export function InvoiceForm() {
                       <FormItem>
                         <FormLabel>Notes</FormLabel>
                         <FormControl>
-                          <Textarea {...field} />
+                          <Textarea
+                            {...field}
+                            className="rounded-md border-gray-300"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
