@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "@/src/components/ui/button";
 import {
   Form,
@@ -41,27 +40,24 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { Switch } from "@/src/components/ui/switch";
-import { Badge } from "@/src/components/ui/badge";
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
 } from "@/src/components/ui/collapsible";
 import { LoadingPage } from "@/src/components/loading";
 import { MediaSelectorModal } from "@/src/app/(protected)/dashboard/media/_components/MediaSelectorModal";
-import { uploadToImageBB } from "@/src/lib/image-upload";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/src/components/ui/dialog";
+
 import { Printer, Download, X } from "lucide-react";
 import { InvoicePreview } from "./invoice-preview";
 import Image from "next/image";
+import { createInvoice } from "../../invoice.action";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { upsertCustomer } from "../../../customers/customer.action";
 
 export function InvoiceForm() {
+  const { data: session } = useSession();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [storeData, setStoreData] = useState<any>(null);
   const [showBusinessInfo, setShowBusinessInfo] = useState(false);
@@ -151,20 +147,6 @@ export function InvoiceForm() {
     }
   };
 
-  const handleSaveBusinessLogo = async () => {
-    if (!selectedBusinessLogo) return;
-    try {
-      const imageUrl = await uploadToImageBB(selectedBusinessLogo);
-      setCustomBusinessLogo(imageUrl);
-      form.setValue("businessLogo", imageUrl);
-      setShowBusinessLogoSelector(false);
-      setSelectedBusinessLogo(null);
-      toast.success("Custom logo set for this invoice");
-    } catch (error) {
-      toast.error("Failed to upload business logo");
-    }
-  };
-
   // Fetch store data on mount
   useEffect(() => {
     const fetchStoreData = async () => {
@@ -202,17 +184,39 @@ export function InvoiceForm() {
 
   const onSubmit = async (values: InvoiceFormValues) => {
     try {
-      const { subtotal, discountAmount, taxAmount, total } = calculateTotals();
-      // TODO: Implement invoice creation logic
-      console.log("Invoice data:", {
-        ...values,
-        subtotal,
-        discountAmount,
-        taxAmount,
-        total,
+      // Create or find customer using server action
+      const customer = await upsertCustomer({
+        name: values.customerName,
+        email: values.customerEmail,
+        phoneNumber: values.customerPhone,
+        address: values.customerAddress,
       });
+
+      // Create invoice using server action
+      const invoice = await createInvoice({
+        customerId: customer.id,
+        items: values.items.map((item) => ({
+          productId: "", // Since we're not using products yet
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+        })),
+        subtotal: calculateTotals().subtotal,
+        tax: values.tax || 0,
+        discount: values.discount || 0,
+        total: calculateTotals().total,
+        notes: values.notes,
+        dueDate: values.dueDate,
+        createdById: session?.user?.id || "",
+      });
+
+      if (!invoice) {
+        throw new Error("Failed to create invoice");
+      }
+
       toast.success("Invoice created successfully!");
+      router.push("/dashboard/invoices");
     } catch (error) {
+      console.error("Failed to create invoice:", error);
       toast.error("Failed to create invoice");
     }
   };
@@ -526,12 +530,12 @@ export function InvoiceForm() {
               <CardTitle>Invoice Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 justify-start md:grid-cols-2 ">
                 <FormField
                   control={form.control}
                   name="invoiceNumber"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col items-start justify-start">
                       <FormLabel>Invoice Number</FormLabel>
                       <FormControl>
                         <Input {...field} />
@@ -581,7 +585,7 @@ export function InvoiceForm() {
                   )}
                 />
               </div>
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 justify-start md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="dueDate"
@@ -624,8 +628,8 @@ export function InvoiceForm() {
                   control={form.control}
                   name="currency"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Currency</FormLabel>
+                    <FormItem className="flex flex-col items-start justify-start">
+                      <FormLabel className="">Currency</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
