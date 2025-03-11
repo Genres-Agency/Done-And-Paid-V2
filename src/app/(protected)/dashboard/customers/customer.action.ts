@@ -1,8 +1,7 @@
-// customer.action.ts
-
 import prisma from "@/prisma"; // Adjust the import path as necessary
 
 export async function upsertCustomer(data: {
+  id?: string;
   name: string;
   email: string;
   phoneNumber?: string;
@@ -15,7 +14,7 @@ export async function upsertCustomer(data: {
   notes?: string;
 }) {
   const customer = await prisma.customer.upsert({
-    where: { email: data.email },
+    where: { id: data.id },
     update: {
       name: data.name,
       phoneNumber: data.phoneNumber,

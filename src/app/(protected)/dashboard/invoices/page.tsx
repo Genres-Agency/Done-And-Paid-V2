@@ -10,13 +10,6 @@ export const metadata: Metadata = {
   description: "Manage all your invoices in one place",
 };
 
-const allowedRoles = [
-  UserRole.ADMIN,
-  UserRole.SUPERADMIN,
-  UserRole.MANAGER,
-  UserRole.ACCOUNTANT,
-];
-
 export default async function InvoicesPage() {
   try {
     const invoices = await getInvoices();

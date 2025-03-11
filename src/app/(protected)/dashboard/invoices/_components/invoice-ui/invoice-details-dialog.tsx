@@ -7,8 +7,14 @@ import {
   AlertDialogTitle,
 } from "@/src/components/ui/alert-dialog";
 
+type InvoiceWithCustomer = Invoice & {
+  customer: {
+    name: string;
+  };
+};
+
 interface InvoiceDetailsDialogProps {
-  row: Row<Invoice>;
+  row: Row<InvoiceWithCustomer>;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -49,7 +55,11 @@ export function InvoiceDetailsDialog({
             <h3 className="font-semibold">Customer Information</h3>
             <div className="mt-2 space-y-2">
               <p>
-                <span className="font-medium">Amount:</span> ৳
+                <span className="font-medium">Customer:</span>{" "}
+                {invoice.customer?.name || "N/A"}
+              </p>
+              <p>
+                <span className="font-medium">Amount:</span> $
                 {invoice.total.toFixed(2)}
               </p>
               <p>

@@ -35,7 +35,13 @@ import { updateInvoiceStatus } from "../../invoice.action";
 import { Invoice, PaymentStatus } from "@prisma/client";
 import { InvoiceDetailsDialog } from "./invoice-details-dialog";
 
-function StatusCell({ row }: { row: Row<Invoice> }) {
+type InvoiceWithCustomer = Invoice & {
+  customer: {
+    name: string;
+  };
+};
+
+function StatusCell({ row }: { row: Row<InvoiceWithCustomer> }) {
   const [isEditing, setIsEditing] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(
     row.getValue("paymentStatus") as PaymentStatus
@@ -106,7 +112,7 @@ function StatusCell({ row }: { row: Row<Invoice> }) {
   );
 }
 
-export const columns: ColumnDef<Invoice>[] = [
+export const columns: ColumnDef<InvoiceWithCustomer>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -153,7 +159,7 @@ export const columns: ColumnDef<Invoice>[] = [
       return (
         <div className="flex space-x-2">
           <span className="max-w-[300px] truncate font-medium">
-            {row.getValue("customer.name")}
+            {row.original.customer?.name || "N/A"}
           </span>
         </div>
       );
@@ -192,7 +198,11 @@ export const columns: ColumnDef<Invoice>[] = [
   },
 ];
 
-export function DataTableRowActions({ row }: { row: Row<Invoice> }) {
+export function DataTableRowActions({
+  row,
+}: {
+  row: Row<InvoiceWithCustomer>;
+}) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const router = useRouter();
