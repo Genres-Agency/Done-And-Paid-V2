@@ -22,6 +22,7 @@ type CreateInvoiceData = {
     quantity: number;
     unitPrice: number;
     description?: string;
+    productId?: string;
   }[];
 
   // Invoice Details
@@ -78,6 +79,17 @@ export async function createInvoice(data: CreateInvoiceData) {
     : "0001";
   const invoiceNumber = `INV-${dateStr}-${sequence}`;
 
+  // Prepare items data for JSON storage
+  const itemsJson = data.items.map((item) => ({
+    name: item.name,
+    quantity: item.quantity,
+    unitPrice: item.unitPrice,
+    description: item.description,
+    total: item.quantity * item.unitPrice,
+    productId: item.productId,
+  }));
+
+  // Create the invoice with JSON items data
   const invoice = await prisma.invoice.create({
     data: {
       invoiceNumber,
@@ -92,8 +104,8 @@ export async function createInvoice(data: CreateInvoiceData) {
       businessWebsite: data.businessWebsite,
       businessTaxNumber: data.businessTaxNumber,
 
-      // Invoice Items
-      items: data.items,
+      // Store items as JSON
+      items: itemsJson,
 
       // Invoice Details
       invoiceDate: data.invoiceDate || new Date(),
@@ -119,10 +131,23 @@ export async function createInvoice(data: CreateInvoiceData) {
 
       // Metadata
       createdById: data.createdById,
+
+      // Create InvoiceItem records for each item
+      InvoiceItem: {
+        create: data.items
+          .filter((item) => item.productId) // Only create InvoiceItem for items with productId
+          .map((item) => ({
+            productId: item.productId!,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            total: item.quantity * item.unitPrice,
+          })),
+      },
     },
     include: {
       customer: true,
       createdBy: true,
+      InvoiceItem: true,
     },
   });
 
@@ -132,11 +157,11 @@ export async function createInvoice(data: CreateInvoiceData) {
 export async function getInvoices() {
   const invoices = await prisma.invoice.findMany({
     include: {
-      items: true,
+      InvoiceItem: true,
       customer: true,
       createdBy: true,
       approvedBy: true,
-      payments: true,
+      Payment: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -150,11 +175,11 @@ export async function getInvoiceById(id: string) {
   const invoice = await prisma.invoice.findUnique({
     where: { id },
     include: {
-      items: true,
+      InvoiceItem: true,
       customer: true,
       createdBy: true,
       approvedBy: true,
-      payments: true,
+      Payment: true,
     },
   });
 
@@ -171,11 +196,11 @@ export async function getPendingInvoices() {
       paymentStatus: PaymentStatus.PENDING,
     },
     include: {
-      items: true,
+      InvoiceItem: true,
       customer: true,
       createdBy: true,
       approvedBy: true,
-      payments: true,
+      Payment: true,
     },
     orderBy: {
       dueDate: "asc",
@@ -191,11 +216,11 @@ export async function getPaymentHistory() {
       paymentStatus: PaymentStatus.PAID,
     },
     include: {
-      items: true,
+      InvoiceItem: true,
       customer: true,
       createdBy: true,
       approvedBy: true,
-      payments: true,
+      Payment: true,
     },
     orderBy: {
       updatedAt: "desc",
@@ -213,11 +238,11 @@ export async function updateInvoiceStatus(data: UpdateInvoiceStatusData) {
       approvedById: data.approvedById,
     },
     include: {
-      items: true,
+      InvoiceItem: true,
       customer: true,
       createdBy: true,
       approvedBy: true,
-      payments: true,
+      Payment: true,
     },
   });
 

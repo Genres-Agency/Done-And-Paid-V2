@@ -211,6 +211,9 @@ export function InvoiceForm() {
         notes: values.customerNotes,
       } as UpsertCustomerData);
 
+      // Calculate totals for the invoice
+      const totals = calculateTotals();
+
       // Create invoice using server action with all form data
       const invoice = await createInvoice({
         // Customer Information
@@ -231,6 +234,7 @@ export function InvoiceForm() {
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           description: item.description,
+          // Removed productId since it's not defined in the item type
         })),
 
         // Invoice Details
@@ -243,11 +247,11 @@ export function InvoiceForm() {
         salespersonName: values.salespersonName,
 
         // Financial Details
-        subtotal: calculateTotals().subtotal,
+        subtotal: totals.subtotal,
         tax: values.tax || 0,
         discount: values.discount || 0,
-        total: calculateTotals().total,
-        paidAmount: values.paidAmount,
+        total: totals.total,
+        paidAmount: values.paidAmount || 0,
 
         // Additional Information
         notes: values.notes,
@@ -476,116 +480,115 @@ export function InvoiceForm() {
                   name="customerAddress"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Billing Address</FormLabel>
+                      <FormLabel>Customer Address</FormLabel>
                       <FormControl>
-                        <Textarea {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-
-              <div>
-                <div className="flex flex-col space-y-4">
-                  <div className="flex items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <h4 className="text-sm font-medium">
-                        Additional Information
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        Add customer logo, shipping address and others data.
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setShowAdditionalCustomerInfo(
-                          !showAdditionalCustomerInfo
-                        )
-                      }
-                    >
-                      {showAdditionalCustomerInfo ? (
-                        <span className="flex items-center gap-2">
-                          <EyeOff /> Hide
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <Eye />
-                          Show
-                        </span>
-                      )}
-                    </Button>
-                  </div>{" "}
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <h4 className="text-sm font-medium">
+                      Additional Information
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      Add customer logo, shipping address and others data.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setShowAdditionalCustomerInfo(!showAdditionalCustomerInfo)
+                    }
+                  >
+                    {showAdditionalCustomerInfo ? (
+                      <span className="flex items-center gap-2">
+                        <EyeOff /> Hide
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Eye />
+                        Show
+                      </span>
+                    )}
+                  </Button>
                 </div>{" "}
-              </div>
+              </div>{" "}
               {showAdditionalCustomerInfo && (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    {previewCustomerLogo ? (
-                      <div className="relative">
-                        <img
-                          src={previewCustomerLogo}
-                          alt="Customer Logo"
-                          className="h-20 w-auto rounded-md"
-                        />
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="flex items-center gap-4">
+                      {previewCustomerLogo ? (
+                        <div className="relative">
+                          <Image
+                            src={previewCustomerLogo}
+                            alt="Customer Logo"
+                            width={80}
+                            height={80}
+                            className="h-20 w-auto rounded-md"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute -right-2 -top-2"
+                            onClick={() => {
+                              setPreviewCustomerLogo(null);
+                              form.setValue("customerLogo", "");
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
                         <Button
                           type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute -right-2 -top-2"
-                          onClick={() => {
-                            setPreviewCustomerLogo(null);
-                            form.setValue("customerLogo", "");
-                          }}
+                          variant="outline"
+                          onClick={() => setShowCustomerLogoSelector(true)}
                         >
-                          <X className="h-4 w-4" />
+                          Upload Company Logo
                         </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowCustomerLogoSelector(true)}
-                      >
-                        Upload Customer Logo
-                      </Button>
-                    )}
+                      )}
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="customerCompany"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Company Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-md border-gray-300"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="customerTaxNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tax Number</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-md border-gray-300"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />{" "}
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="customerCompany"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Company</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-md border-gray-300"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="customerTaxNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tax Number</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-md border-gray-300"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                   <FormField
                     control={form.control}
                     name="customerBillingAddress"

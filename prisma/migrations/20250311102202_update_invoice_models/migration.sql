@@ -2,13 +2,19 @@
 CREATE TYPE "UserRole" AS ENUM ('SUPERADMIN', 'ADMIN', 'USER', 'MANAGER', 'ACCOUNTANT', 'SALESPERSON', 'BANNED');
 
 -- CreateEnum
-CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'PAID', 'PARTIALLY_PAID', 'OVERDUE', 'CANCELLED');
+CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'PAID', 'OVERDUE', 'PARTIALLY_PAID', 'CANCELLED');
 
 -- CreateEnum
 CREATE TYPE "PaymentMethod" AS ENUM ('CASH', 'BANK_TRANSFER', 'CREDIT_CARD', 'DEBIT_CARD', 'CHEQUE', 'ONLINE');
 
 -- CreateEnum
 CREATE TYPE "TransactionType" AS ENUM ('INCOME', 'EXPENSE', 'REFUND');
+
+-- CreateEnum
+CREATE TYPE "QuoteStatus" AS ENUM ('DRAFT', 'PENDING', 'APPROVED', 'REJECTED', 'CONVERTED', 'EXPIRED');
+
+-- CreateEnum
+CREATE TYPE "MediaType" AS ENUM ('IMAGE', 'VIDEO');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -44,22 +50,6 @@ CREATE TABLE "Account" (
     "session_state" TEXT,
 
     CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Customer" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "email" TEXT,
-    "phoneNumber" TEXT,
-    "address" TEXT,
-    "company" TEXT,
-    "taxNumber" TEXT,
-    "notes" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -108,16 +98,52 @@ CREATE TABLE "Inventory" (
 );
 
 -- CreateTable
+CREATE TABLE "Customer" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT,
+    "phoneNumber" TEXT,
+    "address" TEXT,
+    "company" TEXT,
+    "companyLogo" TEXT,
+    "taxNumber" TEXT,
+    "billingAddress" TEXT,
+    "shippingAddress" TEXT,
+    "notes" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Invoice" (
     "id" TEXT NOT NULL,
     "invoiceNumber" TEXT NOT NULL,
     "customerId" TEXT NOT NULL,
+    "businessName" TEXT NOT NULL,
+    "businessLogo" TEXT,
+    "businessAddress" TEXT NOT NULL,
+    "businessPhone" TEXT NOT NULL,
+    "businessEmail" TEXT NOT NULL,
+    "businessWebsite" TEXT,
+    "businessTaxNumber" TEXT,
+    "items" JSONB NOT NULL,
+    "invoiceDate" TIMESTAMP(3) NOT NULL,
+    "dueDate" TIMESTAMP(3) NOT NULL,
+    "currency" TEXT NOT NULL DEFAULT 'USD',
+    "language" TEXT NOT NULL DEFAULT 'en',
+    "referenceNumber" TEXT,
+    "purchaseOrderNumber" TEXT,
+    "salespersonName" TEXT,
     "subtotal" DOUBLE PRECISION NOT NULL,
-    "tax" DOUBLE PRECISION NOT NULL,
+    "tax" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "discount" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "total" DOUBLE PRECISION NOT NULL,
+    "paidAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "notes" TEXT,
-    "dueDate" TIMESTAMP(3) NOT NULL,
+    "termsAndConditions" TEXT,
+    "paymentMethod" "PaymentMethod",
     "paymentStatus" "PaymentStatus" NOT NULL DEFAULT 'PENDING',
     "createdById" TEXT NOT NULL,
     "approvedById" TEXT,
@@ -170,6 +196,81 @@ CREATE TABLE "Transaction" (
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Quote" (
+    "id" TEXT NOT NULL,
+    "quoteNumber" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL,
+    "subtotal" DOUBLE PRECISION NOT NULL,
+    "tax" DOUBLE PRECISION NOT NULL,
+    "discount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "total" DOUBLE PRECISION NOT NULL,
+    "notes" TEXT,
+    "validUntil" TIMESTAMP(3) NOT NULL,
+    "status" "QuoteStatus" NOT NULL DEFAULT 'DRAFT',
+    "createdById" TEXT NOT NULL,
+    "approvedById" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Quote_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "QuoteItem" (
+    "id" TEXT NOT NULL,
+    "quoteId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "unitPrice" DOUBLE PRECISION NOT NULL,
+    "total" DOUBLE PRECISION NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "QuoteItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Store" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "legalName" TEXT,
+    "taxNumber" TEXT,
+    "email" TEXT,
+    "phoneNumber" TEXT,
+    "address" TEXT,
+    "city" TEXT,
+    "state" TEXT,
+    "country" TEXT,
+    "postalCode" TEXT,
+    "logo" TEXT,
+    "website" TEXT,
+    "currency" TEXT NOT NULL DEFAULT 'USD',
+    "businessHours" TEXT,
+    "description" TEXT,
+    "termsAndConditions" TEXT,
+    "privacyPolicy" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Store_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Media" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "type" "MediaType" NOT NULL,
+    "description" TEXT,
+    "size" INTEGER NOT NULL,
+    "mimeType" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Media_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -184,6 +285,9 @@ CREATE UNIQUE INDEX "Inventory_productId_key" ON "Inventory"("productId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Invoice_invoiceNumber_key" ON "Invoice"("invoiceNumber");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Quote_quoteNumber_key" ON "Quote"("quoteNumber");
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -214,3 +318,18 @@ ALTER TABLE "Payment" ADD CONSTRAINT "Payment_invoiceId_fkey" FOREIGN KEY ("invo
 
 -- AddForeignKey
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Quote" ADD CONSTRAINT "Quote_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Quote" ADD CONSTRAINT "Quote_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Quote" ADD CONSTRAINT "Quote_approvedById_fkey" FOREIGN KEY ("approvedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "QuoteItem" ADD CONSTRAINT "QuoteItem_quoteId_fkey" FOREIGN KEY ("quoteId") REFERENCES "Quote"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "QuoteItem" ADD CONSTRAINT "QuoteItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

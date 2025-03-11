@@ -1,34 +1,64 @@
-"use server";
+// customer.action.ts
 
-import { db } from "@/src/lib/database.connection";
+import prisma from "@/prisma"; // Adjust the import path as necessary
 
 export async function upsertCustomer(data: {
   name: string;
   email: string;
   phoneNumber?: string;
   address?: string;
+  company?: string;
+  companyLogo?: string;
+  taxNumber?: string;
+  billingAddress?: string;
+  shippingAddress?: string;
+  notes?: string;
 }) {
-  try {
-    const customer = await db.customer.upsert({
-      where: {
-        email: data.email,
-      },
-      update: {
-        name: data.name,
-        phoneNumber: data.phoneNumber,
-        address: data.address,
-      },
-      create: {
-        name: data.name,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        address: data.address,
-      },
-    });
+  const customer = await prisma.customer.upsert({
+    where: { email: data.email },
+    update: {
+      name: data.name,
+      phoneNumber: data.phoneNumber,
+      address: data.address,
+      company: data.company,
+      companyLogo: data.companyLogo,
+      taxNumber: data.taxNumber,
+      billingAddress: data.billingAddress,
+      shippingAddress: data.shippingAddress,
+      notes: data.notes,
+    },
+    create: {
+      name: data.name,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      address: data.address,
+      company: data.company,
+      companyLogo: data.companyLogo,
+      taxNumber: data.taxNumber,
+      billingAddress: data.billingAddress,
+      shippingAddress: data.shippingAddress,
+      notes: data.notes,
+    },
+  });
 
-    return customer;
-  } catch (error) {
-    console.error("[CUSTOMER_UPSERT]", error);
-    throw new Error("Failed to create/update customer");
-  }
+  return customer;
+}
+
+export async function getCustomers() {
+  const customers = await prisma.customer.findMany();
+  return customers;
+}
+
+export async function getCustomerById(id: string) {
+  const customer = await prisma.customer.findUnique({
+    where: { id },
+  });
+  return customer;
+}
+
+export async function deleteCustomer(id: string) {
+  const customer = await prisma.customer.delete({
+    where: { id },
+  });
+  return customer;
 }

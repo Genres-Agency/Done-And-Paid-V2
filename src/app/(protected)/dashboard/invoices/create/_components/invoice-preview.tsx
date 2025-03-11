@@ -9,6 +9,8 @@ import {
 import { Printer, Download, X } from "lucide-react";
 import { InvoiceFormValues } from "@/src/schema/invoice";
 import { format } from "date-fns";
+import { PaymentMethod } from "@prisma/client";
+import { Separator } from "@/src/components/ui/separator";
 
 interface InvoicePreviewProps {
   open: boolean;
@@ -117,27 +119,35 @@ export function InvoicePreview({
                   .toFixed(2)}
               </span>
             </div>
-            {formValues.discount && (
+            {formValues.discount && formValues.discount > 0 && (
               <div className="flex justify-between">
                 <span>Discount:</span>
-                <span>{formValues.discount.toFixed(2)}</span>
+                <span>{formValues.discount.toFixed(2)}%</span>
               </div>
             )}
-            {formValues.tax && (
+            {typeof formValues.tax === "number" && formValues.tax > 0 && (
               <div className="flex justify-between">
                 <span>Tax:</span>
-                <span>{formValues.tax.toFixed(2)}</span>
+                <span>{formValues.tax.toFixed(2)}%</span>
               </div>
             )}
+            <Separator className="my-2" />
             <div className="flex justify-between font-bold">
               <span>Total:</span>
               <span>
-                {formValues.items
-                  .reduce(
+                {(() => {
+                  const subtotal = formValues.items.reduce(
                     (sum, item) => sum + item.quantity * item.unitPrice,
                     0
-                  )
-                  .toFixed(2)}
+                  );
+                  const discountAmount = formValues.discount
+                    ? (subtotal * formValues.discount) / 100
+                    : 0;
+                  const taxAmount = formValues.tax
+                    ? ((subtotal - discountAmount) * formValues.tax) / 100
+                    : 0;
+                  return (subtotal - discountAmount + taxAmount).toFixed(2);
+                })()}
               </span>
             </div>
           </div>

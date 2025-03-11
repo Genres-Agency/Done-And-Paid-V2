@@ -7,6 +7,7 @@ import PageContainer from "../../../_components/page-container";
 import { InvoiceForm } from "./_components/invoice-form";
 import { Suspense } from "react";
 import { LoadingPage } from "@/src/components/loading";
+import { Button } from "@/src/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Create Invoice | Done & Paid",
@@ -19,15 +20,15 @@ export default async function CreateInvoicePage() {
       <div className="space-y-4">
         <div className="flex items-start justify-between">
           <Heading
-            title={`Create New Invoices`}
-            description="Create your invoices"
+            title={`Create New Invoice`}
+            description="Create and customize your invoice"
           />
-          <Link
-            href="/dashboard/invoices/create"
+          <Button
+            asChild
             className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md"
           >
-            Preview Invoice
-          </Link>
+            <Link href="#preview">Preview Invoice</Link>
+          </Button>
         </div>
         <Separator />
         <Suspense fallback={<LoadingPage />}>
