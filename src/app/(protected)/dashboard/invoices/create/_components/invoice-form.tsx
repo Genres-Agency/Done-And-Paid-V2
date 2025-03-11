@@ -46,6 +46,7 @@ import {
 } from "@/src/components/ui/collapsible";
 import { LoadingPage } from "@/src/components/loading";
 import { MediaSelectorModal } from "@/src/app/(protected)/dashboard/media/_components/MediaSelectorModal";
+import { BusinessInfoSkeleton } from "./business-info-skeleton";
 
 import { Printer, Download, X } from "lucide-react";
 import { InvoicePreview } from "./invoice-preview";
@@ -58,7 +59,6 @@ import { upsertCustomer } from "../../../customers/customer.action";
 export function InvoiceForm() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
   const [storeData, setStoreData] = useState<any>(null);
   const [showBusinessInfo, setShowBusinessInfo] = useState(false);
   const [showCustomerLogo, setShowCustomerLogo] = useState(false);
@@ -86,6 +86,7 @@ export function InvoiceForm() {
   const [customBusinessLogo, setCustomBusinessLogo] = useState<string | null>(
     null
   );
+  const [isLoadingBusinessInfo, setIsLoadingBusinessInfo] = useState(true);
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(InvoiceSchema),
@@ -175,7 +176,7 @@ export function InvoiceForm() {
         console.error("Failed to fetch store data:", error);
         toast.error("Failed to load store data");
       } finally {
-        setIsLoading(false);
+        setIsLoadingBusinessInfo(false);
       }
     };
 
@@ -221,15 +222,12 @@ export function InvoiceForm() {
     }
   };
 
-  if (isLoading) {
-    return <LoadingPage />;
-  }
-
   return (
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Business Information */}
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle>Business Information</CardTitle>
@@ -244,130 +242,134 @@ export function InvoiceForm() {
             </CardHeader>
             <Collapsible open={showBusinessInfo}>
               <CollapsibleContent>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    {customBusinessLogo ? (
-                      <div className="relative">
-                        <img
-                          src={customBusinessLogo}
-                          alt="Business Logo"
-                          className="h-20 w-auto"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute -right-2 -top-2"
-                          onClick={() => {
-                            setCustomBusinessLogo(null);
-                            form.setValue(
-                              "businessLogo",
-                              defaultBusinessLogo || ""
-                            );
-                          }}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : defaultBusinessLogo ? (
-                      <div className="flex items-center gap-3">
-                        <Image
-                          src={defaultBusinessLogo}
-                          alt="Business Logo"
-                          width={80}
-                          height={80}
-                          className="h-20 w-auto"
-                        />
+                {isLoadingBusinessInfo ? (
+                  <BusinessInfoSkeleton />
+                ) : (
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      {customBusinessLogo ? (
+                        <div className="relative">
+                          <img
+                            src={customBusinessLogo}
+                            alt="Business Logo"
+                            className="h-20 w-auto"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute -right-2 -top-2"
+                            onClick={() => {
+                              setCustomBusinessLogo(null);
+                              form.setValue(
+                                "businessLogo",
+                                defaultBusinessLogo || ""
+                              );
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : defaultBusinessLogo ? (
+                        <div className="flex items-center gap-3">
+                          <Image
+                            src={defaultBusinessLogo}
+                            alt="Business Logo"
+                            width={80}
+                            height={80}
+                            className="h-20 w-auto"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className=""
+                            onClick={() => setShowBusinessLogoSelector(true)}
+                          >
+                            <Settings2 className="h-4 w-4" /> Custom Logo
+                          </Button>
+                        </div>
+                      ) : (
                         <Button
                           type="button"
                           variant="outline"
-                          size="sm"
-                          className=""
                           onClick={() => setShowBusinessLogoSelector(true)}
                         >
-                          <Settings2 className="h-4 w-4" /> Custom Logo
+                          Upload Custom Logo
                         </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowBusinessLogoSelector(true)}
-                      >
-                        Upload Custom Logo
-                      </Button>
-                    )}
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
+                      )}
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="businessName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Business Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="businessTaxNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tax Number</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <FormField
                       control={form.control}
-                      name="businessName"
+                      name="businessAddress"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Business Name</FormLabel>
+                          <FormLabel>Business Address</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Textarea {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="businessTaxNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tax Number</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="businessAddress"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Business Address</FormLabel>
-                        <FormControl>
-                          <Textarea {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="businessPhone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Business Phone</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="businessEmail"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Business Email</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="email" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="businessPhone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Business Phone</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="businessEmail"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Business Email</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="email" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                )}
               </CollapsibleContent>
             </Collapsible>
           </Card>
