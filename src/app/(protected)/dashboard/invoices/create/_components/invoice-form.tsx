@@ -213,6 +213,7 @@ export function InvoiceForm() {
       const invoice = await createInvoice({
         // Customer Information
         customerId: "", // This will be set by the server action after upserting the customer
+        customerName: values.customerName,
 
         // Business Information
         businessName: values.businessName,

@@ -29,8 +29,8 @@ export function InvoicePreview({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[850px] max-h-[95vh] flex flex-col overflow-hidden bg-gray-100 p-0">
-        <DialogHeader className="sticky top-0 z-10 bg-gray-100 p-4">
-          <DialogTitle>Invoice Preview</DialogTitle>
+        <DialogHeader className="sticky top-0 z-10 bg-white border-b px-4 py-2 shadow-sm">
+          <DialogTitle className="text-lg">Invoice Preview</DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto">
           <div
@@ -214,17 +214,21 @@ export function InvoicePreview({
             </div>
           </div>
         </div>
-        <DialogFooter className="sticky bottom-0 z-10 bg-white pt-4 border-t flex gap-2 p-4">
-          <Button variant="outline" onClick={() => window.print()}>
-            <Printer className="mr-2 h-4 w-4" />
+        <DialogFooter className="sticky bottom-0 z-10 bg-white border-t px-4 py-2 shadow-sm flex justify-end gap-2">
+          <Button size="sm" variant="outline" onClick={() => window.print()}>
+            <Printer className="mr-1.5 h-3.5 w-3.5" />
             Print
           </Button>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
+          <Button size="sm" variant="outline">
+            <Download className="mr-1.5 h-3.5 w-3.5" />
             Download
           </Button>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            <X className="mr-2 h-4 w-4" />
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            <X className="mr-1.5 h-3.5 w-3.5" />
             Cancel
           </Button>
         </DialogFooter>

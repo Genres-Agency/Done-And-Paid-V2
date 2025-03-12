@@ -25,7 +25,9 @@ export default async function CreateInvoicePage() {
           />
           <Button
             asChild
-            className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md"
+            variant="default"
+            size="sm"
+            className="hover:bg-primary/90"
           >
             <Link href="#preview">Preview Invoice</Link>
           </Button>
