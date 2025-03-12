@@ -2,8 +2,10 @@
 
 import prisma from "@/prisma";
 import { PaymentStatus, PaymentMethod } from "@prisma/client";
+import { format } from "date-fns";
+import { randomUUID } from "crypto";
 
-type CreateInvoiceData = {
+export type CreateInvoiceData = {
   // Customer Information
   customerId: string;
 
@@ -22,22 +24,23 @@ type CreateInvoiceData = {
     quantity: number;
     unitPrice: number;
     description?: string;
-    productId?: string;
+    total?: number;
   }[];
 
   // Invoice Details
   invoiceDate: Date;
   dueDate: Date;
   currency?: string;
-  language?: string;
   referenceNumber?: string;
   purchaseOrderNumber?: string;
   salespersonName?: string;
 
   // Financial Details
   subtotal: number;
-  tax: number;
-  discount: number;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  taxType: "percentage" | "fixed";
+  taxValue: number;
   total: number;
   paidAmount?: number;
 
@@ -45,9 +48,17 @@ type CreateInvoiceData = {
   notes?: string;
   termsAndConditions?: string;
   paymentMethod?: PaymentMethod;
+  installmentOption?: boolean;
+  installmentDetails?: {
+    numberOfInstallments: number;
+    installmentAmount: number;
+    frequency: "weekly" | "monthly" | "quarterly" | "yearly";
+    startDate: Date;
+  };
 
   // Metadata
   createdById: string;
+  isDraft?: boolean;
 };
 
 type UpdateInvoiceStatusData = {
@@ -79,17 +90,16 @@ export async function createInvoice(data: CreateInvoiceData) {
     : "0001";
   const invoiceNumber = `INV-${dateStr}-${sequence}`;
 
-  // Prepare items data for JSON storage
+  // Calculate totals for each item
   const itemsJson = data.items.map((item) => ({
     name: item.name,
     quantity: item.quantity,
     unitPrice: item.unitPrice,
     description: item.description,
     total: item.quantity * item.unitPrice,
-    productId: item.productId,
   }));
 
-  // Create the invoice with JSON items data
+  // Create the invoice
   const invoice = await prisma.invoice.create({
     data: {
       invoiceNumber,
@@ -111,15 +121,16 @@ export async function createInvoice(data: CreateInvoiceData) {
       invoiceDate: data.invoiceDate || new Date(),
       dueDate: data.dueDate,
       currency: data.currency || "USD",
-      language: data.language || "en",
       referenceNumber: data.referenceNumber,
       purchaseOrderNumber: data.purchaseOrderNumber,
       salespersonName: data.salespersonName,
 
       // Financial Details
       subtotal: data.subtotal,
-      tax: data.tax,
-      discount: data.discount,
+      discountType: data.discountType,
+      discountValue: data.discountValue,
+      taxType: data.taxType,
+      taxValue: data.taxValue,
       total: data.total,
       paidAmount: data.paidAmount || 0,
 
@@ -128,26 +139,16 @@ export async function createInvoice(data: CreateInvoiceData) {
       termsAndConditions: data.termsAndConditions,
       paymentMethod: data.paymentMethod,
       paymentStatus: PaymentStatus.PENDING,
+      installmentOption: data.installmentOption,
+      installmentDetails: data.installmentDetails,
 
       // Metadata
       createdById: data.createdById,
-
-      // Create InvoiceItem records for each item
-      InvoiceItem: {
-        create: data.items
-          .filter((item) => item.productId) // Only create InvoiceItem for items with productId
-          .map((item) => ({
-            productId: item.productId!,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            total: item.quantity * item.unitPrice,
-          })),
-      },
+      isDraft: data.isDraft || false,
     },
     include: {
       customer: true,
       createdBy: true,
-      InvoiceItem: true,
     },
   });
 
@@ -247,4 +248,122 @@ export async function updateInvoiceStatus(data: UpdateInvoiceStatusData) {
   });
 
   return invoice;
+}
+
+export async function saveInvoiceDraft(
+  data: CreateInvoiceData & { id?: string }
+) {
+  try {
+    // Calculate totals for each item
+    const itemsJson = data.items.map((item) => ({
+      name: item.name || "",
+      quantity: item.quantity || 0,
+      unitPrice: item.unitPrice || 0,
+      description: item.description,
+      total: (item.quantity || 0) * (item.unitPrice || 0),
+    }));
+
+    // If updating an existing draft
+    if (data.id) {
+      return await prisma.invoice.update({
+        where: { id: data.id },
+        data: {
+          customerId: data.customerId,
+          businessName: data.businessName || "",
+          businessLogo: data.businessLogo,
+          businessAddress: data.businessAddress || "",
+          businessPhone: data.businessPhone || "",
+          businessEmail: data.businessEmail || "",
+          businessWebsite: data.businessWebsite,
+          businessTaxNumber: data.businessTaxNumber,
+          items: itemsJson,
+          invoiceDate: data.invoiceDate || new Date(),
+          dueDate: data.dueDate || new Date(),
+          currency: data.currency || "USD",
+          referenceNumber: data.referenceNumber,
+          purchaseOrderNumber: data.purchaseOrderNumber,
+          salespersonName: data.salespersonName,
+          subtotal: data.subtotal || 0,
+          discountType: data.discountType || "percentage",
+          discountValue: data.discountValue || 0,
+          taxType: data.taxType || "percentage",
+          taxValue: data.taxValue || 0,
+          total: data.total || 0,
+          paidAmount: data.paidAmount || 0,
+          notes: data.notes,
+          termsAndConditions: data.termsAndConditions,
+          paymentMethod: data.paymentMethod,
+          installmentOption: data.installmentOption || false,
+          installmentDetails: data.installmentDetails,
+          isDraft: true,
+        },
+        include: {
+          customer: true,
+          createdBy: true,
+        },
+      });
+    }
+
+    // Generate a temporary invoice number for the draft
+    const draftNumber = `DRAFT-${randomUUID().slice(0, 8)}`;
+
+    // Create new draft
+    return await prisma.invoice.create({
+      data: {
+        invoiceNumber: draftNumber,
+        customerId: data.customerId,
+        businessName: data.businessName || "",
+        businessLogo: data.businessLogo,
+        businessAddress: data.businessAddress || "",
+        businessPhone: data.businessPhone || "",
+        businessEmail: data.businessEmail || "",
+        businessWebsite: data.businessWebsite,
+        businessTaxNumber: data.businessTaxNumber,
+        items: itemsJson,
+        invoiceDate: data.invoiceDate || new Date(),
+        dueDate: data.dueDate || new Date(),
+        currency: data.currency || "USD",
+        referenceNumber: data.referenceNumber,
+        purchaseOrderNumber: data.purchaseOrderNumber,
+        salespersonName: data.salespersonName,
+        subtotal: data.subtotal || 0,
+        discountType: data.discountType || "percentage",
+        discountValue: data.discountValue || 0,
+        taxType: data.taxType || "percentage",
+        taxValue: data.taxValue || 0,
+        total: data.total || 0,
+        paidAmount: data.paidAmount || 0,
+        notes: data.notes,
+        termsAndConditions: data.termsAndConditions,
+        paymentMethod: data.paymentMethod,
+        paymentStatus: PaymentStatus.PENDING,
+        installmentOption: data.installmentOption || false,
+        installmentDetails: data.installmentDetails,
+        createdById: data.createdById,
+        isDraft: true,
+      },
+      include: {
+        customer: true,
+        createdBy: true,
+      },
+    });
+  } catch (error) {
+    console.error("Error saving draft:", error);
+    throw error;
+  }
+}
+
+export async function getMostRecentDraftInvoice(userId: string) {
+  return await prisma.invoice.findFirst({
+    where: {
+      createdById: userId,
+      isDraft: true,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+    include: {
+      customer: true,
+    },
+  });
 }

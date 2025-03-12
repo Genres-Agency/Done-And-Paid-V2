@@ -165,23 +165,27 @@ model Invoice {
   invoiceDate         DateTime
   dueDate             DateTime
   currency            String   @default("USD")
-  language            String   @default("en")
   referenceNumber     String?
   purchaseOrderNumber String?
   salespersonName     String?
 
   // Financial Details
-  subtotal   Float
-  tax        Float @default(0)
-  discount   Float @default(0)
-  total      Float
-  paidAmount Float @default(0)
+  subtotal      Float
+  discountType  String @default("percentage")
+  discountValue Float  @default(0)
+  taxType       String @default("percentage")
+  taxValue      Float  @default(0)
+  total         Float
+  paidAmount    Float  @default(0)
 
   // Additional Information
   notes              String?
   termsAndConditions String?
   paymentMethod      PaymentMethod?
   paymentStatus      PaymentStatus  @default(PENDING)
+  isDraft            Boolean        @default(false)
+  installmentOption  Boolean        @default(false)
+  installmentDetails Json?
 
   // Metadata
   createdById  String
@@ -190,8 +194,8 @@ model Invoice {
   approvedBy   User?         @relation("ApprovedBy", fields: [approvedById], references: [id])
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  InvoiceItem  InvoiceItem[]
   Payment      Payment[]
+  InvoiceItem  InvoiceItem[]
 }
 
 model InvoiceItem {

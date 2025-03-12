@@ -13,7 +13,7 @@ import {
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
 import { Textarea } from "@/src/components/ui/textarea";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { InvoiceSchema, type InvoiceFormValues } from "@/src/schema/invoice";
 import {
@@ -58,7 +58,11 @@ import { BusinessInfoSkeleton } from "./business-info-skeleton";
 import { Printer, Download, X } from "lucide-react";
 import { InvoicePreview } from "./invoice-preview";
 import Image from "next/image";
-import { createInvoice } from "../../invoice.action";
+import {
+  createInvoice,
+  saveInvoiceDraft,
+  getMostRecentDraftInvoice,
+} from "../../invoice.action";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { upsertCustomer } from "../../../customers/customer.action";
@@ -102,6 +106,9 @@ export function InvoiceForm() {
     null
   );
   const [isLoadingBusinessInfo, setIsLoadingBusinessInfo] = useState(true);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  const INVOICE_FORM_STORAGE_KEY = "invoice_form_data";
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(InvoiceSchema),
@@ -110,8 +117,12 @@ export function InvoiceForm() {
       invoiceDate: new Date(),
       dueDate: new Date(),
       currency: "USD",
-      language: "en",
       installmentOption: false,
+      discountType: "percentage",
+      discountValue: 0,
+      taxType: "percentage",
+      taxValue: 0,
+      paidAmount: 0,
     },
   });
 
@@ -120,6 +131,179 @@ export function InvoiceForm() {
     name: "items",
   });
 
+  // Save to local storage whenever form changes
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      if (value && Object.keys(value).length > 0) {
+        localStorage.setItem(INVOICE_FORM_STORAGE_KEY, JSON.stringify(value));
+        setLastSaved(new Date());
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  // Load data from local storage on initial render
+  useEffect(() => {
+    const storedData = localStorage.getItem(INVOICE_FORM_STORAGE_KEY);
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
+        // Convert date strings back to Date objects
+        if (parsedData.invoiceDate) {
+          parsedData.invoiceDate = new Date(parsedData.invoiceDate);
+        }
+        if (parsedData.dueDate) {
+          parsedData.dueDate = new Date(parsedData.dueDate);
+        }
+        form.reset(parsedData);
+      } catch (error) {
+        console.error("Failed to parse local storage data:", error);
+      }
+    }
+  }, [form]);
+
+  // Fetch store data on mount
+  useEffect(() => {
+    const fetchStoreData = async () => {
+      try {
+        const response = await fetch("/api/store");
+        const data = await response.json();
+
+        if (data.store) {
+          setDefaultBusinessLogo(data.store.logo);
+          // Only set business information if no local storage data exists
+          if (!localStorage.getItem(INVOICE_FORM_STORAGE_KEY)) {
+            form.reset({
+              ...form.getValues(),
+              businessName: data.store.name || "",
+              businessLogo: data.store.logo || "",
+              businessAddress: data.store.address || "",
+              businessPhone: data.store.phoneNumber || "",
+              businessEmail: data.store.email || "",
+              businessWebsite: data.store.website || "",
+              businessTaxNumber: data.store.taxNumber || "",
+              currency: data.store.currency || "USD",
+              termsAndConditions: data.store.termsAndConditions || "",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch store data:", error);
+        toast.error("Failed to load store data");
+      } finally {
+        setIsLoadingBusinessInfo(false);
+      }
+    };
+
+    fetchStoreData();
+  }, [form]);
+
+  const onSubmit = async (values: InvoiceFormValues) => {
+    try {
+      if (!session?.user?.id) {
+        toast.error("You must be logged in to create an invoice");
+        return;
+      }
+
+      console.log("Creating invoice with values:", {
+        ...values,
+        createdById: session.user.id,
+      });
+
+      // Create or find customer using server action
+      const customer = await upsertCustomer({
+        name: values.customerName,
+        email: values.customerEmail,
+        phoneNumber: values.customerPhone,
+        address: values.customerAddress,
+        company: values.customerCompany,
+        companyLogo: values.customerLogo,
+        taxNumber: values.customerTaxNumber,
+        billingAddress: values.customerBillingAddress,
+        shippingAddress: values.customerShippingAddress,
+        notes: values.customerNotes,
+      } as UpsertCustomerData);
+
+      if (!customer?.id) {
+        throw new Error("Failed to create/update customer");
+      }
+
+      console.log("Customer created/updated:", customer);
+
+      // Calculate totals for the invoice
+      const totals = calculateTotals();
+
+      // Create invoice using server action with all form data
+      const invoice = await createInvoice({
+        // Customer Information
+        customerId: customer.id,
+
+        // Business Information
+        businessName: values.businessName,
+        businessLogo: customBusinessLogo || defaultBusinessLogo || undefined,
+        businessAddress: values.businessAddress,
+        businessPhone: values.businessPhone,
+        businessEmail: values.businessEmail,
+        businessWebsite: values.businessWebsite,
+        businessTaxNumber: values.businessTaxNumber,
+
+        // Invoice Items
+        items: values.items.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          description: item.description,
+        })),
+
+        // Invoice Details
+        invoiceDate: values.invoiceDate,
+        dueDate: values.dueDate,
+        currency: values.currency,
+        referenceNumber: values.referenceNumber,
+        purchaseOrderNumber: values.purchaseOrderNumber,
+        salespersonName: values.salespersonName,
+
+        // Financial Details
+        subtotal: totals.subtotal,
+        discountType: values.discountType || "percentage",
+        discountValue: values.discountValue || 0,
+        taxType: values.taxType || "percentage",
+        taxValue: values.taxValue || 0,
+        total: totals.total,
+        paidAmount: values.paidAmount || 0,
+
+        // Additional Information
+        notes: values.notes,
+        termsAndConditions: values.termsAndConditions,
+        paymentMethod: values.paymentMethod,
+
+        // Metadata
+        createdById: session.user.id,
+      });
+
+      if (!invoice) {
+        throw new Error("Failed to create invoice - no invoice returned");
+      }
+
+      console.log("Invoice created successfully:", invoice);
+
+      // Clear local storage after successful creation
+      localStorage.removeItem(INVOICE_FORM_STORAGE_KEY);
+
+      toast.success("Invoice created successfully!");
+      router.push("/dashboard/invoices");
+    } catch (error) {
+      console.error("Failed to create invoice:", error);
+      // More descriptive error message
+      if (error instanceof Error) {
+        toast.error(`Failed to create invoice: ${error.message}`);
+      } else {
+        toast.error("Failed to create invoice: Unknown error occurred");
+      }
+    }
+  };
+
   // Calculate totals
   const calculateTotals = () => {
     const items = form.getValues("items");
@@ -127,11 +311,24 @@ export function InvoiceForm() {
       (sum, item) => sum + (item.quantity || 0) * (item.unitPrice || 0),
       0
     );
-    const discount = form.getValues("discount") || 0;
-    const tax = form.getValues("tax") || 0;
-    const discountAmount = (subtotal * discount) / 100;
-    const taxAmount = ((subtotal - discountAmount) * tax) / 100;
-    const total = subtotal - discountAmount + taxAmount;
+
+    const discountType = form.getValues("discountType");
+    const discountValue = form.getValues("discountValue") || 0;
+    const taxType = form.getValues("taxType");
+    const taxValue = form.getValues("taxValue") || 0;
+
+    // Calculate discount amount based on type
+    const discountAmount =
+      discountType === "percentage"
+        ? (subtotal * discountValue) / 100
+        : discountValue;
+
+    // Calculate tax amount based on type
+    const taxableAmount = subtotal - discountAmount;
+    const taxAmount =
+      taxType === "percentage" ? (taxableAmount * taxValue) / 100 : taxValue;
+
+    const total = taxableAmount + taxAmount;
 
     return {
       subtotal: isNaN(subtotal) ? 0 : subtotal,
@@ -158,119 +355,6 @@ export function InvoiceForm() {
         setPreviewCustomerLogo(reader.result as string);
       };
       reader.readAsDataURL(file);
-    }
-  };
-
-  // Fetch store data on mount
-  useEffect(() => {
-    const fetchStoreData = async () => {
-      try {
-        const response = await fetch("/api/store");
-        const data = await response.json();
-
-        if (data.store) {
-          setDefaultBusinessLogo(data.store.logo);
-          // Set business information from store data
-          form.reset({
-            ...form.getValues(),
-            businessName: data.store.name || "",
-            businessLogo: data.store.logo || "",
-            businessAddress: data.store.address || "",
-            businessPhone: data.store.phoneNumber || "",
-            businessEmail: data.store.email || "",
-            businessWebsite: data.store.website || "",
-            businessTaxNumber: data.store.taxNumber || "",
-            currency: data.store.currency || "USD",
-            termsAndConditions: data.store.termsAndConditions || "",
-          });
-        }
-      } catch (error) {
-        console.error("Failed to fetch store data:", error);
-        toast.error("Failed to load store data");
-      } finally {
-        setIsLoadingBusinessInfo(false);
-      }
-    };
-
-    fetchStoreData();
-  }, [form]);
-
-  const onSubmit = async (values: InvoiceFormValues) => {
-    try {
-      // Create or find customer using server action
-      const customer = await upsertCustomer({
-        name: values.customerName,
-        email: values.customerEmail,
-        phoneNumber: values.customerPhone,
-        address: values.customerAddress,
-        company: values.customerCompany,
-        companyLogo: values.customerLogo,
-        taxNumber: values.customerTaxNumber,
-        billingAddress: values.customerBillingAddress,
-        shippingAddress: values.customerShippingAddress,
-        notes: values.customerNotes,
-      } as UpsertCustomerData);
-
-      // Calculate totals for the invoice
-      const totals = calculateTotals();
-
-      // Create invoice using server action with all form data
-      const invoice = await createInvoice({
-        // Customer Information
-        customerId: customer.id,
-
-        // Business Information
-        businessName: values.businessName,
-        businessLogo: values.businessLogo,
-        businessAddress: values.businessAddress,
-        businessPhone: values.businessPhone,
-        businessEmail: values.businessEmail,
-        businessWebsite: values.businessWebsite,
-        businessTaxNumber: values.businessTaxNumber,
-
-        // Invoice Items
-        items: values.items.map((item) => ({
-          name: item.name,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          description: item.description,
-          // Removed productId since it's not defined in the item type
-        })),
-
-        // Invoice Details
-        invoiceDate: values.invoiceDate,
-        dueDate: values.dueDate,
-        currency: values.currency,
-        language: values.language,
-        referenceNumber: values.referenceNumber,
-        purchaseOrderNumber: values.purchaseOrderNumber,
-        salespersonName: values.salespersonName,
-
-        // Financial Details
-        subtotal: totals.subtotal,
-        tax: values.tax || 0,
-        discount: values.discount || 0,
-        total: totals.total,
-        paidAmount: values.paidAmount || 0,
-
-        // Additional Information
-        notes: values.notes,
-        termsAndConditions: values.termsAndConditions,
-        paymentMethod: values.paymentMethod,
-
-        // Metadata
-        createdById: session?.user?.id || "",
-      });
-
-      if (!invoice) {
-        throw new Error("Failed to create invoice");
-      }
-
-      toast.success("Invoice created successfully!");
-      router.push("/dashboard/invoices");
-    } catch (error) {
-      console.error("Failed to create invoice:", error);
-      toast.error("Failed to create invoice");
     }
   };
 
@@ -587,7 +671,7 @@ export function InvoiceForm() {
                           <FormMessage />
                         </FormItem>
                       )}
-                    />{" "}
+                    />
                   </div>
                   <FormField
                     control={form.control}
@@ -868,44 +952,45 @@ export function InvoiceForm() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="discount"
+                    name="discountValue"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Discount</FormLabel>
                         <div className="flex gap-2">
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                field.onChange(
-                                  value === "percentage"
-                                    ? "percentage"
-                                    : "fixed"
-                                );
-                              }}
-                              defaultValue="percentage"
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="percentage">
-                                  Percentage (%)
-                                </SelectItem>
-                                <SelectItem value="fixed">
-                                  Fixed Amount
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
+                          <FormField
+                            control={form.control}
+                            name="discountType"
+                            render={({ field: typeField }) => (
+                              <FormControl>
+                                <Select
+                                  onValueChange={typeField.onChange}
+                                  defaultValue={typeField.value}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="percentage">
+                                      Percentage (%)
+                                    </SelectItem>
+                                    <SelectItem value="fixed">
+                                      Fixed Amount
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                            )}
+                          />
                           <FormControl>
                             <Input
                               type="number"
                               min="0"
                               step="0.01"
                               placeholder="Amount"
+                              {...field}
                               onChange={(e) => {
                                 const value = parseFloat(e.target.value);
-                                field.onChange(value);
+                                field.onChange(isNaN(value) ? 0 : value);
                               }}
                             />
                           </FormControl>
@@ -916,44 +1001,45 @@ export function InvoiceForm() {
                   />
                   <FormField
                     control={form.control}
-                    name="tax"
+                    name="taxValue"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tax</FormLabel>
                         <div className="flex gap-2">
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                field.onChange(
-                                  value === "percentage"
-                                    ? "percentage"
-                                    : "fixed"
-                                );
-                              }}
-                              defaultValue="percentage"
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="percentage">
-                                  Percentage (%)
-                                </SelectItem>
-                                <SelectItem value="fixed">
-                                  Fixed Amount
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
+                          <FormField
+                            control={form.control}
+                            name="taxType"
+                            render={({ field: typeField }) => (
+                              <FormControl>
+                                <Select
+                                  onValueChange={typeField.onChange}
+                                  defaultValue={typeField.value}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="percentage">
+                                      Percentage (%)
+                                    </SelectItem>
+                                    <SelectItem value="fixed">
+                                      Fixed Amount
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                            )}
+                          />
                           <FormControl>
                             <Input
                               type="number"
                               min="0"
                               step="0.01"
                               placeholder="Amount"
+                              {...field}
                               onChange={(e) => {
                                 const value = parseFloat(e.target.value);
-                                field.onChange(value);
+                                field.onChange(isNaN(value) ? 0 : value);
                               }}
                             />
                           </FormControl>
@@ -1138,7 +1224,7 @@ export function InvoiceForm() {
           </Card>
 
           {/* Add Preview Button before the Create Invoice button */}
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
             <Button
               type="button"
               variant="outline"
@@ -1147,6 +1233,11 @@ export function InvoiceForm() {
               Preview Invoice
             </Button>
             <Button type="submit">Create Invoice</Button>
+            {lastSaved && (
+              <span className="text-sm text-muted-foreground ml-4">
+                Last saved to browser: {format(lastSaved, "h:mm a")}
+              </span>
+            )}
           </div>
         </form>
       </Form>

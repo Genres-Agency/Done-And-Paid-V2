@@ -5,8 +5,7 @@ export const InvoiceItemSchema = z.object({
   description: z.string().optional(),
   quantity: z.number().min(1, "Quantity must be at least 1"),
   unitPrice: z.number().min(0, "Unit price must be positive"),
-  discount: z.number().min(0, "Discount must be positive").optional(),
-  tax: z.number().min(0, "Tax must be positive").optional(),
+  total: z.number().optional(), // Calculated field
 });
 
 export const InvoiceSchema = z.object({
@@ -36,40 +35,48 @@ export const InvoiceSchema = z.object({
   customerNotes: z.string().optional(),
 
   // Invoice Details
-  invoiceNumber: z.string().min(1, "Invoice number is required"),
+  invoiceNumber: z.string().optional(), // Made optional since it's generated
   invoiceDate: z.date(),
   dueDate: z.date(),
   referenceNumber: z.string().optional(),
   purchaseOrderNumber: z.string().optional(),
   salespersonName: z.string().optional(),
   currency: z.string().default("USD"),
-  language: z.string().default("en"),
 
   // Items
   items: z.array(InvoiceItemSchema).min(1, "At least one item is required"),
 
-  // Payment Information
-  paymentMethod: z.enum([
-    "CASH",
-    "BANK_TRANSFER",
-    "CREDIT_CARD",
-    "DEBIT_CARD",
-    "CHEQUE",
-    "ONLINE",
-  ]),
-  paidAmount: z.number().min(0, "Paid amount must be positive"),
-  discount: z.number().min(0, "Discount must be positive").optional(),
-  tax: z.number().min(0, "Tax must be positive").optional(),
-  lateFeePolicy: z.string().optional(),
-  advancePayment: z
-    .number()
-    .min(0, "Advance payment must be positive")
+  // Financial Details
+  subtotal: z.number().min(0).optional(), // Calculated field
+  total: z.number().min(0).optional(), // Calculated field
+
+  // Discount
+  discountType: z.enum(["percentage", "fixed"]).default("percentage"),
+  discountValue: z.number().min(0).default(0),
+
+  // Tax
+  taxType: z.enum(["percentage", "fixed"]).default("percentage"),
+  taxValue: z.number().min(0).default(0),
+
+  // Payment
+  paymentMethod: z
+    .enum([
+      "CASH",
+      "BANK_TRANSFER",
+      "CREDIT_CARD",
+      "DEBIT_CARD",
+      "CHEQUE",
+      "ONLINE",
+    ])
     .optional(),
+  paidAmount: z.number().min(0).default(0),
   installmentOption: z.boolean().default(false),
   installmentDetails: z
     .object({
       numberOfInstallments: z.number().min(1),
       installmentAmount: z.number().min(0),
+      frequency: z.enum(["weekly", "monthly", "quarterly", "yearly"]),
+      startDate: z.date(),
     })
     .optional(),
 

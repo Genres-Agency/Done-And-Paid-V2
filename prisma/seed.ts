@@ -5,6 +5,7 @@ import {
   TransactionType,
 } from "@prisma/client";
 import prisma from "../prisma";
+import { format, addDays } from "date-fns";
 
 async function main() {
   console.log("Seeding users...");
@@ -175,67 +176,54 @@ async function main() {
         customerId: customers[0].id,
         // Business Information
         businessName: store.name,
-        businessLogo: "https://genres.com/logo.png",
-        businessAddress: "505 Business Center", // Use direct string instead of store.address
-        businessPhone: "+1234567897", // Use direct string instead of store.phoneNumber
-        businessEmail: "contact@genres.com", // Use direct string instead of store.email
+        businessLogo: store.logo || undefined,
+        businessAddress: store.address || "505 Business Center",
+        businessPhone: store.phoneNumber || "+1234567897",
+        businessEmail: store.email || "contact@genres.com",
         businessWebsite: store.website || undefined,
         businessTaxNumber: store.taxNumber || undefined,
         // Invoice Details
         invoiceDate: new Date(),
-        dueDate: new Date("2024-02-15"),
-        currency: "USD",
-        language: "en",
+        dueDate: addDays(new Date(), 30),
+        currency: store.currency || "USD",
         referenceNumber: "REF001",
         purchaseOrderNumber: "PO001",
         salespersonName: "John Doe",
         // Financial Details
         subtotal: 3899.97,
-        tax: 389.99,
-        discount: 0,
+        discountType: "percentage",
+        discountValue: 0,
+        taxType: "percentage",
+        taxValue: 10,
         total: 4289.96,
         paidAmount: 4289.96,
         // Additional Information
         notes: "Bulk order for office setup",
-        termsAndConditions: "Net 30",
+        termsAndConditions: store.termsAndConditions || "Net 30",
         paymentStatus: PaymentStatus.PAID,
         paymentMethod: PaymentMethod.BANK_TRANSFER,
+        isDraft: false,
+        installmentOption: false,
         // Metadata
         createdById: users[0].id,
         approvedById: users[1].id,
         // Items JSON
-        items: JSON.stringify([
+        items: [
           {
-            productId: products[0].id,
             name: "Laptop Pro X1",
             quantity: 2,
             unitPrice: 1299.99,
+            description: "High-performance business laptop",
             total: 2599.98,
           },
           {
-            productId: products[1].id,
             name: "Office Chair Deluxe",
             quantity: 5,
             unitPrice: 299.99,
+            description: "Ergonomic office chair",
             total: 1499.95,
           },
-        ]),
-        InvoiceItem: {
-          create: [
-            {
-              productId: products[0].id,
-              quantity: 2,
-              unitPrice: 1299.99,
-              total: 2599.98,
-            },
-            {
-              productId: products[1].id,
-              quantity: 5,
-              unitPrice: 299.99,
-              total: 1499.95,
-            },
-          ],
-        },
+        ],
         Payment: {
           create: {
             amount: 4289.96,
@@ -252,46 +240,46 @@ async function main() {
         customerId: customers[1].id,
         // Business Information
         businessName: store.name,
-        businessLogo: "https://genres.com/logo.png",
-        businessAddress: "505 Business Center", // Use direct string instead of store.address
-        businessPhone: "+1234567897", // Use direct string instead of store.phoneNumber
-        businessEmail: "contact@genres.com", // Use direct string instead of store.email
+        businessLogo: store.logo || undefined,
+        businessAddress: store.address || "505 Business Center",
+        businessPhone: store.phoneNumber || "+1234567897",
+        businessEmail: store.email || "contact@genres.com",
         businessWebsite: store.website || undefined,
         businessTaxNumber: store.taxNumber || undefined,
         // Invoice Details
         invoiceDate: new Date(),
-        dueDate: new Date("2024-02-28"),
-        currency: "USD",
-        language: "en",
+        dueDate: addDays(new Date(), 30),
+        currency: store.currency || "USD",
+        referenceNumber: "REF002",
+        purchaseOrderNumber: "PO002",
+        salespersonName: "Jane Smith",
         // Financial Details
         subtotal: 1299.99,
-        tax: 130.0,
-        total: 1429.99,
+        discountType: "percentage",
+        discountValue: 10,
+        taxType: "percentage",
+        taxValue: 10,
+        total: 1299.99,
+        paidAmount: 0,
         // Additional Information
-        notes: "Initial office equipment",
+        notes: "Single laptop order",
+        termsAndConditions: store.termsAndConditions || "Net 30",
         paymentStatus: PaymentStatus.PENDING,
+        paymentMethod: PaymentMethod.BANK_TRANSFER,
+        isDraft: false,
+        installmentOption: false,
         // Metadata
         createdById: users[0].id,
         // Items JSON
-        items: JSON.stringify([
+        items: [
           {
-            productId: products[0].id,
             name: "Laptop Pro X1",
             quantity: 1,
             unitPrice: 1299.99,
+            description: "High-performance business laptop",
             total: 1299.99,
           },
-        ]),
-        InvoiceItem: {
-          create: [
-            {
-              productId: products[0].id,
-              quantity: 1,
-              unitPrice: 1299.99,
-              total: 1299.99,
-            },
-          ],
-        },
+        ],
       },
     }),
   ]);

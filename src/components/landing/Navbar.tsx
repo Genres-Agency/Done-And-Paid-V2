@@ -16,7 +16,7 @@ const NavBar = () => {
     { name: "Privacy Policy", href: "/privacy-policy" },
     { name: "Terms & Conditions", href: "/terms-and-conditions" },
     // { name: "Login", href: "/login", isButton: true },
-    { name: "Start Free", href: "/login", isButton: true },
+    { name: "Start Free", href: "/auth/login", isButton: true },
   ];
 
   return (
@@ -86,7 +86,10 @@ const NavBar = () => {
               {links.map((link) =>
                 link.isButton ? (
                   <Link key={link.name} href={link.href}>
-                    <Link href="/login">
+                    <Link
+                      href="/auth/login"
+                      className="border-2 border-red-500"
+                    >
                       <RainbowButton> {link.name}</RainbowButton>
                     </Link>
                   </Link>
