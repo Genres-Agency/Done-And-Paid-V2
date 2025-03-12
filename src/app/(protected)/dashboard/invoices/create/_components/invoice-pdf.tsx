@@ -1,15 +1,32 @@
 import { InvoiceFormValues } from "@/src/schema/invoice";
 import { format } from "date-fns";
-import { Page, Text, View, Document, StyleSheet, Image, Font } from "@react-pdf/renderer";
+import {
+  Page,
+  Text,
+  View,
+  Document,
+  StyleSheet,
+  Image,
+  Font,
+} from "@react-pdf/renderer";
 
 // Register fonts
 Font.register({
   family: "Inter",
   fonts: [
-    { src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiA.woff2", fontWeight: 500 },
-    { src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hiA.woff2", fontWeight: 700 }
-  ]
+    {
+      src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2",
+      fontWeight: 400,
+    },
+    {
+      src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiA.woff2",
+      fontWeight: 500,
+    },
+    {
+      src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hiA.woff2",
+      fontWeight: 700,
+    },
+  ],
 });
 
 interface InvoicePDFProps {
@@ -23,7 +40,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 40,
     backgroundColor: "white",
-    fontFamily: "Inter"
+    fontFamily: "Inter",
   },
   header: {
     flexDirection: "row",
@@ -188,7 +205,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export function InvoicePDF({ formValues, businessLogo, customerLogo }: InvoicePDFProps) {
+export function InvoicePDF({
+  formValues,
+  businessLogo,
+  customerLogo,
+}: InvoicePDFProps) {
   const calculateTotal = () => {
     const subtotal = formValues.items.reduce(
       (sum, item) => sum + item.quantity * item.unitPrice,
@@ -210,9 +231,15 @@ export function InvoicePDF({ formValues, businessLogo, customerLogo }: InvoicePD
         <View style={styles.header}>
           <View style={styles.businessInfo}>
             <Text style={styles.businessName}>{formValues.businessName}</Text>
-            <Text style={styles.businessDetails}>{formValues.businessAddress}</Text>
-            <Text style={styles.businessDetails}>{formValues.businessPhone}</Text>
-            <Text style={styles.businessDetails}>{formValues.businessEmail}</Text>
+            <Text style={styles.businessDetails}>
+              {formValues.businessAddress}
+            </Text>
+            <Text style={styles.businessDetails}>
+              {formValues.businessPhone}
+            </Text>
+            <Text style={styles.businessDetails}>
+              {formValues.businessEmail}
+            </Text>
           </View>
           {businessLogo && <Image style={styles.logo} src={businessLogo} />}
         </View>
@@ -222,9 +249,15 @@ export function InvoicePDF({ formValues, businessLogo, customerLogo }: InvoicePD
           <View style={styles.customerInfo}>
             <Text style={styles.sectionTitle}>Bill To:</Text>
             <Text style={styles.customerName}>{formValues.customerName}</Text>
-            <Text style={styles.customerDetails}>{formValues.customerAddress}</Text>
-            <Text style={styles.customerDetails}>{formValues.customerPhone}</Text>
-            <Text style={styles.customerDetails}>{formValues.customerEmail}</Text>
+            <Text style={styles.customerDetails}>
+              {formValues.customerAddress}
+            </Text>
+            <Text style={styles.customerDetails}>
+              {formValues.customerPhone}
+            </Text>
+            <Text style={styles.customerDetails}>
+              {formValues.customerEmail}
+            </Text>
           </View>
           {customerLogo && <Image style={styles.logo} src={customerLogo} />}
         </View>
@@ -253,13 +286,17 @@ export function InvoicePDF({ formValues, businessLogo, customerLogo }: InvoicePD
         <View style={styles.table}>
           <View style={styles.tableHeader}>
             <Text style={[styles.tableCell, styles.itemCell]}>Item</Text>
-            <Text style={[styles.tableCell, styles.quantityCell]}>Quantity</Text>
+            <Text style={[styles.tableCell, styles.quantityCell]}>
+              Quantity
+            </Text>
             <Text style={[styles.tableCell, styles.priceCell]}>Unit Price</Text>
             <Text style={[styles.tableCell, styles.totalCell]}>Total</Text>
           </View>
           {formValues.items.map((item, index) => (
             <View key={index} style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.itemCell]}>{item.name}</Text>
+              <Text style={[styles.tableCell, styles.itemCell]}>
+                {item.name}
+              </Text>
               <Text style={[styles.tableCell, styles.quantityCell]}>
                 {item.quantity}
               </Text>
@@ -317,7 +354,9 @@ export function InvoicePDF({ formValues, businessLogo, customerLogo }: InvoicePD
             {formValues.termsAndConditions && (
               <View style={styles.noteBox}>
                 <Text style={styles.noteTitle}>Terms & Conditions:</Text>
-                <Text style={styles.noteText}>{formValues.termsAndConditions}</Text>
+                <Text style={styles.noteText}>
+                  {formValues.termsAndConditions}
+                </Text>
               </View>
             )}
           </View>

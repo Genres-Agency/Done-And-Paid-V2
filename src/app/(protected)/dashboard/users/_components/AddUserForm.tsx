@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
+import { Textarea } from "@/src/components/ui/textarea";
 import {
   Card,
   CardHeader,
@@ -48,10 +49,14 @@ const formSchema = z.object({
   role: z.enum([
     UserRole.SUPERADMIN,
     UserRole.ADMIN,
-    UserRole.DENTIST,
-    UserRole.STAFF,
     UserRole.USER,
+    UserRole.MANAGER,
+    UserRole.ACCOUNTANT,
+    UserRole.SALESPERSON,
   ]),
+  phoneNumber: z.string().optional(),
+  address: z.string().optional(),
+  bio: z.string().optional(),
 });
 
 const getIcon = (iconName: string) => {
@@ -76,6 +81,9 @@ export default function AddUserForm() {
       email: "",
       password: "",
       role: UserRole.USER,
+      phoneNumber: "",
+      address: "",
+      bio: "",
     },
   });
 
@@ -146,6 +154,52 @@ export default function AddUserForm() {
                       placeholder="Enter password"
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="tel"
+                      placeholder="Enter phone number"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter address" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="bio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bio</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Enter user bio" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

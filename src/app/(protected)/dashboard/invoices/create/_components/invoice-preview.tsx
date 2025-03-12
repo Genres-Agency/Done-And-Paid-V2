@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { Separator } from "@/src/components/ui/separator";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePDF } from "./invoice-pdf";
+import Image from "next/image";
 
 interface InvoicePreviewProps {
   open: boolean;
@@ -51,7 +52,7 @@ export function InvoicePreview({
                   <p className="text-gray-600">{formValues.businessEmail}</p>
                 </div>
                 {businessLogo && (
-                  <img
+                  <Image
                     src={businessLogo}
                     alt="Business Logo"
                     className="h-24 w-auto object-contain"
@@ -73,7 +74,7 @@ export function InvoicePreview({
                   <p className="text-gray-600">{formValues.customerEmail}</p>
                 </div>
                 {customerLogo && (
-                  <img
+                  <Image
                     src={customerLogo}
                     alt="Customer Logo"
                     className="h-24 w-auto object-contain"
@@ -230,9 +231,25 @@ export function InvoicePreview({
               />
             }
             fileName={`invoice-${formValues.invoiceNumber}.pdf`}
+            className="w-auto"
+            style={{ textDecoration: "none" }}
           >
-            {({ loading }) => (
-              <Button size="sm" variant="outline" disabled={loading}>
+            {({ loading, url }) => (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={loading}
+                onClick={() => {
+                  if (url) {
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = `invoice-${formValues.invoiceNumber}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }
+                }}
+              >
                 <Download className="mr-1.5 h-3.5 w-3.5" />
                 {loading ? "Generating..." : "Download"}
               </Button>

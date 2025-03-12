@@ -33,6 +33,8 @@ import {
   DockIcon,
   PanelTopInactiveIcon,
   Ban,
+  Calculator,
+  Store,
 } from "lucide-react";
 import { useCurrentUser } from "@/src/hooks/use-current-user";
 
@@ -58,10 +60,12 @@ const getRoleColor = (role: UserRole) => {
       return "text-purple-700 bg-purple-50 dark:text-purple-300 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800";
     case UserRole.ADMIN:
       return "text-blue-700 bg-blue-50 dark:text-blue-300 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800";
-    case UserRole.DENTIST:
+    case UserRole.MANAGER:
       return "text-green-700 bg-green-50 dark:text-green-300 dark:bg-green-900/30 border border-green-200 dark:border-green-800";
-    case UserRole.STAFF:
-      return "text-gray-700 bg-gray-50 dark:text-gray-300 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-800";
+    case UserRole.ACCOUNTANT:
+      return "text-cyan-700 bg-cyan-50 dark:text-cyan-300 dark:bg-cyan-900/30 border border-cyan-200 dark:border-cyan-800";
+    case UserRole.SALESPERSON:
+      return "text-orange-700 bg-orange-50 dark:text-orange-300 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800";
     case UserRole.USER:
       return "text-yellow-700 bg-yellow-50 dark:text-yellow-300 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800";
     case UserRole.BANNED:
@@ -149,8 +153,10 @@ const RoleCell = ({ row }: { row: any }) => {
           >
             {role === UserRole.SUPERADMIN && <Crown className="h-4 w-4" />}
             {role === UserRole.ADMIN && <Shield className="h-4 w-4" />}
-            {role === UserRole.DENTIST && <DockIcon className="h-4 w-4" />}
-            {role === UserRole.STAFF && <User2 className="h-4 w-4" />}
+            {role === UserRole.MANAGER && <DockIcon className="h-4 w-4" />}
+            {role === UserRole.ACCOUNTANT && <Calculator className="h-4 w-4" />}
+            {role === UserRole.SALESPERSON && <Store className="h-4 w-4" />}
+            {role === UserRole.USER && <User2 className="h-4 w-4" />}
             {role === UserRole.USER && (
               <PanelTopInactiveIcon className="h-4 w-4" />
             )}

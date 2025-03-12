@@ -24,16 +24,22 @@ export const getAvailableRoles = (
 ) => {
   if (currentUserRole === UserRole.SUPERADMIN) {
     return [
-      UserRole.ADMIN,
-      UserRole.DENTIST,
-      UserRole.STAFF,
-      UserRole.USER,
       UserRole.SUPERADMIN,
+      UserRole.ADMIN,
+      UserRole.MANAGER,
+      UserRole.ACCOUNTANT,
+      UserRole.SALESPERSON,
+      UserRole.USER,
     ];
   }
 
   if (currentUserRole === UserRole.ADMIN) {
-    return [UserRole.USER, UserRole.STAFF, UserRole.ADMIN];
+    return [
+      UserRole.MANAGER,
+      UserRole.ACCOUNTANT,
+      UserRole.SALESPERSON,
+      UserRole.USER,
+    ];
   }
 
   return [];

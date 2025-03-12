@@ -361,9 +361,11 @@ export function InvoiceForm() {
                     <div className="flex items-center gap-4">
                       {customBusinessLogo ? (
                         <div className="relative">
-                          <img
+                          <Image
                             src={customBusinessLogo}
                             alt="Business Logo"
+                            height={80}
+                            width={80}
                             className="h-20 w-auto"
                           />
                           <Button

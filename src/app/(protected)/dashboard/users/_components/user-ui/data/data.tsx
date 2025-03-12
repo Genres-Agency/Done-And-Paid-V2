@@ -39,14 +39,19 @@ export const userRoles = [
     iconName: "crown",
   },
   {
-    value: UserRole.DENTIST,
-    label: "Dentist",
-    iconName: "pen",
+    value: UserRole.MANAGER,
+    label: "Manager",
+    iconName: "briefcase",
   },
   {
-    value: UserRole.STAFF,
-    label: "Staff",
-    iconName: "staff",
+    value: UserRole.ACCOUNTANT,
+    label: "Accountant",
+    iconName: "calculator",
+  },
+  {
+    value: UserRole.SALESPERSON,
+    label: "Salesperson",
+    iconName: "store",
   },
   {
     value: UserRole.BANNED,
