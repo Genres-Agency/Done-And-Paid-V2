@@ -10,6 +10,8 @@ import { Printer, Download, X } from "lucide-react";
 import { InvoiceFormValues } from "@/src/schema/invoice";
 import { format } from "date-fns";
 import { Separator } from "@/src/components/ui/separator";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { InvoicePDF } from "./invoice-pdf";
 
 interface InvoicePreviewProps {
   open: boolean;
@@ -219,10 +221,23 @@ export function InvoicePreview({
             <Printer className="mr-1.5 h-3.5 w-3.5" />
             Print
           </Button>
-          <Button size="sm" variant="outline">
-            <Download className="mr-1.5 h-3.5 w-3.5" />
-            Download
-          </Button>
+          <PDFDownloadLink
+            document={
+              <InvoicePDF
+                formValues={formValues}
+                businessLogo={businessLogo}
+                customerLogo={customerLogo}
+              />
+            }
+            fileName={`invoice-${formValues.invoiceNumber}.pdf`}
+          >
+            {({ loading }) => (
+              <Button size="sm" variant="outline" disabled={loading}>
+                <Download className="mr-1.5 h-3.5 w-3.5" />
+                {loading ? "Generating..." : "Download"}
+              </Button>
+            )}
+          </PDFDownloadLink>
           <Button
             size="sm"
             variant="outline"
