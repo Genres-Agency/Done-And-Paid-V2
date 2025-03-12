@@ -8,6 +8,16 @@ import { randomUUID } from "crypto";
 export type CreateInvoiceData = {
   // Customer Information
   customerId: string;
+  customerName: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  customerAddress?: string;
+  customerCompany?: string;
+  customerLogo?: string;
+  customerTaxNumber?: string;
+  customerBillingAddress?: string;
+  customerShippingAddress?: string;
+  customerNotes?: string;
 
   // Business Information
   businessName: string;
@@ -68,6 +78,41 @@ type UpdateInvoiceStatusData = {
 };
 
 export async function createInvoice(data: CreateInvoiceData) {
+  // Generate a new customer ID if not provided
+  const customerId = data.customerId || randomUUID();
+  const customerName = data.customerName || 'New Customer';
+
+  // Create or update customer
+  const customer = await prisma.customer.upsert({
+    where: {
+      id: customerId,
+    },
+    create: {
+      id: customerId,
+      name: customerName,
+      email: data.customerEmail,
+      phoneNumber: data.customerPhone,
+      address: data.customerAddress,
+      company: data.customerCompany,
+      companyLogo: data.customerLogo,
+      taxNumber: data.customerTaxNumber,
+      billingAddress: data.customerBillingAddress,
+      shippingAddress: data.customerShippingAddress,
+      notes: data.customerNotes,
+    },
+    update: {
+      name: customerName,
+      phoneNumber: data.customerPhone,
+      address: data.customerAddress,
+      company: data.customerCompany,
+      companyLogo: data.customerLogo,
+      taxNumber: data.customerTaxNumber,
+      billingAddress: data.customerBillingAddress,
+      shippingAddress: data.customerShippingAddress,
+      notes: data.customerNotes,
+    },
+  });
+
   // Generate invoice number (format: INV-YYYYMMDD-XXXX)
   const date = new Date();
   const dateStr = date.toISOString().slice(0, 10).replace(/-/g, "");
@@ -99,11 +144,11 @@ export async function createInvoice(data: CreateInvoiceData) {
     total: item.quantity * item.unitPrice,
   }));
 
-  // Create the invoice
+  // Create the invoice with the customer ID
   const invoice = await prisma.invoice.create({
     data: {
       invoiceNumber,
-      customerId: data.customerId,
+      customerId: customer.id,
 
       // Business Information
       businessName: data.businessName,

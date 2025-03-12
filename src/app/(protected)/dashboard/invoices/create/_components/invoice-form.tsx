@@ -206,38 +206,13 @@ export function InvoiceForm() {
         return;
       }
 
-      console.log("Creating invoice with values:", {
-        ...values,
-        createdById: session.user.id,
-      });
-
-      // Create or find customer using server action
-      const customer = await upsertCustomer({
-        name: values.customerName,
-        email: values.customerEmail,
-        phoneNumber: values.customerPhone,
-        address: values.customerAddress,
-        company: values.customerCompany,
-        companyLogo: values.customerLogo,
-        taxNumber: values.customerTaxNumber,
-        billingAddress: values.customerBillingAddress,
-        shippingAddress: values.customerShippingAddress,
-        notes: values.customerNotes,
-      } as UpsertCustomerData);
-
-      if (!customer?.id) {
-        throw new Error("Failed to create/update customer");
-      }
-
-      console.log("Customer created/updated:", customer);
-
       // Calculate totals for the invoice
       const totals = calculateTotals();
 
       // Create invoice using server action with all form data
       const invoice = await createInvoice({
         // Customer Information
-        customerId: customer.id,
+        customerId: "", // This will be set by the server action after upserting the customer
 
         // Business Information
         businessName: values.businessName,
