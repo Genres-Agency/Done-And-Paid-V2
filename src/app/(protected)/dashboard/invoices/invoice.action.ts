@@ -80,7 +80,7 @@ type UpdateInvoiceStatusData = {
 export async function createInvoice(data: CreateInvoiceData) {
   // Generate a new customer ID if not provided
   const customerId = data.customerId || randomUUID();
-  const customerName = data.customerName || 'New Customer';
+  const customerName = data.customerName || "New Customer";
 
   // Create or update customer
   const customer = await prisma.customer.upsert({
