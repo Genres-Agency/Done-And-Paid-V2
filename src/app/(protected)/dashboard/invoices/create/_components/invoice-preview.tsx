@@ -247,13 +247,12 @@ export function InvoicePreview({
             {({ loading, error }) => {
               if (error) {
                 console.error("PDF generation error:", error);
-                const errorMessage = error.message.includes("image")
-                  ? "Failed to process images. Please ensure all images are valid and try again."
-                  : "Failed to generate PDF. Please try again.";
                 return (
-                  <Button size="sm" variant="destructive" title={errorMessage}>
+                  <Button size="sm" variant="destructive" title={error.message}>
                     <X className="mr-1.5 h-3.5 w-3.5" />
-                    {errorMessage}
+                    {error.message === "Processing logos..."
+                      ? "Preparing images..."
+                      : "Failed to generate PDF"}
                   </Button>
                 );
               }

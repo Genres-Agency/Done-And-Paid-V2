@@ -212,61 +212,81 @@ export function InvoicePDF({
   customerLogo,
 }: InvoicePDFProps) {
   // Convert base64/blob URLs to data URLs for PDF rendering
-  const getImageUrl = async (imageSource: string | null) => {
+  const getImageUrl = async (
+    imageSource: string | null
+  ): Promise<string | null> => {
     if (!imageSource) return null;
 
     try {
-      // If it's already a data URL, validate and use it directly
       if (imageSource.startsWith("data:")) {
         if (!imageSource.startsWith("data:image/")) {
-          throw new Error("Invalid data URL format");
+          console.warn("Skipping invalid data URL format");
+          return null;
         }
         return imageSource;
       }
 
-      // For blob URLs or http(s) URLs, convert them to data URLs
       const response = await fetch(imageSource);
       if (!response.ok) {
-        throw new Error(`Failed to fetch image: ${response.statusText}`);
+        console.warn(`Failed to fetch image: ${response.statusText}`);
+        return null;
       }
 
       const blob = await response.blob();
       if (!blob.type.startsWith("image/")) {
-        throw new Error(`Invalid image format: ${blob.type}`);
+        console.warn(`Skipping invalid image format: ${blob.type}`);
+        return null;
       }
 
-      return new Promise((resolve, reject) => {
+      return new Promise<string | null>((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           const result = reader.result as string;
           if (!result || !result.startsWith("data:image/")) {
-            reject(new Error("Invalid image data"));
+            console.warn("Skipping invalid image data");
+            resolve(null);
             return;
           }
           resolve(result);
         };
-        reader.onerror = () => reject(new Error("Failed to read image"));
+        reader.onerror = () => {
+          console.warn("Failed to read image");
+          resolve(null);
+        };
         reader.readAsDataURL(blob);
       });
     } catch (error) {
-      console.error("Error processing image:", error);
-      return null; // Return null instead of throwing to prevent PDF generation failure
+      console.warn("Error processing image:", error);
+      return null;
     }
   };
 
-  const processLogos = React.useMemo(async () => {
-    const [businessLogoUrl, customerLogoUrl] = await Promise.all([
-      getImageUrl(businessLogo),
-      getImageUrl(customerLogo)
-    ]);
-    return {
-      businessLogo: businessLogoUrl,
-      customerLogo: customerLogoUrl
+  const [processedLogos, setProcessedLogos] = React.useState<{
+    businessLogo: string | null;
+    customerLogo: string | null;
+  } | null>(null);
+
+  React.useEffect(() => {
+    const loadLogos = async () => {
+      try {
+        const [businessLogoUrl, customerLogoUrl] = await Promise.all([
+          getImageUrl(businessLogo),
+          getImageUrl(customerLogo),
+        ]);
+        setProcessedLogos({
+          businessLogo: businessLogoUrl,
+          customerLogo: customerLogoUrl,
+        });
+      } catch (error) {
+        console.error("Error processing logos:", error);
+        setProcessedLogos({ businessLogo: null, customerLogo: null });
+      }
     };
+    loadLogos();
   }, [businessLogo, customerLogo]);
 
-  if (!processLogos) {
-    throw new Error("Processing logos...");
+  if (!processedLogos) {
+    return null;
   }
   const calculateTotal = () => {
     const subtotal = formValues.items.reduce(
@@ -299,10 +319,9 @@ export function InvoicePDF({
               {formValues.businessEmail}
             </Text>
           </View>
-          {processedBusinessLogo &&
-            processedBusinessLogo.startsWith("data:") && (
-              <Image src={processedBusinessLogo} style={styles.logo} />
-            )}
+          {processedLogos.businessLogo && (
+            <Image src={processedLogos.businessLogo} style={styles.logo} />
+          )}
         </View>
 
         {/* Customer Information */}
@@ -320,10 +339,9 @@ export function InvoicePDF({
               {formValues.customerEmail}
             </Text>
           </View>
-          {processedCustomerLogo &&
-            processedCustomerLogo.startsWith("data:") && (
-              <Image src={processedCustomerLogo} style={styles.logo} />
-            )}
+          {processedLogos.customerLogo && (
+            <Image src={processedLogos.customerLogo} style={styles.logo} />
+          )}
         </View>
 
         {/* Invoice Details */}

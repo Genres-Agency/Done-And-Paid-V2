@@ -58,14 +58,9 @@ import { BusinessInfoSkeleton } from "./business-info-skeleton";
 import { Printer, Download, X } from "lucide-react";
 import { InvoicePreview } from "./invoice-preview";
 import Image from "next/image";
-import {
-  createInvoice,
-  saveInvoiceDraft,
-  getMostRecentDraftInvoice,
-} from "../../invoice.action";
+import { createInvoice } from "../../invoice.action";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { upsertCustomer } from "../../../customers/customer.action";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePDF } from "./invoice-pdf";
 
