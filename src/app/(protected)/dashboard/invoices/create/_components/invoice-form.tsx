@@ -66,6 +66,8 @@ import {
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { upsertCustomer } from "../../../customers/customer.action";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { InvoicePDF } from "./invoice-pdf";
 
 // Define the type for upsertCustomer
 export type UpsertCustomerData = {
@@ -1202,23 +1204,76 @@ export function InvoiceForm() {
           </Card>
 
           {/* Add Preview Button before the Create Invoice button */}
-          <div className="flex gap-4 items-center">
+          <div className="flex items-center gap-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => setShowPreview(true)}
             >
+              <Eye className="w-4 h-4 mr-2" />
               Preview Invoice
             </Button>
+            <PDFDownloadLink
+              document={
+                <InvoicePDF
+                  formValues={form.getValues()}
+                  businessLogo={customBusinessLogo || defaultBusinessLogo}
+                  customerLogo={previewCustomerLogo}
+                />
+              }
+              fileName={`invoice-${
+                form.getValues().invoiceNumber || "draft"
+              }.pdf`}
+            >
+              {({ loading }) => (
+                <Button type="button" variant="outline" disabled={loading}>
+                  <Download className="w-4 h-4 mr-2" />
+                  {loading ? "Preparing..." : "Download PDF"}
+                </Button>
+              )}
+            </PDFDownloadLink>
             <Button type="submit">Create Invoice</Button>
-            {lastSaved && (
-              <span className="text-sm text-muted-foreground ml-4">
-                Last saved to browser: {format(lastSaved, "h:mm a")}
-              </span>
-            )}
           </div>
+          {lastSaved && (
+            <span className="text-sm text-muted-foreground ml-4">
+              Last saved to browser: {format(lastSaved, "h:mm a")}
+            </span>
+          )}
         </form>
       </Form>
+
+      {/* Replace the old preview dialog with the new component */}
+      {showPreview && (
+        <InvoicePreview
+          open={showPreview}
+          onOpenChange={setShowPreview}
+          formValues={form.getValues()}
+          businessLogo={customBusinessLogo || defaultBusinessLogo}
+          customerLogo={previewCustomerLogo}
+        />
+      )}
+
+      {/* Business Logo Selector */}
+      <MediaSelectorModal
+        open={showBusinessLogoSelector}
+        onOpenChange={setShowBusinessLogoSelector}
+        onMediaSelect={() => {}}
+        onFileSelect={handleBusinessLogoSelect}
+        allowedTypes={["upload"]}
+        showLibrary={false}
+        reset={false}
+      />
+
+      {/* Customer Logo Selector */}
+      <MediaSelectorModal
+        open={showCustomerLogoSelector}
+        onOpenChange={setShowCustomerLogoSelector}
+        onMediaSelect={() => {}}
+        onFileSelect={handleCustomerLogoSelect}
+        allowedTypes={["upload"]}
+        showLibrary={false}
+        reset={false}
+      />
 
       {/* Replace the old preview dialog with the new component */}
       <InvoicePreview

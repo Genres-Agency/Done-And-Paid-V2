@@ -55,7 +55,13 @@ export function InvoicePreview({
                   <Image
                     src={businessLogo}
                     alt="Business Logo"
+                    width={96}
+                    height={96}
                     className="h-24 w-auto object-contain"
+                    onError={(e) => {
+                      console.error("Error loading business logo:", e);
+                      e.currentTarget.style.display = "none";
+                    }}
                   />
                 )}
               </div>
@@ -77,7 +83,13 @@ export function InvoicePreview({
                   <Image
                     src={customerLogo}
                     alt="Customer Logo"
+                    width={96}
+                    height={96}
                     className="h-24 w-auto object-contain"
+                    onError={(e) => {
+                      console.error("Error loading customer logo:", e);
+                      e.currentTarget.style.display = "none";
+                    }}
                   />
                 )}
               </div>
@@ -231,29 +243,27 @@ export function InvoicePreview({
               />
             }
             fileName={`invoice-${formValues.invoiceNumber}.pdf`}
-            className="w-auto"
-            style={{ textDecoration: "none" }}
           >
-            {({ loading, url }) => (
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={loading}
-                onClick={() => {
-                  if (url) {
-                    const link = document.createElement("a");
-                    link.href = url;
-                    link.download = `invoice-${formValues.invoiceNumber}.pdf`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  }
-                }}
-              >
-                <Download className="mr-1.5 h-3.5 w-3.5" />
-                {loading ? "Generating..." : "Download"}
-              </Button>
-            )}
+            {({ loading, error }) => {
+              if (error) {
+                console.error("PDF generation error:", error);
+                const errorMessage = error.message.includes("image")
+                  ? "Failed to process images. Please ensure all images are valid and try again."
+                  : "Failed to generate PDF. Please try again.";
+                return (
+                  <Button size="sm" variant="destructive" title={errorMessage}>
+                    <X className="mr-1.5 h-3.5 w-3.5" />
+                    {errorMessage}
+                  </Button>
+                );
+              }
+              return (
+                <Button size="sm" variant="outline" disabled={loading}>
+                  <Download className="mr-1.5 h-3.5 w-3.5" />
+                  {loading ? "Generating..." : "Download"}
+                </Button>
+              );
+            }}
           </PDFDownloadLink>
           <Button
             size="sm"
