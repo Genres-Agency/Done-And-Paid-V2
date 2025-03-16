@@ -341,7 +341,7 @@ export function InvoiceForm() {
           {/* Business Information */}
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 py-3">
               <CardTitle>Business Information</CardTitle>
               <Button
                 type="button"
@@ -1046,7 +1046,7 @@ export function InvoiceForm() {
 
           {/* Payment Information */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 py-3">
               <CardTitle>Payment Information</CardTitle>
               <Button
                 type="button"
@@ -1149,7 +1149,7 @@ export function InvoiceForm() {
 
           {/* Notes & Terms */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 py-3">
               <CardTitle>Notes & Terms</CardTitle>
               <Button
                 type="button"

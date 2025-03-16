@@ -33,7 +33,6 @@ import {
   DockIcon,
   PanelTopInactiveIcon,
   Ban,
-  Calculator,
   Store,
 } from "lucide-react";
 import { useCurrentUser } from "@/src/hooks/use-current-user";
@@ -154,7 +153,7 @@ const RoleCell = ({ row }: { row: any }) => {
             {role === UserRole.SUPERADMIN && <Crown className="h-4 w-4" />}
             {role === UserRole.ADMIN && <Shield className="h-4 w-4" />}
             {role === UserRole.MANAGER && <DockIcon className="h-4 w-4" />}
-            {role === UserRole.ACCOUNTANT && <Calculator className="h-4 w-4" />}
+            {role === UserRole.ACCOUNTANT && <Dock className="h-4 w-4" />}
             {role === UserRole.SALESPERSON && <Store className="h-4 w-4" />}
             {role === UserRole.USER && <User2 className="h-4 w-4" />}
             {role === UserRole.USER && (
