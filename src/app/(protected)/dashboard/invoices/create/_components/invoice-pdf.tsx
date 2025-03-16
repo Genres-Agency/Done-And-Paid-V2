@@ -1,52 +1,31 @@
-import { InvoiceFormValues } from "@/src/schema/invoice";
-import { format } from "date-fns";
 import React from "react";
 import {
+  Document,
   Page,
   Text,
   View,
-  Document,
   StyleSheet,
   Image,
-  Font,
 } from "@react-pdf/renderer";
-
-// Register fonts
-Font.register({
-  family: "Inter",
-  fonts: [
-    {
-      src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2",
-      fontWeight: 400,
-    },
-    {
-      src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiA.woff2",
-      fontWeight: 500,
-    },
-    {
-      src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hiA.woff2",
-      fontWeight: 700,
-    },
-  ],
-});
+import { InvoiceFormValues } from "@/src/schema/invoice";
 
 interface InvoicePDFProps {
   formValues: InvoiceFormValues;
-  businessLogo: string | null;
-  customerLogo: string | null;
+  businessLogo?: string | null;
+  customerLogo?: string | null;
 }
 
-// Create styles
 const styles = StyleSheet.create({
   page: {
     padding: 40,
     backgroundColor: "white",
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 30,
+    alignItems: "flex-start",
+    marginBottom: 32,
   },
   businessInfo: {
     flexDirection: "column",
@@ -55,37 +34,36 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 4,
+    color: "#111827",
   },
   businessDetails: {
     fontSize: 10,
     color: "#4B5563",
     marginBottom: 2,
   },
-  logo: {
-    width: 100,
-    height: 100,
-    objectFit: "contain",
-  },
   customerSection: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     backgroundColor: "#F9FAFB",
     padding: 16,
     borderRadius: 4,
-    marginBottom: 30,
-    flexDirection: "row",
-    justifyContent: "space-between",
+    marginBottom: 32,
   },
   customerInfo: {
     flexDirection: "column",
   },
-  sectionTitle: {
+  customerTitle: {
     fontSize: 14,
     fontWeight: "bold",
     marginBottom: 4,
+    color: "#111827",
   },
   customerName: {
     fontSize: 12,
     fontWeight: "medium",
     marginBottom: 2,
+    color: "#4B5563",
   },
   customerDetails: {
     fontSize: 10,
@@ -93,11 +71,13 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   invoiceDetails: {
-    border: 1,
-    borderColor: "#E5E7EB",
+    flexDirection: "column",
+    backgroundColor: "white",
     padding: 16,
     borderRadius: 4,
-    marginBottom: 30,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    marginBottom: 32,
   },
   invoiceInfo: {
     flexDirection: "row",
@@ -106,6 +86,7 @@ const styles = StyleSheet.create({
   invoiceLabel: {
     fontSize: 10,
     fontWeight: "medium",
+    color: "#111827",
     width: 100,
   },
   invoiceValue: {
@@ -113,42 +94,45 @@ const styles = StyleSheet.create({
     color: "#4B5563",
   },
   table: {
-    flexDirection: "column",
-    marginBottom: 30,
+    width: "100%",
+    marginBottom: 32,
   },
   tableHeader: {
     flexDirection: "row",
     backgroundColor: "#F9FAFB",
-    padding: 8,
-    fontSize: 10,
-    fontWeight: "bold",
+    padding: "12 16",
   },
   tableRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
-    padding: 8,
+    padding: "12 16",
   },
   tableCell: {
     fontSize: 10,
   },
   itemCell: {
     flex: 3,
+    color: "#111827",
   },
   quantityCell: {
     flex: 1,
     textAlign: "right",
+    color: "#4B5563",
   },
   priceCell: {
     flex: 1,
     textAlign: "right",
+    color: "#4B5563",
   },
   totalCell: {
     flex: 1,
     textAlign: "right",
+    color: "#111827",
+    fontWeight: "medium",
   },
   totalsSection: {
-    width: 200,
+    width: 250,
     alignSelf: "flex-end",
     backgroundColor: "#F9FAFB",
     padding: 16,
@@ -166,6 +150,7 @@ const styles = StyleSheet.create({
   totalValue: {
     fontSize: 10,
     fontWeight: "medium",
+    color: "#111827",
   },
   finalTotal: {
     flexDirection: "row",
@@ -176,33 +161,43 @@ const styles = StyleSheet.create({
     borderTopColor: "#E5E7EB",
   },
   finalTotalLabel: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "bold",
+    color: "#111827",
   },
   finalTotalValue: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "bold",
+    color: "#111827",
   },
   notesSection: {
-    marginTop: 30,
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
-    paddingTop: 16,
+    marginTop: 32,
+    marginBottom: 32,
   },
-  noteBox: {
-    backgroundColor: "#F9FAFB",
-    padding: 16,
-    borderRadius: 4,
-    marginBottom: 16,
-  },
-  noteTitle: {
-    fontSize: 12,
+  notesTitle: {
+    fontSize: 14,
     fontWeight: "bold",
-    marginBottom: 4,
+    color: "#111827",
+    marginBottom: 8,
   },
-  noteText: {
+  notesContent: {
     fontSize: 10,
     color: "#4B5563",
+    lineHeight: 1.5,
+  },
+  termsSection: {
+    marginBottom: 32,
+  },
+  termsTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#111827",
+    marginBottom: 8,
+  },
+  termsContent: {
+    fontSize: 10,
+    color: "#4B5563",
+    lineHeight: 1.5,
   },
 });
 
@@ -211,101 +206,21 @@ export function InvoicePDF({
   businessLogo,
   customerLogo,
 }: InvoicePDFProps) {
-  // Convert base64/blob URLs to data URLs for PDF rendering
-  const getImageUrl = async (
-    imageSource: string | null
-  ): Promise<string | null> => {
-    if (!imageSource) return null;
-
-    try {
-      if (imageSource.startsWith("data:")) {
-        if (!imageSource.startsWith("data:image/")) {
-          console.warn("Skipping invalid data URL format");
-          return null;
-        }
-        return imageSource;
-      }
-
-      const response = await fetch(imageSource);
-      if (!response.ok) {
-        console.warn(`Failed to fetch image: ${response.statusText}`);
-        return null;
-      }
-
-      const blob = await response.blob();
-      if (!blob.type.startsWith("image/")) {
-        console.warn(`Skipping invalid image format: ${blob.type}`);
-        return null;
-      }
-
-      return new Promise<string | null>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const result = reader.result as string;
-          if (!result || !result.startsWith("data:image/")) {
-            console.warn("Skipping invalid image data");
-            resolve(null);
-            return;
-          }
-          resolve(result);
-        };
-        reader.onerror = () => {
-          console.warn("Failed to read image");
-          resolve(null);
-        };
-        reader.readAsDataURL(blob);
-      });
-    } catch (error) {
-      console.warn("Error processing image:", error);
-      return null;
-    }
-  };
-
-  const [processedLogos, setProcessedLogos] = React.useState<{
-    businessLogo: string | null;
-    customerLogo: string | null;
-  } | null>(null);
-
-  React.useEffect(() => {
-    const loadLogos = async () => {
-      try {
-        const [businessLogoUrl, customerLogoUrl] = await Promise.all([
-          getImageUrl(businessLogo),
-          getImageUrl(customerLogo),
-        ]);
-        setProcessedLogos({
-          businessLogo: businessLogoUrl,
-          customerLogo: customerLogoUrl,
-        });
-      } catch (error) {
-        console.error("Error processing logos:", error);
-        setProcessedLogos({ businessLogo: null, customerLogo: null });
-      }
-    };
-    loadLogos();
-  }, [businessLogo, customerLogo]);
-
-  if (!processedLogos) {
-    return null;
-  }
-  const calculateTotal = () => {
-    const subtotal = formValues.items.reduce(
-      (sum, item) => sum + item.quantity * item.unitPrice,
-      0
-    );
-    const discountAmount = formValues.discountValue
-      ? (subtotal * formValues.discountValue) / 100
-      : 0;
-    const taxAmount = formValues.taxValue
-      ? ((subtotal - discountAmount) * formValues.taxValue) / 100
-      : 0;
-    return (subtotal - discountAmount + taxAmount).toFixed(2);
-  };
+  const subtotal = formValues.items.reduce(
+    (sum, item) => sum + item.quantity * item.unitPrice,
+    0
+  );
+  const discountAmount = formValues.discountValue
+    ? (subtotal * formValues.discountValue) / 100
+    : 0;
+  const taxAmount = formValues.taxValue
+    ? ((subtotal - discountAmount) * formValues.taxValue) / 100
+    : 0;
+  const total = subtotal - discountAmount + taxAmount;
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.businessInfo}>
             <Text style={styles.businessName}>{formValues.businessName}</Text>
@@ -319,15 +234,17 @@ export function InvoicePDF({
               {formValues.businessEmail}
             </Text>
           </View>
-          {processedLogos.businessLogo && (
-            <Image src={processedLogos.businessLogo} style={styles.logo} />
+          {businessLogo && (
+            <Image
+              src={businessLogo}
+              style={{ width: 96, height: 96, objectFit: "contain" }}
+            />
           )}
         </View>
 
-        {/* Customer Information */}
         <View style={styles.customerSection}>
           <View style={styles.customerInfo}>
-            <Text style={styles.sectionTitle}>Bill To:</Text>
+            <Text style={styles.customerTitle}>Bill To:</Text>
             <Text style={styles.customerName}>{formValues.customerName}</Text>
             <Text style={styles.customerDetails}>
               {formValues.customerAddress}
@@ -339,12 +256,14 @@ export function InvoicePDF({
               {formValues.customerEmail}
             </Text>
           </View>
-          {processedLogos.customerLogo && (
-            <Image src={processedLogos.customerLogo} style={styles.logo} />
+          {customerLogo && (
+            <Image
+              src={customerLogo}
+              style={{ width: 96, height: 96, objectFit: "contain" }}
+            />
           )}
         </View>
 
-        {/* Invoice Details */}
         <View style={styles.invoiceDetails}>
           <View style={styles.invoiceInfo}>
             <Text style={styles.invoiceLabel}>Invoice Number:</Text>
@@ -353,18 +272,17 @@ export function InvoicePDF({
           <View style={styles.invoiceInfo}>
             <Text style={styles.invoiceLabel}>Date:</Text>
             <Text style={styles.invoiceValue}>
-              {format(formValues.invoiceDate, "PPP")}
+              {formValues.invoiceDate.toLocaleDateString()}
             </Text>
           </View>
           <View style={styles.invoiceInfo}>
             <Text style={styles.invoiceLabel}>Due Date:</Text>
             <Text style={styles.invoiceValue}>
-              {format(formValues.dueDate, "PPP")}
+              {formValues.dueDate.toLocaleDateString()}
             </Text>
           </View>
         </View>
 
-        {/* Items Table */}
         <View style={styles.table}>
           <View style={styles.tableHeader}>
             <Text style={[styles.tableCell, styles.itemCell]}>Item</Text>
@@ -375,7 +293,7 @@ export function InvoicePDF({
             <Text style={[styles.tableCell, styles.totalCell]}>Total</Text>
           </View>
           {formValues.items.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
+            <View style={styles.tableRow} key={index}>
               <Text style={[styles.tableCell, styles.itemCell]}>
                 {item.name}
               </Text>
@@ -392,55 +310,44 @@ export function InvoicePDF({
           ))}
         </View>
 
-        {/* Totals */}
         <View style={styles.totalsSection}>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotal:</Text>
-            <Text style={styles.totalValue}>
-              {formValues.items
-                .reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
-                .toFixed(2)}
-            </Text>
+            <Text style={styles.totalValue}>{subtotal.toFixed(2)}</Text>
           </View>
           {formValues.discountValue > 0 && (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Discount:</Text>
               <Text style={[styles.totalValue, { color: "#DC2626" }]}>
-                -{formValues.discountValue.toFixed(2)}%
+                -{formValues.discountValue}%
               </Text>
             </View>
           )}
           {formValues.taxValue > 0 && (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Tax:</Text>
-              <Text style={styles.totalValue}>
-                +{formValues.taxValue.toFixed(2)}%
-              </Text>
+              <Text style={styles.totalValue}>+{formValues.taxValue}%</Text>
             </View>
           )}
           <View style={styles.finalTotal}>
             <Text style={styles.finalTotalLabel}>Total:</Text>
-            <Text style={styles.finalTotalValue}>{calculateTotal()}</Text>
+            <Text style={styles.finalTotalValue}>{total.toFixed(2)}</Text>
           </View>
         </View>
 
-        {/* Notes & Terms */}
-        {(formValues.notes || formValues.termsAndConditions) && (
+        {formValues.notes && (
           <View style={styles.notesSection}>
-            {formValues.notes && (
-              <View style={styles.noteBox}>
-                <Text style={styles.noteTitle}>Notes:</Text>
-                <Text style={styles.noteText}>{formValues.notes}</Text>
-              </View>
-            )}
-            {formValues.termsAndConditions && (
-              <View style={styles.noteBox}>
-                <Text style={styles.noteTitle}>Terms & Conditions:</Text>
-                <Text style={styles.noteText}>
-                  {formValues.termsAndConditions}
-                </Text>
-              </View>
-            )}
+            <Text style={styles.notesTitle}>Notes</Text>
+            <Text style={styles.notesContent}>{formValues.notes}</Text>
+          </View>
+        )}
+
+        {formValues.termsAndConditions && (
+          <View style={styles.termsSection}>
+            <Text style={styles.termsTitle}>Terms & Conditions</Text>
+            <Text style={styles.termsContent}>
+              {formValues.termsAndConditions}
+            </Text>
           </View>
         )}
       </Page>

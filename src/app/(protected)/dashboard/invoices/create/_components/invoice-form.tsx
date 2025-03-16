@@ -13,7 +13,7 @@ import {
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
 import { Textarea } from "@/src/components/ui/textarea";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { InvoiceSchema, type InvoiceFormValues } from "@/src/schema/invoice";
 import {
@@ -1208,32 +1208,39 @@ export function InvoiceForm() {
               <Eye className="w-4 h-4 mr-2" />
               Preview Invoice
             </Button>
-            <PDFDownloadLink
-              document={
-                <InvoicePDF
-                  formValues={form.getValues()}
-                  businessLogo={customBusinessLogo || defaultBusinessLogo}
-                  customerLogo={previewCustomerLogo}
-                />
-              }
-              fileName={`invoice-${
-                form.getValues().invoiceNumber || "draft"
-              }.pdf`}
-            >
-              {({ loading }) => (
-                <Button type="button" variant="outline" disabled={loading}>
-                  <Download className="w-4 h-4 mr-2" />
-                  {loading ? "Preparing..." : "Download PDF"}
-                </Button>
-              )}
-            </PDFDownloadLink>
             <Button type="submit">Create Invoice</Button>
+            {/* <PDFDownloadLink
+              document={<InvoicePDF formValues={form.getValues()} />}
+              fileName="invoice.pdf"
+            >
+              {({ loading, error }) => {
+                if (error) {
+                  console.error("Invoice PDF generation error:", error);
+                  return (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      title={error.message}
+                    >
+                      <X className="mr-1.5 h-3.5 w-3.5" />
+                      Failed to generate PDF
+                    </Button>
+                  );
+                }
+                return (
+                  <Button size="sm" variant="outline" disabled={loading}>
+                    <Download className="mr-1.5 h-3.5 w-3.5" />
+                    {loading ? "Generating..." : "Download"}
+                  </Button>
+                );
+              }}
+            </PDFDownloadLink> */}
+            {lastSaved && (
+              <span className="text-sm text-muted-foreground ml-4">
+                Last saved to browser: {format(lastSaved, "h:mm a")}
+              </span>
+            )}
           </div>
-          {lastSaved && (
-            <span className="text-sm text-muted-foreground ml-4">
-              Last saved to browser: {format(lastSaved, "h:mm a")}
-            </span>
-          )}
         </form>
       </Form>
 

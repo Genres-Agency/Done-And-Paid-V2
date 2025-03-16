@@ -11,8 +11,8 @@ import { InvoiceFormValues } from "@/src/schema/invoice";
 import { format } from "date-fns";
 import { Separator } from "@/src/components/ui/separator";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import { InvoicePDF } from "./invoice-pdf";
 import Image from "next/image";
+import { InvoicePDF } from "./invoice-pdf";
 
 interface InvoicePreviewProps {
   open: boolean;
@@ -234,32 +234,25 @@ export function InvoicePreview({
             <Printer className="mr-1.5 h-3.5 w-3.5" />
             Print
           </Button>
+
           <PDFDownloadLink
-            document={
-              <InvoicePDF
-                formValues={formValues}
-                businessLogo={businessLogo}
-                customerLogo={customerLogo}
-              />
-            }
-            fileName={`invoice-${formValues.invoiceNumber}.pdf`}
+            document={<InvoicePDF formValues={formValues} />}
+            fileName="invoice.pdf"
           >
             {({ loading, error }) => {
               if (error) {
-                console.error("PDF generation error:", error);
+                console.error("Invoice PDF generation error:", error);
                 return (
                   <Button size="sm" variant="destructive" title={error.message}>
                     <X className="mr-1.5 h-3.5 w-3.5" />
-                    {error.message === "Processing logos..."
-                      ? "Preparing images..."
-                      : "Failed to generate PDF"}
+                    Failed to generate PDF
                   </Button>
                 );
               }
               return (
                 <Button size="sm" variant="outline" disabled={loading}>
                   <Download className="mr-1.5 h-3.5 w-3.5" />
-                  {loading ? "Generating..." : "Download"}
+                  {loading ? "Generating..." : "Download PDF"}
                 </Button>
               );
             }}
