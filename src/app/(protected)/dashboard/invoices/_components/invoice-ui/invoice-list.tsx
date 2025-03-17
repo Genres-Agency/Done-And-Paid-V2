@@ -9,14 +9,10 @@ import { useRouter } from "next/navigation";
 import { DataTable } from "@/src/app/(protected)/_components/table/data-table";
 import Link from "next/link";
 
-type InvoiceWithRelations = Invoice & {
-  customer: {
-    name: string;
-  };
-};
+import { InvoiceWithCustomer } from "@/src/types/invoice";
 
 type InvoiceListProps = {
-  invoices: InvoiceWithRelations[];
+  invoices: InvoiceWithCustomer[];
 };
 
 export default function InvoiceList({ invoices }: InvoiceListProps) {
