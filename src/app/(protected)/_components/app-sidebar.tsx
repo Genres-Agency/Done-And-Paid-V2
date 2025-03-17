@@ -47,15 +47,17 @@ import { ExitIcon } from "@radix-ui/react-icons";
 import { useCurrentUser } from "@/src/hooks/use-current-user";
 import { navItems } from "@/src/components/constants/data";
 import { Icons } from "@/src/components/icons";
+import logoImg from "../../../../public/logo-icon.svg";
 import { LogoutButton } from "@/src/components/auth/logout-button";
 import React from "react";
 import { useSession } from "next-auth/react";
 import { UserRole } from "@prisma/client";
 import { Skeleton } from "@/src/components/ui/skeleton";
+import Image from "next/image";
 
 export const company = {
   name: "Done And Paid",
-  logo: GalleryVerticalEnd,
+  logo: logoImg,
   plan: "Administrator",
 };
 
@@ -184,8 +186,12 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="z-50">
       <SidebarHeader>
         <div className="flex gap-2 py-2 text-sidebar-accent-foreground">
-          <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            <company.logo className="size-4" />
+          <div className="">
+            <Image
+              src={company.logo}
+              className="h-8 w-auto"
+              alt="Company Logo"
+            />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold">{company.name}</span>
