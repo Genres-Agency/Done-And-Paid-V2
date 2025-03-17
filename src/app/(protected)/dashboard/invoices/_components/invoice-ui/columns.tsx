@@ -33,8 +33,6 @@ import {
 } from "@/src/components/ui/select";
 import { updateInvoiceStatus } from "../../invoice.action";
 import { Invoice, PaymentStatus } from "@prisma/client";
-import { InvoiceDetailsDialog } from "./invoice-details-dialog";
-
 type InvoiceWithCustomer = Invoice & {
   customer: {
     name: string;
@@ -204,7 +202,7 @@ export function DataTableRowActions({
   row: Row<InvoiceWithCustomer>;
 }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+
   const router = useRouter();
 
   const handleDelete = async () => {
@@ -236,7 +234,11 @@ export function DataTableRowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setShowDetailsDialog(true)}>
+          <DropdownMenuItem
+            onClick={() =>
+              router.push(`/dashboard/invoices/${row.original.id}`)
+            }
+          >
             Details
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -272,12 +274,6 @@ export function DataTableRowActions({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <InvoiceDetailsDialog
-        row={row}
-        open={showDetailsDialog}
-        onOpenChange={setShowDetailsDialog}
-      />
     </>
   );
 }
