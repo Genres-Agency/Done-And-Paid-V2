@@ -1,21 +1,21 @@
 import React, { Suspense } from "react";
 import { Metadata } from "next";
-import { getInvoices } from "@/src/app/(protected)/dashboard/invoices/invoice.action";
-import InvoiceList from "./_components/invoice-ui/invoice-list";
+import QuoteList from "./_components/quote-ui/quote-list";
 import { LoadingPage } from "@/src/components/loading";
+import { getQuotes } from "./quote.action";
 
 export const metadata: Metadata = {
-  title: "Invoices | Done & Paid",
-  description: "Manage all your invoices in one place",
+  title: "Quotes | Done & Paid",
+  description: "Manage all your quotes in one place",
 };
 
-export default async function InvoicesPage() {
+export default async function QuotesPage() {
   try {
-    const invoices = await getInvoices();
+    const quotes = await getQuotes();
     return (
       <div className="overflow-x-auto">
         <Suspense fallback={<LoadingPage />}>
-          <InvoiceList invoices={invoices} />
+          <QuoteList quotes={quotes} />
         </Suspense>
       </div>
     );
@@ -25,7 +25,7 @@ export default async function InvoicesPage() {
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-red-600 mb-2">Error</h2>
           <p className="text-gray-600">
-            Failed to fetch invoices. Please try again later.
+            Failed to fetch quotes. Please try again later.
           </p>
         </div>
       </div>

@@ -203,7 +203,11 @@ export async function createInvoice(data: CreateInvoiceData) {
 export async function getInvoices() {
   const invoices = await prisma.invoice.findMany({
     include: {
-      InvoiceItem: true,
+      InvoiceItem: {
+        include: {
+          product: true,
+        },
+      },
       customer: true,
       createdBy: true,
       approvedBy: true,

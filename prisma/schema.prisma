@@ -246,37 +246,69 @@ enum QuoteStatus {
 }
 
 model Quote {
-  id           String      @id @default(cuid())
-  quoteNumber  String      @unique
-  customerId   String
-  customer     Customer    @relation(fields: [customerId], references: [id])
-  items        QuoteItem[]
-  subtotal     Float
-  tax          Float
-  discount     Float       @default(0)
-  total        Float
-  notes        String?
-  validUntil   DateTime
-  status       QuoteStatus @default(DRAFT)
+  id          String   @id @default(cuid())
+  quoteNumber String   @unique
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+
+  // Business Information
+  businessName      String
+  businessLogo      String?
+  businessAddress   String
+  businessPhone     String
+  businessEmail     String
+  businessWebsite   String?
+  businessTaxNumber String?
+
+  // Quote Items
+  items QuoteItem[]
+
+  // Quote Details
+  quoteDate       DateTime
+  validUntil      DateTime
+  currency        String   @default("USD")
+  referenceNumber String?
+  salespersonName String?
+
+  // Financial Details
+  subtotal      Float
+  discountType  String @default("percentage")
+  discountValue Float  @default(0)
+  taxType       String @default("percentage")
+  taxValue      Float  @default(0)
+  total         Float
+
+  // Additional Information
+  notes              String?
+  termsAndConditions String?
+  status             QuoteStatus @default(DRAFT)
+  isDraft            Boolean     @default(false)
+
+  // Metadata
   createdById  String
-  createdBy    User        @relation("QuoteCreatedBy", fields: [createdById], references: [id])
+  createdBy    User     @relation("QuoteCreatedBy", fields: [createdById], references: [id])
   approvedById String?
-  approvedBy   User?       @relation("QuoteApprovedBy", fields: [approvedById], references: [id])
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  approvedBy   User?    @relation("QuoteApprovedBy", fields: [approvedById], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model QuoteItem {
-  id        String   @id @default(cuid())
-  quoteId   String
-  quote     Quote    @relation(fields: [quoteId], references: [id])
-  productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  quantity  Int
-  unitPrice Float
-  total     Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  quoteId       String
+  quote         Quote    @relation(fields: [quoteId], references: [id])
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+  description   String?
+  quantity      Int
+  unitPrice     Float
+  discountType  String   @default("percentage")
+  discountValue Float    @default(0)
+  taxType       String   @default("percentage")
+  taxValue      Float    @default(0)
+  total         Float
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Store {
