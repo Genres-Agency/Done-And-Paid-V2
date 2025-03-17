@@ -55,14 +55,12 @@ import {
 import { MediaSelectorModal } from "@/src/app/(protected)/dashboard/media/_components/MediaSelectorModal";
 import { BusinessInfoSkeleton } from "./business-info-skeleton";
 
-import { Printer, Download, X } from "lucide-react";
+import { X } from "lucide-react";
 import { InvoicePreview } from "./invoice-preview";
 import Image from "next/image";
 import { createInvoice } from "../../invoice.action";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { InvoicePDF } from "./invoice-pdf";
 import { InvoiceWithCustomer } from "@/src/types/invoice";
 
 // Define the type for upsertCustomer

@@ -7,7 +7,9 @@ interface PageContainerProps {
 }
 
 const PageContainer = ({ children, className }: PageContainerProps) => {
-  return <div className={cn("p-6 w-full", className)}>{children}</div>;
+  return (
+    <div className={cn("p-6 w-full bg-background", className)}>{children}</div>
+  );
 };
 
 export default PageContainer;

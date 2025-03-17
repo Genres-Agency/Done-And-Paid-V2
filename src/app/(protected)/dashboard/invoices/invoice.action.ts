@@ -295,6 +295,28 @@ export async function updateInvoiceStatus(data: UpdateInvoiceStatusData) {
   return invoice;
 }
 
+export async function getInvoiceByNumber(invoiceNumber: string) {
+  try {
+    const invoice = await prisma.invoice.findUnique({
+      where: {
+        invoiceNumber,
+      },
+      include: {
+        InvoiceItem: true,
+        customer: true,
+        createdBy: true,
+        approvedBy: true,
+        Payment: true,
+      },
+    });
+
+    return invoice;
+  } catch (error) {
+    console.error("Error fetching invoice:", error);
+    return null;
+  }
+}
+
 export async function saveInvoiceDraft(
   data: CreateInvoiceData & { id?: string }
 ) {
