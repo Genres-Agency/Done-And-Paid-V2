@@ -207,9 +207,12 @@ export function DataTableRowActions({
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`/api/invoices/${row.original.id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `/api/invoices/${row.original.invoiceNumber}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete invoice");
@@ -236,14 +239,16 @@ export function DataTableRowActions({
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/invoices/${row.original.id}`)
+              router.push(`/dashboard/invoices/${row.original.invoiceNumber}`)
             }
           >
             Details
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/invoices/${row.original.id}/edit`)
+              router.push(
+                `/dashboard/invoices/${row.original.invoiceNumber}/edit`
+              )
             }
           >
             Edit
