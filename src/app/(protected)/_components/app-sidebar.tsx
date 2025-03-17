@@ -48,6 +48,10 @@ import { useCurrentUser } from "@/src/hooks/use-current-user";
 import { navItems } from "@/src/components/constants/data";
 import { Icons } from "@/src/components/icons";
 import { LogoutButton } from "@/src/components/auth/logout-button";
+import React from "react";
+import { useSession } from "next-auth/react";
+import { UserRole } from "@prisma/client";
+import { Skeleton } from "@/src/components/ui/skeleton";
 
 export const company = {
   name: "Done And Paid",
@@ -56,16 +60,28 @@ export const company = {
 };
 
 export function AppSidebar() {
+  const { data: session, status } = useSession();
   const user = useCurrentUser();
   const pathname = usePathname();
+  const isLoading = status === "loading";
 
-  const filteredNavItems = navItems.filter((item) => {
-    // If no roles specified, show to everyone
-    if (!item.allowedRoles) return true;
+  // Use session role directly for faster initial render
+  const filteredNavItems = React.useMemo(() => {
+    if (!session?.user?.role) return [];
+    return navItems.filter((item) => {
+      if (!item.allowedRoles) return true;
+      return item.allowedRoles.includes(session.user.role as UserRole);
+    });
+  }, [session?.user?.role]);
 
-    // If roles specified, only show to allowed roles
-    return user && item.allowedRoles.includes(user.role);
-  });
+  const renderSkeletonItem = () => (
+    <SidebarMenuItem>
+      <div className="flex items-center gap-3 py-2">
+        <Skeleton className="h-4 w-4" />
+        <Skeleton className="h-4 w-24" />
+      </div>
+    </SidebarMenuItem>
+  );
 
   const sidebarLinks = [
     ...filteredNavItems.map((item) => {
@@ -181,7 +197,19 @@ export function AppSidebar() {
       <SidebarContent className="overflow-x-hidden">
         <SidebarGroup>
           <SidebarGroupLabel>Overview</SidebarGroupLabel>
-          <SidebarMenu>{sidebarLinks}</SidebarMenu>
+          <SidebarMenu>
+            {isLoading ? (
+              <>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <React.Fragment key={index}>
+                    {renderSkeletonItem()}
+                  </React.Fragment>
+                ))}
+              </>
+            ) : (
+              sidebarLinks
+            )}
+          </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
 
