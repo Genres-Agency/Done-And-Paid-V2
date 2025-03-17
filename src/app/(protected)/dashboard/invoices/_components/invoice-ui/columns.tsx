@@ -238,7 +238,7 @@ export function DataTableRowActions({
               router.push(`/dashboard/invoices/${row.original.invoiceNumber}`)
             }
           >
-            Preview
+            Details
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() =>

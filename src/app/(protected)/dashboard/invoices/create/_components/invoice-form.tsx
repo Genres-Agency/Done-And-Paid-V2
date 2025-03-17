@@ -336,6 +336,10 @@ export function InvoiceForm({ initialData }: InvoiceFormProps) {
     }
   };
 
+  if (isLoadingBusinessInfo && !initialData) {
+    return <BusinessInfoSkeleton />;
+  }
+
   return (
     <>
       <Form {...form}>
