@@ -92,7 +92,9 @@ export function AppSidebar() {
         <Collapsible
           key={item.title}
           asChild
-          defaultOpen={item.isActive}
+          defaultOpen={item.items?.some((subItem) =>
+            pathname.startsWith(subItem.url || "")
+          )}
           className="group/collapsible"
         >
           <SidebarMenuItem>
