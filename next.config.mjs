@@ -15,10 +15,10 @@ const nextConfig = {
   webpack: (config) => {
     return config;
   },
-  experimental: {
-    // …
-    serverComponentsExternalPackages: ["@react-pdf/renderer"],
-  },
+  // experimental: {
+  //   // …
+  //   serverComponentsExternalPackages: ["@react-pdf/renderer"],
+  // },
 };
 
 export default nextConfig;
