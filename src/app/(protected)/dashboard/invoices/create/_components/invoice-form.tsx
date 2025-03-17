@@ -63,6 +63,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePDF } from "./invoice-pdf";
+import { InvoiceWithCustomer } from "@/src/types/invoice";
 
 // Define the type for upsertCustomer
 export type UpsertCustomerData = {
@@ -78,7 +79,11 @@ export type UpsertCustomerData = {
   notes?: string;
 };
 
-export function InvoiceForm() {
+type InvoiceFormProps = {
+  initialData?: InvoiceWithCustomer;
+};
+
+export function InvoiceForm({ initialData }: InvoiceFormProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const [showBusinessInfo, setShowBusinessInfo] = useState(false);

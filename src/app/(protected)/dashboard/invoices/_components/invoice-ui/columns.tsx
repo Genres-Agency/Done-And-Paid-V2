@@ -33,11 +33,7 @@ import {
 } from "@/src/components/ui/select";
 import { updateInvoiceStatus } from "../../invoice.action";
 import { Invoice, PaymentStatus } from "@prisma/client";
-type InvoiceWithCustomer = Invoice & {
-  customer: {
-    name: string;
-  };
-};
+import { InvoiceWithCustomer } from "@/src/types/invoice";
 
 function StatusCell({ row }: { row: Row<InvoiceWithCustomer> }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -242,7 +238,7 @@ export function DataTableRowActions({
               router.push(`/dashboard/invoices/${row.original.invoiceNumber}`)
             }
           >
-            Details
+            Preview
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() =>
@@ -251,10 +247,10 @@ export function DataTableRowActions({
               )
             }
           >
-            Edit
+            Edit Invoice
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setShowDeleteDialog(true)}>
-            Delete
+            Delete Invoice
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
