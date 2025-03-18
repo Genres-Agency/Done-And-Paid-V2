@@ -7,7 +7,7 @@ import {
   Form,
   FormControl,
   FormField,
-  FormItem,
+  FormItem, // Add this import
   FormLabel,
   FormMessage,
 } from "@/src/components/ui/form";
@@ -22,23 +22,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
-import {
-  Plus,
-  Trash2,
-  ChevronDown,
-  ChevronUp,
-  Settings2,
-  EyeOff,
-  Eye,
-} from "lucide-react";
+import { Plus, Trash2, Settings2, EyeOff, Eye, X } from "lucide-react";
 import { format } from "date-fns";
-import { Calendar } from "@/src/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/src/components/ui/popover";
-import { cn } from "@/src/lib/utils";
+
 import {
   Select,
   SelectContent,
@@ -46,15 +32,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
-import { Switch } from "@/src/components/ui/switch";
 import {
   Collapsible,
   CollapsibleContent,
 } from "@/src/components/ui/collapsible";
 import { MediaSelectorModal } from "@/src/app/(protected)/dashboard/media/_components/MediaSelectorModal";
 import { BusinessInfoSkeleton } from "./business-info-skeleton";
-
-import { X } from "lucide-react";
 import { QuotePreview } from "./quote-preview";
 import Image from "next/image";
 import { createQuote } from "../../quote.action";
@@ -62,14 +45,11 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { QuoteWithCustomer } from "@/src/types/quote";
 
-type QuoteFormProps = {
-  initialData?: QuoteWithCustomer;
-};
-
-export function QuoteForm({ initialData }: QuoteFormProps) {
+export function QuoteForm() {
   const { data: session } = useSession();
   const router = useRouter();
   const [showBusinessInfo, setShowBusinessInfo] = useState(false);
+  const [showQuoteStatus, setShowQuoteStatus] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -123,18 +103,10 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
       businessName: "",
       businessAddress: "",
       businessPhone: "",
-      businessWebsite: "",
-      businessTaxNumber: "",
       customerName: "",
       customerEmail: "",
       customerPhone: "",
       customerAddress: "",
-      customerShippingAddress: "",
-      customerCompany: "",
-      customerTaxNumber: "",
-      customerBillingAddress: "",
-      customerNotes: "",
-      customerLogo: "",
       validityPeriod: 30,
       referenceNumber: "",
       salespersonName: "",
@@ -197,8 +169,6 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
               businessAddress: data.store.address || "",
               businessPhone: data.store.phoneNumber || "",
               businessEmail: data.store.email || "",
-              businessWebsite: data.store.website || "",
-              businessTaxNumber: data.store.taxNumber || "",
               currency: data.store.currency || "USD",
               termsAndConditions: data.store.termsAndConditions || "",
             });
@@ -229,15 +199,8 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
       const quote = await createQuote({
         // Customer Information
         customerId: "", // This will be set by the server action after upserting the customer
+        revisionNumber: 1, // Initial revision number for new quotes
         customerName: values.customerName,
-        customerEmail: values.customerEmail,
-        customerPhone: values.customerPhone,
-        customerAddress: values.customerAddress,
-        customerShippingAddress: values.customerShippingAddress,
-        customerCompany: values.customerCompany,
-        customerTaxNumber: values.customerTaxNumber,
-        customerBillingAddress: values.customerBillingAddress,
-        customerNotes: values.customerNotes,
 
         // Business Information
         businessName: values.businessName,
@@ -245,9 +208,6 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
         businessAddress: values.businessAddress,
         businessPhone: values.businessPhone,
         businessEmail: values.businessEmail,
-        businessWebsite: values.businessWebsite,
-        businessTaxNumber: values.businessTaxNumber,
-
         // Quote Items
         items: values.items.map((item) => ({
           productId: item.productId || "",
@@ -311,14 +271,15 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
   const calculateTotals = () => {
     const items = form.getValues("items");
     const subtotal = items.reduce(
-      (sum, item) => sum + (item.quantity || 0) * (item.unitPrice || 0),
+      (sum, item) =>
+        sum + (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0),
       0
     );
 
     const discountType = form.getValues("discountType");
-    const discountValue = form.getValues("discountValue") || 0;
+    const discountValue = Number(form.getValues("discountValue")) || 0;
     const taxType = form.getValues("taxType");
-    const taxValue = form.getValues("taxValue") || 0;
+    const taxValue = Number(form.getValues("taxValue")) || 0;
 
     // Calculate discount amount based on type
     const discountAmount =
@@ -365,6 +326,103 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {/* Quote Status and Details */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 py-3">
+              <CardTitle>Quote Status</CardTitle>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowQuoteStatus(!showQuoteStatus)}
+              >
+                <Settings2 className="h-4 w-4" />
+              </Button>
+            </CardHeader>
+            <Collapsible open={showQuoteStatus}>
+              <CollapsibleContent>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Quote Status</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select status" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="DRAFT">Draft</SelectItem>
+                              <SelectItem value="PENDING">Pending</SelectItem>
+                              <SelectItem value="APPROVED">Approved</SelectItem>
+                              <SelectItem value="REJECTED">Rejected</SelectItem>
+                              <SelectItem value="CONVERTED">
+                                Converted
+                              </SelectItem>
+                              <SelectItem value="EXPIRED">Expired</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="validityPeriod"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Validity Period (Days)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value || ""}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value);
+                                field.onChange(isNaN(value) ? 0 : value);
+                                // Update validUntil date
+                                const quoteDate = form.getValues("quoteDate");
+                                if (quoteDate && !isNaN(value)) {
+                                  const validUntil = new Date(quoteDate);
+                                  validUntil.setDate(
+                                    validUntil.getDate() + value
+                                  );
+                                  form.setValue("validUntil", validUntil);
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="purchaseOrderNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Purchase Order Number</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
+
+          {/* Business Information */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 py-3">
               <CardTitle>Business Information</CardTitle>
@@ -474,39 +532,12 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
                         </FormItem>
                       )}
                     />
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="businessPhone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Business Phone</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="businessEmail"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Business Email</FormLabel>
-                            <FormControl>
-                              <Input {...field} type="email" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
                   </CardContent>
                 )}
               </CollapsibleContent>
             </Collapsible>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle>Customer Information</CardTitle>
@@ -635,6 +666,60 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
                       )}
                     </div>
                   </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="businessName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Company Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="businessTaxNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tax Number</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="billingAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Billing Address</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="shippingAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Shipping Address</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               )}
             </CardContent>
@@ -740,6 +825,11 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
                       quantity: 1,
                       unitPrice: 0,
                       total: 0,
+                      productId: "",
+                      discountType: "percentage",
+                      discountValue: 0,
+                      taxType: "percentage",
+                      taxValue: 0,
                     })
                   }
                 >
@@ -747,6 +837,78 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
                 </Button>
               </div>
             </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 py-3">
+              <CardTitle>Notes & Terms</CardTitle>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowNotes(!showNotes)}
+                >
+                  <Settings2 className="h-4 w-4" />
+                  Notes
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowTerms(!showTerms)}
+                >
+                  <Settings2 className="h-4 w-4" />
+                  Terms
+                </Button>
+              </div>
+            </CardHeader>
+            <Collapsible open={showNotes}>
+              <CollapsibleContent>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Notes</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            placeholder="Add any additional notes here..."
+                            className="min-h-[100px]"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+            <Collapsible open={showTerms}>
+              <CollapsibleContent>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="termsAndConditions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Terms and Conditions</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            placeholder="Add your terms and conditions here..."
+                            className="min-h-[100px]"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
           </Card>
 
           {/* Submit Button */}

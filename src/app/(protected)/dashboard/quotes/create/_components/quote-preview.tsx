@@ -1,8 +1,17 @@
 "use client";
 
+import { Button } from "@/src/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/src/components/ui/dialog";
+import { Printer, Download, X } from "lucide-react";
 import { QuoteFormValues } from "@/src/schema/quote";
-import { Card } from "@/src/components/ui/card";
 import { format } from "date-fns";
+import { Separator } from "@/src/components/ui/separator";
 import Image from "next/image";
 
 interface QuotePreviewProps {
@@ -67,167 +76,241 @@ export function QuotePreview({
     }).format(amount);
   };
 
-  return open ? (
-    <Card
-      className="p-8 transition-opacity duration-200 opacity-100"
-      id="preview"
-      onClick={() => onOpenChange(!open)}
-    >
-      <div className="space-y-6">
-        {/* Header Section */}
-        <div className="flex justify-between">
-          <div className="space-y-2">
-            {businessLogo && (
-              <Image
-                src={businessLogo}
-                alt="Business Logo"
-                width={120}
-                height={60}
-                className="object-contain"
-              />
-            )}
-            <h2 className="text-2xl font-bold">{data.businessName}</h2>
-            <div className="text-sm text-muted-foreground">
-              <p>{data.businessAddress}</p>
-              <p>{data.businessPhone}</p>
-              <p>{data.businessEmail}</p>
-              {data.businessWebsite && <p>{data.businessWebsite}</p>}
-            </div>
-          </div>
-          <div className="text-right space-y-1">
-            <h1 className="text-3xl font-bold">QUOTE</h1>
-            {data.quoteNumber && (
-              <p className="text-muted-foreground">#{data.quoteNumber}</p>
-            )}
-            <div className="text-sm text-muted-foreground mt-4">
-              <p>Date: {data.quoteDate && format(data.quoteDate, "PP")}</p>
-              <p>
-                Valid Until: {data.validUntil && format(data.validUntil, "PP")}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Customer Section */}
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold mb-2">Quote For:</h3>
-          <div className="flex justify-between">
-            <div className="space-y-1">
-              <p className="font-medium">{data.customerName}</p>
-              <div className="text-sm text-muted-foreground">
-                <p>{data.customerAddress}</p>
-                <p>{data.customerPhone}</p>
-                <p>{data.customerEmail}</p>
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-[850px] max-h-[95vh] flex flex-col overflow-hidden bg-gray-100 p-0">
+        <DialogHeader className="sticky top-0 z-10 bg-white border-b px-4 py-2 shadow-sm">
+          <DialogTitle className="text-lg">Quote Preview</DialogTitle>
+        </DialogHeader>
+        <div className="flex-1 overflow-y-auto">
+          <div
+            className="bg-white shadow-md mx-auto w-[21cm] min-h-[29.7cm] p-[1.5cm] print:p-0 print:shadow-none [&:not(:first-child)]:mt-8"
+            style={{ breakAfter: "always" }}
+          >
+            <div className="space-y-8">
+              {/* Header Section */}
+              <div className="flex justify-between items-start gap-4">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {data.businessName}
+                  </h2>
+                  <p className="text-gray-600">{data.businessAddress}</p>
+                  <p className="text-gray-600">{data.businessPhone}</p>
+                  <p className="text-gray-600">{data.businessEmail}</p>
+                  {data.businessTaxNumber && (
+                    <p className="text-gray-600">
+                      Tax Number: {data.businessTaxNumber}
+                    </p>
+                  )}
+                </div>
+                {businessLogo && (
+                  <Image
+                    src={businessLogo}
+                    alt="Business Logo"
+                    width={96}
+                    height={96}
+                    className="h-24 w-auto object-contain"
+                    onError={(e) => {
+                      console.error("Error loading business logo:", e);
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                )}
               </div>
-            </div>
-            {customerLogo && (
-              <Image
-                src={customerLogo}
-                alt="Customer Logo"
-                width={100}
-                height={50}
-                className="object-contain"
-              />
-            )}
-          </div>
-        </div>
 
-        {/* Items Table */}
-        <div className="mt-8">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2">Item</th>
-                <th className="text-right py-2">Quantity</th>
-                <th className="text-right py-2">Unit Price</th>
-                <th className="text-right py-2">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items?.map((item, index) => (
-                <tr key={index} className="border-b">
-                  <td className="py-2">
-                    <div>
-                      <p className="font-medium">{item.name}</p>
-                      {item.description && (
-                        <p className="text-sm text-muted-foreground">
-                          {item.description}
-                        </p>
+              {/* Quote Information */}
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-gray-700">Quote Details</h3>
+                  <p className="text-gray-600">
+                    Date: {format(new Date(data.quoteDate), "MMMM dd, yyyy")}
+                  </p>
+                  <p className="text-gray-600">
+                    Valid Until:{" "}
+                    {format(new Date(data.validUntil), "MMMM dd, yyyy")}
+                  </p>
+                  {data.referenceNumber && (
+                    <p className="text-gray-600">Ref: {data.referenceNumber}</p>
+                  )}
+                  <p className="text-gray-600">Status: {data.status}</p>
+                </div>
+
+                {/* Customer Information */}
+                <div className="space-y-4">
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="space-y-1">
+                      <h3 className="font-semibold text-gray-700">Quote To:</h3>
+                      <p className="text-gray-900 font-medium">
+                        {data.customerName}
+                      </p>
+                      <p className="text-gray-600">{data.customerAddress}</p>
+                      <p className="text-gray-600">{data.customerPhone}</p>
+                      <p className="text-gray-600">{data.customerEmail}</p>
+                      {data.billingAddress && (
+                        <>
+                          <h4 className="font-semibold text-gray-700 mt-2">
+                            Billing Address:
+                          </h4>
+                          <p className="text-gray-600 whitespace-pre-line">
+                            {data.billingAddress}
+                          </p>
+                        </>
+                      )}
+                      {data.shippingAddress && (
+                        <>
+                          <h4 className="font-semibold text-gray-700 mt-2">
+                            Shipping Address:
+                          </h4>
+                          <p className="text-gray-600 whitespace-pre-line">
+                            {data.shippingAddress}
+                          </p>
+                        </>
                       )}
                     </div>
-                  </td>
-                  <td className="text-right py-2">{item.quantity}</td>
-                  <td className="text-right py-2">
-                    {formatCurrency(item.unitPrice || 0)}
-                  </td>
-                  <td className="text-right py-2">
-                    {formatCurrency(
-                      calculateItemTotal(
-                        item.quantity || 0,
-                        item.unitPrice || 0
-                      )
+                    {customerLogo && (
+                      <Image
+                        src={customerLogo}
+                        alt="Customer Logo"
+                        width={64}
+                        height={64}
+                        className="h-16 w-auto object-contain"
+                        onError={(e) => {
+                          console.error("Error loading customer logo:", e);
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
                     )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </div>
+              </div>
 
-        {/* Totals Section */}
-        <div className="mt-4 flex justify-end">
-          <div className="w-1/3 space-y-2">
-            <div className="flex justify-between">
-              <span>Subtotal:</span>
-              <span>{formatCurrency(calculateSubtotal())}</span>
-            </div>
-            {data.discountValue && data.discountValue > 0 && (
-              <div className="flex justify-between text-muted-foreground">
-                <span>
-                  Discount
-                  {data.discountType === "percentage" &&
-                    ` (${data.discountValue}%)`}
-                  :
-                </span>
-                <span>-{formatCurrency(calculateDiscount())}</span>
+              {/* Items Table */}
+              <div className="mt-8">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="py-2 px-4 text-left border-b">Item</th>
+                      <th className="py-2 px-4 text-left border-b">
+                        Description
+                      </th>
+                      <th className="py-2 px-4 text-right border-b">
+                        Quantity
+                      </th>
+                      <th className="py-2 px-4 text-right border-b">
+                        Unit Price
+                      </th>
+                      <th className="py-2 px-4 text-right border-b">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.items?.map((item, index) => (
+                      <tr key={index} className="border-b">
+                        <td className="py-2 px-4">{item.name}</td>
+                        <td className="py-2 px-4">{item.description}</td>
+                        <td className="py-2 px-4 text-right">
+                          {item.quantity}
+                        </td>
+                        <td className="py-2 px-4 text-right">
+                          {formatCurrency(item.unitPrice || 0)}
+                        </td>
+                        <td className="py-2 px-4 text-right">
+                          {formatCurrency(
+                            calculateItemTotal(
+                              item.quantity || 0,
+                              item.unitPrice || 0
+                            )
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            )}
-            {data.taxValue && data.taxValue > 0 && (
-              <div className="flex justify-between text-muted-foreground">
-                <span>
-                  Tax
-                  {data.taxType === "percentage" && ` (${data.taxValue}%)`}:
-                </span>
-                <span>{formatCurrency(calculateTax())}</span>
+
+              {/* Totals */}
+              <div className="mt-8 flex justify-end">
+                <div className="w-72 space-y-2">
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span>{formatCurrency(calculateSubtotal())}</span>
+                  </div>
+                  {data.discountValue > 0 && (
+                    <div className="flex justify-between text-gray-600">
+                      <span>
+                        Discount
+                        {data.discountType === "percentage"
+                          ? ` (${data.discountValue}%)`
+                          : ""}
+                        :
+                      </span>
+                      <span>-{formatCurrency(calculateDiscount())}</span>
+                    </div>
+                  )}
+                  {data.taxValue > 0 && (
+                    <div className="flex justify-between text-gray-600">
+                      <span>
+                        Tax
+                        {data.taxType === "percentage"
+                          ? ` (${data.taxValue}%)`
+                          : ""}
+                        :
+                      </span>
+                      <span>{formatCurrency(calculateTax())}</span>
+                    </div>
+                  )}
+                  <Separator />
+                  <div className="flex justify-between font-bold">
+                    <span>Total:</span>
+                    <span>{formatCurrency(calculateTotal())}</span>
+                  </div>
+                </div>
               </div>
-            )}
-            <div className="flex justify-between font-bold border-t pt-2">
-              <span>Total:</span>
-              <span>{formatCurrency(calculateTotal())}</span>
+
+              {/* Notes & Terms */}
+              {(data.notes || data.termsAndConditions) && (
+                <div className="mt-8 space-y-4">
+                  {data.notes && (
+                    <div>
+                      <h3 className="font-semibold text-gray-700">Notes:</h3>
+                      <p className="text-gray-600 whitespace-pre-line mt-1">
+                        {data.notes}
+                      </p>
+                    </div>
+                  )}
+                  {data.termsAndConditions && (
+                    <div>
+                      <h3 className="font-semibold text-gray-700">
+                        Terms and Conditions:
+                      </h3>
+                      <p className="text-gray-600 whitespace-pre-line mt-1">
+                        {data.termsAndConditions}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Notes & Terms */}
-        <div className="mt-8 space-y-4">
-          {data.notes && (
-            <div>
-              <h4 className="font-semibold mb-2">Notes</h4>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {data.notes}
-              </p>
+        <DialogFooter className="sticky bottom-0 z-10 bg-white border-t px-4 py-2 shadow-sm">
+          <div className="flex justify-end w-full">
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => window.print()}>
+                <Printer className="h-4 w-4 mr-2" />
+                Print
+              </Button>
+              <Button>
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </Button>
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                <X className="h-4 w-4 mr-2" />
+                Close
+              </Button>
             </div>
-          )}
-          {data.termsAndConditions && (
-            <div>
-              <h4 className="font-semibold mb-2">Terms & Conditions</h4>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {data.termsAndConditions}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </Card>
-  ) : null;
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
