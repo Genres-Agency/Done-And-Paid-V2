@@ -6,6 +6,7 @@ export const QuoteItemSchema = z.object({
   quantity: z.number().min(1, "Quantity must be at least 1"),
   unitPrice: z.number().min(0, "Unit price must be positive"),
   total: z.number().optional(), // Calculated field
+  productId: z.string().optional(),
 });
 
 export const QuoteSchema = z.object({

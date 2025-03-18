@@ -124,21 +124,27 @@ export const columns: ColumnDef<QuoteWithCustomer>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              onClick={() => window.location.href = `/dashboard/quotes/${quote.quoteNumber}/edit`}
+              onClick={() =>
+                (window.location.href = `/dashboard/quotes/${quote.quoteNumber}/edit`)
+              }
             >
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => window.location.href = `/dashboard/quotes/${quote.quoteNumber}/update`}
+              onClick={() =>
+                (window.location.href = `/dashboard/quotes/${quote.quoteNumber}/update`)
+              }
             >
               Update
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-red-600"
               onClick={() => {
-                if (window.confirm('Are you sure you want to delete this quote?')) {
+                if (
+                  window.confirm("Are you sure you want to delete this quote?")
+                ) {
                   // TODO: Implement delete functionality
-                  console.log('Delete quote:', quote.quoteNumber);
+                  console.log("Delete quote:", quote.quoteNumber);
                 }
               }}
             >

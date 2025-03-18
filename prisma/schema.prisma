@@ -286,6 +286,7 @@ model Quote {
   isDraft            Boolean     @default(false)
   convertedToInvoice Boolean     @default(false)
   invoiceId          String?
+  validityPeriod     Int         @default(30)
 
   // Metadata
   createdById  String
