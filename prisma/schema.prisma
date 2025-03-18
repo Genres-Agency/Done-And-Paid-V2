@@ -264,11 +264,12 @@ model Quote {
   items QuoteItem[]
 
   // Quote Details
-  quoteDate       DateTime
-  validUntil      DateTime
-  currency        String   @default("USD")
-  referenceNumber String?
-  salespersonName String?
+  quoteDate           DateTime
+  validUntil          DateTime
+  currency            String   @default("USD")
+  referenceNumber     String?
+  purchaseOrderNumber String?
+  salespersonName     String?
 
   // Financial Details
   subtotal      Float
@@ -283,6 +284,8 @@ model Quote {
   termsAndConditions String?
   status             QuoteStatus @default(DRAFT)
   isDraft            Boolean     @default(false)
+  convertedToInvoice Boolean     @default(false)
+  invoiceId          String?
 
   // Metadata
   createdById  String
@@ -299,7 +302,7 @@ model QuoteItem {
   quote         Quote    @relation(fields: [quoteId], references: [id])
   productId     String
   product       Product  @relation(fields: [productId], references: [id])
-  description   String?
+  description   String
   quantity      Int
   unitPrice     Float
   discountType  String   @default("percentage")

@@ -3,9 +3,10 @@ import {
   PaymentStatus,
   PaymentMethod,
   TransactionType,
+  QuoteStatus,
 } from "@prisma/client";
 import prisma from "../prisma";
-import { format, addDays } from "date-fns";
+import { addDays } from "date-fns";
 
 async function main() {
   console.log("Seeding users...");
@@ -168,6 +169,148 @@ async function main() {
   });
   console.log("✅ Store seeded successfully!");
 
+  console.log("Seeding quotes...");
+  await prisma.$transaction([
+    prisma.quote.create({
+      data: {
+        quoteNumber: "QT-2024-001",
+        customerId: customers[0].id,
+        // Business Information
+        businessName: store.name,
+        businessLogo: store.logo || undefined,
+        businessAddress: store.address || "505 Business Center",
+        businessPhone: store.phoneNumber || "+1234567897",
+        businessEmail: store.email || "contact@genres.com",
+        businessWebsite: store.website || undefined,
+        businessTaxNumber: store.taxNumber || undefined,
+        // Quote Details
+        quoteDate: new Date(),
+        validUntil: addDays(new Date(), 15),
+        currency: store.currency || "USD",
+        referenceNumber: "QREF001",
+        salespersonName: "John Doe",
+        // Financial Details
+        subtotal: 3899.97,
+        discountType: "percentage",
+        discountValue: 5,
+        taxType: "percentage",
+        taxValue: 10,
+        total: 4094.97,
+        // Additional Information
+        notes: "Bulk order quote for office setup",
+        termsAndConditions: store.termsAndConditions || "Valid for 15 days",
+        status: QuoteStatus.PENDING,
+        isDraft: false,
+        // Metadata
+        createdById: users[0].id,
+        approvedById: users[1].id,
+        // Quote Items
+        items: [
+          {
+            name: "Laptop Pro X1",
+            quantity: 2,
+            unitPrice: 1299.99,
+            description: "High-performance business laptop",
+            total: 2599.98,
+          },
+          {
+            name: "Office Chair Deluxe",
+            quantity: 5,
+            unitPrice: 299.99,
+            description: "Ergonomic office chair",
+            total: 1499.95,
+          },
+        ],
+        QuoteItem: {
+          create: [
+            {
+              productId: products[0].id,
+              description: "High-performance business laptop",
+              quantity: 2,
+              unitPrice: 1299.99,
+              discountType: "percentage",
+              discountValue: 0,
+              taxType: "percentage",
+              taxValue: 10,
+              total: 2599.98,
+            },
+            {
+              productId: products[1].id,
+              description: "Ergonomic office chair",
+              quantity: 5,
+              unitPrice: 299.99,
+              discountType: "percentage",
+              discountValue: 0,
+              taxType: "percentage",
+              taxValue: 10,
+              total: 1499.95,
+            },
+          ],
+        },
+      },
+    }),
+    prisma.quote.create({
+      data: {
+        quoteNumber: "QT-2024-002",
+        customerId: customers[1].id,
+        // Business Information
+        businessName: store.name,
+        businessLogo: store.logo || undefined,
+        businessAddress: store.address || "505 Business Center",
+        businessPhone: store.phoneNumber || "+1234567897",
+        businessEmail: store.email || "contact@genres.com",
+        businessWebsite: store.website || undefined,
+        businessTaxNumber: store.taxNumber || undefined,
+        // Quote Details
+        quoteDate: new Date(),
+        validUntil: addDays(new Date(), 15),
+        currency: store.currency || "USD",
+        referenceNumber: "QREF002",
+        salespersonName: "Jane Smith",
+        // Financial Details
+        subtotal: 1299.99,
+        discountType: "percentage",
+        discountValue: 10,
+        taxType: "percentage",
+        taxValue: 10,
+        total: 1299.99,
+        // Additional Information
+        notes: "Single laptop quote",
+        termsAndConditions: store.termsAndConditions || "Valid for 15 days",
+        status: QuoteStatus.DRAFT,
+        isDraft: true,
+        // Metadata
+        createdById: users[0].id,
+        // Quote Items
+        items: [
+          {
+            name: "Laptop Pro X1",
+            quantity: 1,
+            unitPrice: 1299.99,
+            description: "High-performance business laptop",
+            total: 1299.99,
+          },
+        ],
+        QuoteItem: {
+          create: [
+            {
+              productId: products[0].id,
+              description: "High-performance business laptop",
+              quantity: 1,
+              unitPrice: 1299.99,
+              discountType: "percentage",
+              discountValue: 10,
+              taxType: "percentage",
+              taxValue: 10,
+              total: 1299.99,
+            },
+          ],
+        },
+      },
+    }),
+  ]);
+  console.log("✅ Quotes seeded successfully!");
+
   console.log("Seeding invoices...");
   const invoices = await prisma.$transaction([
     prisma.invoice.create({
@@ -309,6 +452,148 @@ async function main() {
     }),
   ]);
   console.log("✅ Transactions seeded successfully!");
+
+  console.log("Seeding quotes...");
+  await prisma.$transaction([
+    prisma.quote.create({
+      data: {
+        quoteNumber: "QT-2024-001",
+        customerId: customers[0].id,
+        // Business Information
+        businessName: store.name,
+        businessLogo: store.logo || undefined,
+        businessAddress: store.address || "505 Business Center",
+        businessPhone: store.phoneNumber || "+1234567897",
+        businessEmail: store.email || "contact@genres.com",
+        businessWebsite: store.website || undefined,
+        businessTaxNumber: store.taxNumber || undefined,
+        // Quote Details
+        quoteDate: new Date(),
+        validUntil: addDays(new Date(), 15),
+        currency: store.currency || "USD",
+        referenceNumber: "QREF001",
+        salespersonName: "John Doe",
+        // Financial Details
+        subtotal: 3899.97,
+        discountType: "percentage",
+        discountValue: 5,
+        taxType: "percentage",
+        taxValue: 10,
+        total: 4094.97,
+        // Additional Information
+        notes: "Bulk order quote for office setup",
+        termsAndConditions: store.termsAndConditions || "Valid for 15 days",
+        status: QuoteStatus.PENDING,
+        isDraft: false,
+        // Metadata
+        createdById: users[0].id,
+        approvedById: users[1].id,
+        // Quote Items
+        items: [
+          {
+            name: "Laptop Pro X1",
+            quantity: 2,
+            unitPrice: 1299.99,
+            description: "High-performance business laptop",
+            total: 2599.98,
+          },
+          {
+            name: "Office Chair Deluxe",
+            quantity: 5,
+            unitPrice: 299.99,
+            description: "Ergonomic office chair",
+            total: 1499.95,
+          },
+        ],
+        QuoteItem: {
+          create: [
+            {
+              productId: products[0].id,
+              description: "High-performance business laptop",
+              quantity: 2,
+              unitPrice: 1299.99,
+              discountType: "percentage",
+              discountValue: 0,
+              taxType: "percentage",
+              taxValue: 10,
+              total: 2599.98,
+            },
+            {
+              productId: products[1].id,
+              description: "Ergonomic office chair",
+              quantity: 5,
+              unitPrice: 299.99,
+              discountType: "percentage",
+              discountValue: 0,
+              taxType: "percentage",
+              taxValue: 10,
+              total: 1499.95,
+            },
+          ],
+        },
+      },
+    }),
+    prisma.quote.create({
+      data: {
+        quoteNumber: "QT-2024-002",
+        customerId: customers[1].id,
+        // Business Information
+        businessName: store.name,
+        businessLogo: store.logo || undefined,
+        businessAddress: store.address || "505 Business Center",
+        businessPhone: store.phoneNumber || "+1234567897",
+        businessEmail: store.email || "contact@genres.com",
+        businessWebsite: store.website || undefined,
+        businessTaxNumber: store.taxNumber || undefined,
+        // Quote Details
+        quoteDate: new Date(),
+        validUntil: addDays(new Date(), 15),
+        currency: store.currency || "USD",
+        referenceNumber: "QREF002",
+        salespersonName: "Jane Smith",
+        // Financial Details
+        subtotal: 1299.99,
+        discountType: "percentage",
+        discountValue: 10,
+        taxType: "percentage",
+        taxValue: 10,
+        total: 1299.99,
+        // Additional Information
+        notes: "Single laptop quote",
+        termsAndConditions: store.termsAndConditions || "Valid for 15 days",
+        status: QuoteStatus.DRAFT,
+        isDraft: true,
+        // Metadata
+        createdById: users[0].id,
+        // Quote Items
+        items: [
+          {
+            name: "Laptop Pro X1",
+            quantity: 1,
+            unitPrice: 1299.99,
+            description: "High-performance business laptop",
+            total: 1299.99,
+          },
+        ],
+        QuoteItem: {
+          create: [
+            {
+              productId: products[0].id,
+              description: "High-performance business laptop",
+              quantity: 1,
+              unitPrice: 1299.99,
+              discountType: "percentage",
+              discountValue: 10,
+              taxType: "percentage",
+              taxValue: 10,
+              total: 1299.99,
+            },
+          ],
+        },
+      },
+    }),
+  ]);
+  console.log("✅ Quotes seeded successfully!");
 }
 
 main()

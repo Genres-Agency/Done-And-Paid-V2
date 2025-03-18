@@ -1,9 +1,9 @@
-import { db } from "@/src/lib/database.connection";
+import prisma from "@/prisma";
 import { QuoteWithCustomer } from "@/src/types/quote";
 
 export async function getQuotes(): Promise<QuoteWithCustomer[]> {
   try {
-    const quotes = await db.quote.findMany({
+    const quotes = await prisma.quote.findMany({
       include: {
         customer: true,
         createdBy: true,
@@ -30,7 +30,7 @@ export async function getQuoteByNumber(
   quoteNumber: string
 ): Promise<QuoteWithCustomer | null> {
   try {
-    const quote = await db.quote.findUnique({
+    const quote = await prisma.quote.findUnique({
       where: {
         quoteNumber,
       },

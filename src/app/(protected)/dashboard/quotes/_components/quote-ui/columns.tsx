@@ -3,9 +3,16 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { QuoteWithCustomer } from "@/src/types/quote";
 import { Button } from "@/src/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "date-fns";
+import { DataTableColumnHeader } from "@/src/app/(protected)/_components/table/data-table-column-header";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu";
 
 export const columns: ColumnDef<QuoteWithCustomer>[] = [
   {
@@ -48,25 +55,12 @@ export const columns: ColumnDef<QuoteWithCustomer>[] = [
   },
   {
     accessorKey: "total",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Amount
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Amount" />
+    ),
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("total"));
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: row.original.currency,
-      }).format(amount);
-
-      return <div className="font-medium">{formatted}</div>;
+      const amount = row.getValue("total") as number;
+      return <div className="font-medium">${amount.toFixed(2)}</div>;
     },
   },
   {
@@ -108,11 +102,51 @@ export const columns: ColumnDef<QuoteWithCustomer>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Valid Until
+          W Valid Until
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => formatDate(row.getValue("validUntil")),
+    cell: ({ row }) => formatDate(row.getValue("validUntil"), "MMM dd, yyyy"),
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const quote = row.original;
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => window.location.href = `/dashboard/quotes/${quote.quoteNumber}/edit`}
+            >
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => window.location.href = `/dashboard/quotes/${quote.quoteNumber}/update`}
+            >
+              Update
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-red-600"
+              onClick={() => {
+                if (window.confirm('Are you sure you want to delete this quote?')) {
+                  // TODO: Implement delete functionality
+                  console.log('Delete quote:', quote.quoteNumber);
+                }
+              }}
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
   },
 ];
