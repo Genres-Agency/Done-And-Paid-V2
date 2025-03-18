@@ -22,7 +22,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
-import { Separator } from "@/src/components/ui/separator";
 import {
   Plus,
   Trash2,
@@ -106,6 +105,10 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
           unitPrice: 0,
           productId: "",
           total: 0,
+          discountType: "percentage",
+          discountValue: 0,
+          taxType: "percentage",
+          taxValue: 0,
         },
       ],
       quoteDate: new Date(),
@@ -120,10 +123,23 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
       businessName: "",
       businessAddress: "",
       businessPhone: "",
+      businessWebsite: "",
+      businessTaxNumber: "",
       customerName: "",
       customerEmail: "",
       customerPhone: "",
       customerAddress: "",
+      customerShippingAddress: "",
+      customerCompany: "",
+      customerTaxNumber: "",
+      customerBillingAddress: "",
+      customerNotes: "",
+      customerLogo: "",
+      validityPeriod: 30,
+      referenceNumber: "",
+      salespersonName: "",
+      notes: "",
+      termsAndConditions: "",
     },
   });
 
@@ -217,27 +233,31 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
         customerEmail: values.customerEmail,
         customerPhone: values.customerPhone,
         customerAddress: values.customerAddress,
+        customerShippingAddress: values.customerShippingAddress,
+        customerCompany: values.customerCompany,
+        customerTaxNumber: values.customerTaxNumber,
+        customerBillingAddress: values.customerBillingAddress,
+        customerNotes: values.customerNotes,
 
         // Business Information
         businessName: values.businessName,
         businessLogo: customBusinessLogo || defaultBusinessLogo || undefined,
         businessAddress: values.businessAddress,
         businessPhone: values.businessPhone,
-        businessEmail: values.businessEmail || "", // Ensure businessEmail is never undefined
+        businessEmail: values.businessEmail,
         businessWebsite: values.businessWebsite,
         businessTaxNumber: values.businessTaxNumber,
-        revisionNumber: 1, // Set default revision number for new quotes
 
         // Quote Items
         items: values.items.map((item) => ({
-          productId: item.productId || "", // Add productId field
+          productId: item.productId || "",
           quantity: item.quantity || 0,
           unitPrice: item.unitPrice || 0,
           description: item.description || "",
-          discountType: "percentage",
-          discountValue: 0,
-          taxType: "percentage",
-          taxValue: 0,
+          discountType: values.discountType,
+          discountValue: values.discountValue,
+          taxType: values.taxType,
+          taxValue: values.taxValue,
           total: (item.quantity || 0) * (item.unitPrice || 0),
         })),
 
@@ -250,15 +270,15 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
 
         // Financial Details
         subtotal: totals.subtotal,
-        discountType: values.discountType || "percentage",
-        discountValue: values.discountValue || 0,
-        taxType: values.taxType || "percentage",
-        taxValue: values.taxValue || 0,
+        discountType: values.discountType,
+        discountValue: values.discountValue,
+        taxType: values.taxType,
+        taxValue: values.taxValue,
         total: totals.total,
 
         // Quote-specific fields
-        status: values.status || "DRAFT",
-        validityPeriod: 30, // Set default validity period to 30 days
+        status: values.status,
+        validityPeriod: 30,
 
         // Additional Information
         notes: values.notes,
@@ -341,15 +361,10 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
     }
   };
 
-  if (isLoadingBusinessInfo && !initialData) {
-    return <BusinessInfoSkeleton />;
-  }
-
   return (
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          {/* Business Information */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 py-3">
               <CardTitle>Business Information</CardTitle>
@@ -362,130 +377,376 @@ export function QuoteForm({ initialData }: QuoteFormProps) {
                 <Settings2 className="h-4 w-4" />
               </Button>
             </CardHeader>
+
             <Collapsible open={showBusinessInfo}>
               <CollapsibleContent>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    {customBusinessLogo ? (
-                      <div className="relative">
-                        <Image
-                          src={customBusinessLogo}
-                          alt="Business Logo"
-                          height={80}
-                          width={80}
-                          className="h-20 w-auto"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute -right-2 -top-2"
-                          onClick={() => {
-                            setCustomBusinessLogo(null);
-                            form.setValue(
-                              "businessLogo",
-                              defaultBusinessLogo || ""
-                            );
-                          }}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : defaultBusinessLogo ? (
-                      <div className="flex items-center gap-3">
-                        <Image
-                          src={defaultBusinessLogo}
-                          alt="Business Logo"
-                          width={80}
-                          height={80}
-                          className="h-20 w-auto rounded-md"
-                        />
-                      </div>
-                    ) : null}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setShowBusinessLogoSelector(true)}
-                    >
-                      {customBusinessLogo
-                        ? "Change Custom Logo"
-                        : defaultBusinessLogo
-                        ? "Change Logo"
-                        : "Upload Logo"}
-                    </Button>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
+                {isLoadingBusinessInfo ? (
+                  <BusinessInfoSkeleton />
+                ) : (
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      {customBusinessLogo ? (
+                        <div className="relative">
+                          <Image
+                            src={customBusinessLogo}
+                            alt="Business Logo"
+                            height={80}
+                            width={80}
+                            className="h-20 w-auto"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute -right-2 -top-2"
+                            onClick={() => {
+                              setCustomBusinessLogo(null);
+                              form.setValue(
+                                "businessLogo",
+                                defaultBusinessLogo || ""
+                              );
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : defaultBusinessLogo ? (
+                        <div className="flex items-center gap-3">
+                          <Image
+                            src={defaultBusinessLogo}
+                            alt="Business Logo"
+                            width={80}
+                            height={80}
+                            className="h-20 w-auto rounded-md"
+                          />
+                        </div>
+                      ) : null}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowBusinessLogoSelector(true)}
+                      >
+                        {customBusinessLogo
+                          ? "Change Custom Logo"
+                          : defaultBusinessLogo
+                          ? "Change Logo"
+                          : "Upload Logo"}
+                      </Button>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="businessName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Business Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="businessTaxNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tax Number</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <FormField
                       control={form.control}
-                      name="businessName"
+                      name="businessAddress"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Business Name</FormLabel>
+                          <FormLabel>Business Address</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Textarea {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="businessTaxNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tax Number</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="businessAddress"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Business Address</FormLabel>
-                        <FormControl>
-                          <Textarea {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="businessPhone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Business Phone</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="businessEmail"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Business Email</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="email" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="businessPhone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Business Phone</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="businessEmail"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Business Email</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="email" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                )}
               </CollapsibleContent>
             </Collapsible>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle>Customer Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="customerName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Customer Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="customerEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Customer Email</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="email" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="customerPhone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Customer Phone</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="customerAddress"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Customer Address</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <h4 className="text-sm font-medium">
+                      Additional Information
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      Add customer logo, shipping address and others data.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setShowAdditionalCustomerInfo(!showAdditionalCustomerInfo)
+                    }
+                  >
+                    {showAdditionalCustomerInfo ? (
+                      <span className="flex items-center gap-2">
+                        <EyeOff /> Hide
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Eye /> Show
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              </div>
+              {showAdditionalCustomerInfo && (
+                <div className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="flex items-center gap-4">
+                      {previewCustomerLogo ? (
+                        <div className="relative">
+                          <Image
+                            src={previewCustomerLogo}
+                            alt="Customer Logo"
+                            width={80}
+                            height={80}
+                            className="h-20 w-auto rounded-md"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute -right-2 -top-2"
+                            onClick={() => {
+                              setPreviewCustomerLogo(null);
+                              form.setValue("customerLogo", "");
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowCustomerLogoSelector(true)}
+                        >
+                          Upload Logo
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Quote Items</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {fields.map((field, index) => (
+                  <div
+                    key={field.id}
+                    className="relative grid gap-4 rounded-lg border p-4 md:grid-cols-2 lg:grid-cols-4"
+                  >
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Item Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.description`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name={`items.${index}.quantity`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Quantity</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="number"
+                                onChange={(e) => {
+                                  field.onChange(Number(e.target.value));
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`items.${index}.unitPrice`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Unit Price</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="number"
+                                onChange={(e) => {
+                                  field.onChange(Number(e.target.value));
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute -right-2 -top-2"
+                      onClick={() => remove(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() =>
+                    append({
+                      name: "",
+                      description: "",
+                      quantity: 1,
+                      unitPrice: 0,
+                      total: 0,
+                    })
+                  }
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Add Item
+                </Button>
+              </div>
+            </CardContent>
           </Card>
 
           {/* Submit Button */}
