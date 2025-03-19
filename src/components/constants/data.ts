@@ -22,8 +22,16 @@ export const navItems: NavItem[] = [
     items: [
       { title: "Create Invoice", url: "/dashboard/invoices/create" },
       { title: "All Invoices", url: "/dashboard/invoices" },
-      { title: "Pending Payments", url: "/dashboard/invoices/pending" },
-      { title: "Payment History", url: "/dashboard/invoices/payments" },
+      {
+        title: "Pending Payments",
+        url: "/dashboard/invoices/pending",
+        disabled: true,
+      },
+      {
+        title: "Payment History",
+        url: "/dashboard/invoices/payments",
+        disabled: true,
+      },
     ],
   },
   {
@@ -40,8 +48,16 @@ export const navItems: NavItem[] = [
     items: [
       { title: "Create Quote", url: "/dashboard/quotes/create" },
       { title: "All Quotes", url: "/dashboard/quotes" },
-      { title: "Pending Quotes", url: "/dashboard/quotes/pending" },
-      { title: "Expired Quotes", url: "/dashboard/quotes/expired" },
+      {
+        title: "Pending Quotes",
+        url: "/dashboard/quotes/pending",
+        disabled: true,
+      },
+      {
+        title: "Expired Quotes",
+        url: "/dashboard/quotes/expired",
+        disabled: true,
+      },
     ],
   },
   {

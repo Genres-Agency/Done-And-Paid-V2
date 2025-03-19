@@ -24,6 +24,7 @@ import {
 } from "@/src/components/ui/select";
 import { useEffect, useState } from "react";
 import { db } from "@/src/lib/database.connection";
+import { Wand2 } from "lucide-react";
 
 interface ProductFormProps {
   initialData?: Product & {
@@ -61,6 +62,12 @@ export default function ProductForm({ initialData }: ProductFormProps) {
     };
     fetchSuppliers();
   }, []);
+  const generateSKU = (supplierName: string) => {
+    const prefix = supplierName.slice(0, 3).toUpperCase();
+    const timestamp = Date.now().toString().slice(-6);
+    return `${prefix}-${timestamp}`;
+  };
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData
@@ -130,7 +137,30 @@ export default function ProductForm({ initialData }: ProductFormProps) {
               <FormItem>
                 <FormLabel>SKU</FormLabel>
                 <FormControl>
-                  <Input placeholder="Product SKU" {...field} />
+                  <div className="relative">
+                    <Input placeholder="Product SKU" {...field} />
+                    {initialData && !field.value && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8"
+                        onClick={() => {
+                          const selectedSupplier = suppliers.find(
+                            (s) => s.id === form.getValues().supplierId
+                          );
+                          if (selectedSupplier) {
+                            form.setValue(
+                              "sku",
+                              generateSKU(selectedSupplier.name)
+                            );
+                          }
+                        }}
+                      >
+                        <Wand2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -217,7 +247,18 @@ export default function ProductForm({ initialData }: ProductFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Supplier</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    const selectedSupplier = suppliers.find(
+                      (s) => s.id === value
+                    );
+                    if (selectedSupplier && !initialData) {
+                      form.setValue("sku", generateSKU(selectedSupplier.name));
+                    }
+                  }}
+                  value={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a supplier" />
