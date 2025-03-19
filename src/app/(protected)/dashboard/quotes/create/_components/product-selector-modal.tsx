@@ -14,12 +14,15 @@ import { Search } from "lucide-react";
 import { Product } from "@prisma/client";
 
 interface ProductSelectorModalProps {
-  onSelect: (product: Product) => void;
+  onSelect: (products: Product[]) => void;
 }
 
 export function ProductSelectorModal({ onSelect }: ProductSelectorModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(
+    new Set()
+  );
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -66,11 +69,12 @@ export function ProductSelectorModal({ onSelect }: ProductSelectorModalProps) {
           size="sm"
           onClick={() => {
             setIsOpen(true);
+            setSelectedProducts(new Set());
             fetchAllProducts();
           }}
         >
           <Search className="h-4 w-4 mr-2" />
-          Select Product
+          Select Products
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
@@ -87,6 +91,19 @@ export function ProductSelectorModal({ onSelect }: ProductSelectorModalProps) {
                 searchProducts(e.target.value);
               }}
             />
+            <Button
+              type="button"
+              onClick={() => {
+                const selectedProductsList = products.filter((p) =>
+                  selectedProducts.has(p.id)
+                );
+                onSelect(selectedProductsList);
+                setIsOpen(false);
+              }}
+              disabled={selectedProducts.size === 0}
+            >
+              Add Selected
+            </Button>
           </div>
           <div className="max-h-[400px] overflow-y-auto relative">
             {loading ? (
@@ -111,7 +128,23 @@ export function ProductSelectorModal({ onSelect }: ProductSelectorModalProps) {
                         key={product.id}
                         className="border-b hover:bg-muted/50"
                       >
-                        <td className="py-2 px-4">{product.name}</td>
+                        <td className="py-2 px-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedProducts.has(product.id)}
+                            onChange={(e) => {
+                              const newSelected = new Set(selectedProducts);
+                              if (e.target.checked) {
+                                newSelected.add(product.id);
+                              } else {
+                                newSelected.delete(product.id);
+                              }
+                              setSelectedProducts(newSelected);
+                            }}
+                            className="mr-2"
+                          />
+                          {product.name}
+                        </td>
                         <td className="py-2 px-4">{product.sku}</td>
                         <td className="py-2 px-4 text-right">
                           {product.price.toFixed(2)}
@@ -122,7 +155,9 @@ export function ProductSelectorModal({ onSelect }: ProductSelectorModalProps) {
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              onSelect(product);
+                              const newSelected = new Set([product.id]);
+                              setSelectedProducts(newSelected);
+                              onSelect([product]);
                               setIsOpen(false);
                             }}
                           >
