@@ -197,6 +197,16 @@ export function QuoteForm() {
       const totals = calculateTotals();
 
       // Create quote using server action with all form data
+      // Validate required customer information before submission
+      if (!values.customerPhone?.trim()) {
+        toast.error("Customer phone is required");
+        return;
+      }
+      if (!values.customerAddress?.trim()) {
+        toast.error("Customer address is required");
+        return;
+      }
+
       const quote = await createQuote({
         // Customer Information
         customerId: "", // This will be set by the server action after upserting the customer
@@ -554,6 +564,34 @@ export function QuoteForm() {
                         </FormItem>
                       )}
                     />
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="businessPhone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Business Phone</FormLabel>
+                            <FormControl>
+                              <Input type="tel" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="businessEmail"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Business Email</FormLabel>
+                            <FormControl>
+                              <Input type="email" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </CardContent>
                 )}
               </CollapsibleContent>
