@@ -52,6 +52,7 @@ export function QuoteForm() {
   const [showNotes, setShowNotes] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showDiscountTax, setShowDiscountTax] = useState(false);
   const [showBusinessLogoSelector, setShowBusinessLogoSelector] =
     useState(false);
   const [showCustomerLogoSelector, setShowCustomerLogoSelector] =
@@ -750,7 +751,7 @@ export function QuoteForm() {
               <CardTitle>Quote Items</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto space-y-4">
                 <table className="w-full">
                   <thead>
                     <tr className="bg-muted">
@@ -868,12 +869,25 @@ export function QuoteForm() {
                     ))}
                   </tbody>
                 </table>
-                <div className="w-full flex justify-end">
+                <div className="w-full flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="showDiscountTax"
+                      className="h-4 w-4"
+                      onChange={(e) => setShowDiscountTax(e.target.checked)}
+                    />
+                    <label
+                      htmlFor="showDiscountTax"
+                      className="text-sm text-muted-foreground cursor-pointer"
+                    >
+                      Add Discount & Tax
+                    </label>
+                  </div>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="mt-4"
                     onClick={() =>
                       append({
                         name: "",
@@ -895,117 +909,121 @@ export function QuoteForm() {
                 </div>
               </div>
               {/* Discount and Tax Section */}
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="space-y-4">
-                  <h4 className="font-medium">Discount</h4>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="discountType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Type</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="percentage">
-                                Percentage (%)
-                              </SelectItem>
-                              <SelectItem value="fixed">
-                                Fixed Amount
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="discountValue"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Value</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              onChange={(e) => {
-                                field.onChange(Number(e.target.value));
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
+              <Collapsible open={showDiscountTax}>
+                <CollapsibleContent>
+                  <div className="grid gap-6 md:grid-cols-2 mt-4">
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Discount</h4>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="discountType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Type</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="percentage">
+                                    Percentage (%)
+                                  </SelectItem>
+                                  <SelectItem value="fixed">
+                                    Fixed Amount
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="discountValue"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Value</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  onChange={(e) => {
+                                    field.onChange(Number(e.target.value));
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
 
-                <div className="space-y-4">
-                  <h4 className="font-medium">Tax</h4>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="taxType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Type</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="percentage">
-                                Percentage (%)
-                              </SelectItem>
-                              <SelectItem value="fixed">
-                                Fixed Amount
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="taxValue"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Value</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              onChange={(e) => {
-                                field.onChange(Number(e.target.value));
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Tax</h4>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="taxType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Type</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="percentage">
+                                    Percentage (%)
+                                  </SelectItem>
+                                  <SelectItem value="fixed">
+                                    Fixed Amount
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="taxValue"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Value</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  onChange={(e) => {
+                                    field.onChange(Number(e.target.value));
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Summary Section */}
               <div className="space-y-2">
