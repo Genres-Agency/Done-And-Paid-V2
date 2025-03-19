@@ -13,6 +13,7 @@ import {
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
 import { Textarea } from "@/src/components/ui/textarea";
+import { Switch } from "@/src/components/ui/switch";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { QuoteSchema, type QuoteFormValues } from "@/src/schema/quote";
@@ -870,16 +871,15 @@ export function QuoteForm() {
                   </tbody>
                 </table>
                 <div className="w-full flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                  <div className="flex items-center gap-3">
+                    <Switch
                       id="showDiscountTax"
-                      className="h-4 w-4"
-                      onChange={(e) => setShowDiscountTax(e.target.checked)}
+                      checked={showDiscountTax}
+                      onCheckedChange={setShowDiscountTax}
                     />
                     <label
                       htmlFor="showDiscountTax"
-                      className="text-sm text-muted-foreground cursor-pointer"
+                      className="text-sm font-medium text-foreground hover:text-foreground/80 cursor-pointer select-none"
                     >
                       Add Discount & Tax
                     </label>
