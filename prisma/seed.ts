@@ -4,6 +4,7 @@ import {
   PaymentMethod,
   TransactionType,
   QuoteStatus,
+  MediaType,
 } from "@prisma/client";
 import prisma from "../prisma";
 import { addDays } from "date-fns";
@@ -474,6 +475,21 @@ async function main() {
     }),
   ]);
   console.log("✅ Transactions seeded successfully!");
+
+  console.log("Seeding media...");
+  await prisma.$transaction([
+    prisma.media.create({
+      data: {
+        title: "Company Logo",
+        url: "https://example.com/logo.svg",
+        type: MediaType.IMAGE,
+        description: "Official company logo",
+        size: 256000,
+        mimeType: "image/svg+xml",
+      },
+    }),
+  ]);
+  console.log("✅ Media seeded successfully!");
 }
 
 main()

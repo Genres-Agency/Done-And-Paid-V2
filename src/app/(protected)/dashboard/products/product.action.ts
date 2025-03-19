@@ -201,3 +201,12 @@ export async function getLowStockProducts() {
     handlePrismaError(error, "fetch low stock products");
   }
 }
+
+export async function getSuppliers() {
+  try {
+    const suppliers = await prisma.supplier.findMany();
+    return suppliers;
+  } catch (error) {
+    handlePrismaError(error, "fetch suppliers");
+  }
+}

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/src/components/ui/button";
-import { createProduct, updateProduct } from "../product.action";
+import { createProduct, updateProduct, getSuppliers } from "../product.action";
 import {
   Form,
   FormControl,
@@ -23,8 +23,8 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { useEffect, useState } from "react";
-import { db } from "@/src/lib/database.connection";
 import { Wand2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ProductFormProps {
   initialData?: Product & {
@@ -54,16 +54,18 @@ export default function ProductForm({ initialData }: ProductFormProps) {
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        const suppliers = await db.supplier.findMany();
-        setSuppliers(suppliers);
+        const suppliers = await getSuppliers();
+        if (suppliers) {
+          setSuppliers(suppliers);
+        }
       } catch (error) {
         console.error("Error fetching suppliers:", error);
       }
     };
     fetchSuppliers();
   }, []);
-  const generateSKU = (supplierName: string) => {
-    const prefix = supplierName.slice(0, 3).toUpperCase();
+  const generateSKU = (productName: string) => {
+    const prefix = productName.slice(0, 3).toUpperCase();
     const timestamp = Date.now().toString().slice(-6);
     return `${prefix}-${timestamp}`;
   };
@@ -139,22 +141,21 @@ export default function ProductForm({ initialData }: ProductFormProps) {
                 <FormControl>
                   <div className="relative">
                     <Input placeholder="Product SKU" {...field} />
-                    {initialData && !field.value && (
+                    {!field.value && (
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8"
                         onClick={() => {
-                          const selectedSupplier = suppliers.find(
-                            (s) => s.id === form.getValues().supplierId
-                          );
-                          if (selectedSupplier) {
-                            form.setValue(
-                              "sku",
-                              generateSKU(selectedSupplier.name)
+                          const productName = form.getValues().name;
+                          if (!productName) {
+                            toast.error(
+                              "Please fill in the product name first"
                             );
+                            return;
                           }
+                          form.setValue("sku", generateSKU(productName));
                         }}
                       >
                         <Wand2 className="h-4 w-4" />
