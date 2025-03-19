@@ -266,6 +266,14 @@ export function QuoteForm() {
     }
   };
 
+  // State for real-time calculations
+  const [totals, setTotals] = useState({
+    subtotal: 0,
+    discountAmount: 0,
+    taxAmount: 0,
+    total: 0,
+  });
+
   // Calculate totals
   const calculateTotals = () => {
     const items = form.getValues("items");
@@ -293,13 +301,26 @@ export function QuoteForm() {
 
     const total = taxableAmount + taxAmount;
 
-    return {
+    const calculatedTotals = {
       subtotal: isNaN(subtotal) ? 0 : subtotal,
       discountAmount: isNaN(discountAmount) ? 0 : discountAmount,
       taxAmount: isNaN(taxAmount) ? 0 : taxAmount,
       total: isNaN(total) ? 0 : total,
     };
+
+    setTotals(calculatedTotals);
+    return calculatedTotals;
   };
+
+  // Watch for changes in form values and update totals
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      if (value) {
+        calculateTotals();
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const handleBusinessLogoSelect = async (file: File | null) => {
     if (file) {
@@ -728,7 +749,7 @@ export function QuoteForm() {
             <CardHeader>
               <CardTitle>Quote Items</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="grid gap-4">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -824,7 +845,14 @@ export function QuoteForm() {
                           />
                         </td>
                         <td className="py-3 px-4 text-right text-foreground font-medium">
-                          {(field.quantity * field.unitPrice).toFixed(2)}
+                          {(
+                            (Number(
+                              form.getValues(`items.${index}.quantity`)
+                            ) || 0) *
+                            (Number(
+                              form.getValues(`items.${index}.unitPrice`)
+                            ) || 0)
+                          ).toFixed(2)}
                         </td>
                         <td className="py-3 px-4">
                           <Button
@@ -840,29 +868,175 @@ export function QuoteForm() {
                     ))}
                   </tbody>
                 </table>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() =>
-                    append({
-                      name: "",
-                      description: "",
-                      quantity: 1,
-                      unitPrice: 0,
-                      productId: "",
-                      total: 0,
-                      discountType: "percentage",
-                      discountValue: 0,
-                      taxType: "percentage",
-                      taxValue: 0,
-                    })
-                  }
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Item
-                </Button>
+                <div className="w-full flex justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() =>
+                      append({
+                        name: "",
+                        description: "",
+                        quantity: 1,
+                        unitPrice: 0,
+                        productId: "",
+                        total: 0,
+                        discountType: "percentage",
+                        discountValue: 0,
+                        taxType: "percentage",
+                        taxValue: 0,
+                      })
+                    }
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Item
+                  </Button>
+                </div>
+              </div>
+              {/* Discount and Tax Section */}
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-4">
+                  <h4 className="font-medium">Discount</h4>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="discountType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Type</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="percentage">
+                                Percentage (%)
+                              </SelectItem>
+                              <SelectItem value="fixed">
+                                Fixed Amount
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="discountValue"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Value</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              onChange={(e) => {
+                                field.onChange(Number(e.target.value));
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-medium">Tax</h4>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="taxType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Type</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="percentage">
+                                Percentage (%)
+                              </SelectItem>
+                              <SelectItem value="fixed">
+                                Fixed Amount
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="taxValue"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Value</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              onChange={(e) => {
+                                field.onChange(Number(e.target.value));
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Summary Section */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    Subtotal:
+                  </span>
+                  <span className="font-medium">
+                    {totals.subtotal.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    Discount:
+                  </span>
+                  <span className="font-medium text-red-500">
+                    -{totals.discountAmount.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Tax:</span>
+                  <span className="font-medium">
+                    {totals.taxAmount.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center border-t pt-2">
+                  <span className="font-medium">Total:</span>
+                  <span className="font-bold text-lg">
+                    {totals.total.toFixed(2)}
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
