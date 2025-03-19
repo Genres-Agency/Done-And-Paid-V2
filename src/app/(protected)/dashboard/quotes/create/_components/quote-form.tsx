@@ -44,6 +44,7 @@ import Image from "next/image";
 import { createQuote } from "../../quote.action";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { ProductSelectorModal } from "./product-selector-modal";
 
 export function QuoteForm() {
   const { data: session } = useSession();
@@ -922,28 +923,46 @@ export function QuoteForm() {
                       Add Discount & Tax
                     </label>
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      append({
-                        name: "",
-                        description: "",
-                        quantity: 1,
-                        unitPrice: 0,
-                        productId: "",
-                        total: 0,
-                        discountType: "percentage",
-                        discountValue: 0,
-                        taxType: "percentage",
-                        taxValue: 0,
-                      })
-                    }
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Item
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <ProductSelectorModal
+                      onSelect={(product) => {
+                        append({
+                          name: product.name,
+                          description: product.description || "",
+                          quantity: 1,
+                          unitPrice: product.price,
+                          productId: product.id,
+                          total: product.price,
+                          discountType: "percentage",
+                          discountValue: 0,
+                          taxType: "percentage",
+                          taxValue: 0,
+                        });
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        append({
+                          name: "",
+                          description: "",
+                          quantity: 1,
+                          unitPrice: 0,
+                          productId: "",
+                          total: 0,
+                          discountType: "percentage",
+                          discountValue: 0,
+                          taxType: "percentage",
+                          taxValue: 0,
+                        })
+                      }
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Custom Item
+                    </Button>
+                  </div>
                 </div>
               </div>
               {/* Discount and Tax Section */}
