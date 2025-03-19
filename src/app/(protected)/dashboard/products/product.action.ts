@@ -68,13 +68,22 @@ export async function createProduct(data: ProductFormData) {
   }
 }
 
-export async function getProducts() {
+export async function getProducts(includeOutOfStock: boolean = true) {
   try {
     const products = await prisma.product.findMany({
       include: {
         supplier: true,
         inventory: true,
       },
+      where: includeOutOfStock
+        ? undefined
+        : {
+            inventory: {
+              quantity: {
+                gt: 0,
+              },
+            },
+          },
     });
 
     return products;

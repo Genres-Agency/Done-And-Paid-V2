@@ -83,8 +83,12 @@ export const navItems: NavItem[] = [
       UserRole.SALESPERSON,
     ],
     items: [
-      { title: "Add Customer", url: "/dashboard/customers/add" },
-      { title: "All Customers", url: "/dashboard/customers" },
+      {
+        title: "Add Customer",
+        url: "/dashboard/customers/add",
+        disabled: true,
+      },
+      { title: "All Customers", url: "/dashboard/customers", disabled: true },
     ],
   },
   {
@@ -109,12 +113,21 @@ export const navItems: NavItem[] = [
       UserRole.SALESPERSON,
     ],
     items: [
-      { title: "Messages", url: "/dashboard/communications/messages" },
+      {
+        title: "Messages",
+        url: "/dashboard/communications/messages",
+        disabled: true,
+      },
       {
         title: "Payment Reminders",
         url: "/dashboard/communications/reminders",
+        disabled: true,
       },
-      { title: "Staff Notifications", url: "/dashboard/communications/staff" },
+      {
+        title: "Staff Notifications",
+        url: "/dashboard/communications/staff",
+        disabled: true,
+      },
     ],
   },
   // {
@@ -142,10 +155,26 @@ export const navItems: NavItem[] = [
     shortcut: ["g", "r"],
     allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.ACCOUNTANT],
     items: [
-      { title: "Financial Reports", url: "/dashboard/reports/financial" },
-      { title: "Sales Analytics", url: "/dashboard/reports/sales" },
-      { title: "Inventory Reports", url: "/dashboard/reports/inventory" },
-      { title: "Transaction History", url: "/dashboard/reports/transactions" },
+      {
+        title: "Financial Reports",
+        url: "/dashboard/reports/financial",
+        disabled: true,
+      },
+      {
+        title: "Sales Analytics",
+        url: "/dashboard/reports/sales",
+        disabled: true,
+      },
+      {
+        title: "Inventory Reports",
+        url: "/dashboard/reports/inventory",
+        disabled: true,
+      },
+      {
+        title: "Transaction History",
+        url: "/dashboard/reports/transactions",
+        disabled: true,
+      },
     ],
   },
   {

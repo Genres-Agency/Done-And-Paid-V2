@@ -20,12 +20,12 @@ import {
   AlertDialogTitle,
 } from "@/src/components/ui/alert-dialog";
 
-type ProductWithRelations = Product & {
-  supplier: Supplier;
+type ProductWithDetails = Product & {
+  supplier: Supplier | null;
   inventory: Inventory | null;
 };
 
-export const columns: ColumnDef<ProductWithRelations, any>[] = [
+export const columns: ColumnDef<ProductWithDetails, any>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
