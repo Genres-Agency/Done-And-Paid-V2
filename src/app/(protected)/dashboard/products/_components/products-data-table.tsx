@@ -9,6 +9,7 @@ import { columns } from "./columns";
 import { DataTable } from "../../../_components/table/data-table";
 import { LoadingPage } from "@/src/components/loading";
 import { getProducts } from "../product.action";
+import { Heading } from "@/src/components/heading";
 
 type ProductWithRelations = Product & {
   supplier: Supplier;
@@ -39,7 +40,11 @@ export function ProductsDataTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex w-full items-center justify-between">
+        <Heading
+          title="Products"
+          description="Manage your product catalog and inventory"
+        />
         <Button
           onClick={() => router.push("/dashboard/products/add")}
           className="ml-auto"
