@@ -837,10 +837,10 @@ export function InvoiceForm({ initialData }: InvoiceFormProps) {
             </CardContent>
           </Card>
 
-          {/* Items */}
+          {/* Invoice Items */}
           <Card>
             <CardHeader>
-              <CardTitle>Items</CardTitle>
+              <CardTitle>Invoice Items</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {fields.map((field, index) => (

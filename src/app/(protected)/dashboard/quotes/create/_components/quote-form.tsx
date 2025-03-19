@@ -43,7 +43,6 @@ import Image from "next/image";
 import { createQuote } from "../../quote.action";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { QuoteWithCustomer } from "@/src/types/quote";
 
 export function QuoteForm() {
   const { data: session } = useSession();
@@ -383,7 +382,7 @@ export function QuoteForm() {
                             <Input
                               type="number"
                               {...field}
-                              value={field.value || ""}
+                              value={field.value?.toString() || ""}
                               onChange={(e) => {
                                 const value = parseInt(e.target.value);
                                 field.onChange(isNaN(value) ? 0 : value);
@@ -730,102 +729,130 @@ export function QuoteForm() {
               <CardTitle>Quote Items</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="relative grid gap-4 rounded-lg border p-4 md:grid-cols-2 lg:grid-cols-4"
-                  >
-                    <FormField
-                      control={form.control}
-                      name={`items.${index}.name`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Item Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`items.${index}.description`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name={`items.${index}.quantity`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Quantity</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                type="number"
-                                onChange={(e) => {
-                                  field.onChange(Number(e.target.value));
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`items.${index}.unitPrice`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Unit Price</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                type="number"
-                                onChange={(e) => {
-                                  field.onChange(Number(e.target.value));
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute -right-2 -top-2"
-                      onClick={() => remove(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-muted">
+                      <th className="text-left py-3 px-4 font-semibold text-foreground">
+                        Item
+                      </th>
+                      <th className="text-left py-3 px-4 font-semibold text-foreground">
+                        Description
+                      </th>
+                      <th className="text-right py-3 px-4 font-semibold text-foreground">
+                        Quantity
+                      </th>
+                      <th className="text-right py-3 px-4 font-semibold text-foreground">
+                        Unit Price
+                      </th>
+                      <th className="text-right py-3 px-4 font-semibold text-foreground">
+                        Total
+                      </th>
+                      <th className="w-[50px]"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fields.map((field, index) => (
+                      <tr key={field.id} className="border-b hover:bg-muted/50">
+                        <td className="py-3 px-4">
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.name`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} placeholder="Item name" />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.description`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} placeholder="Description" />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.quantity`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    type="number"
+                                    min="1"
+                                    className="text-right"
+                                    onChange={(e) => {
+                                      field.onChange(Number(e.target.value));
+                                    }}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.unitPrice`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    className="text-right"
+                                    onChange={(e) => {
+                                      field.onChange(Number(e.target.value));
+                                    }}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </td>
+                        <td className="py-3 px-4 text-right text-foreground font-medium">
+                          {(field.quantity * field.unitPrice).toFixed(2)}
+                        </td>
+                        <td className="py-3 px-4">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => remove(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="mt-2"
+                  className="mt-4"
                   onClick={() =>
                     append({
                       name: "",
                       description: "",
                       quantity: 1,
                       unitPrice: 0,
-                      total: 0,
                       productId: "",
+                      total: 0,
                       discountType: "percentage",
                       discountValue: 0,
                       taxType: "percentage",
@@ -833,7 +860,8 @@ export function QuoteForm() {
                     })
                   }
                 >
-                  <Plus className="mr-2 h-4 w-4" /> Add Item
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Item
                 </Button>
               </div>
             </CardContent>
