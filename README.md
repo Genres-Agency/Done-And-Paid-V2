@@ -55,6 +55,7 @@ A modern invoice management system built with Next.js 14, helping you spend more
 - npm/pnpm
 - Git
 
+<!--
 ## Environment Variables
 
 Create a `.env` file in the root directory with the following variables:
@@ -96,7 +97,7 @@ npx prisma db push
 
 ```shell
 pnpm run dev
-```
+``` -->
 
 ## Available Commands
 

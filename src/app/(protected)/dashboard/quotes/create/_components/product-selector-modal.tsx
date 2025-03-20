@@ -108,7 +108,7 @@ export function ProductSelectorModal({
                   onSelect(selectedProductsList);
                   if (append) {
                     selectedProductsList.forEach((product) => {
-                      const newItem = {
+                      append({
                         name: product.name,
                         description: product.description || "",
                         quantity: 1,
@@ -119,8 +119,7 @@ export function ProductSelectorModal({
                         discountValue: 0,
                         taxType: "percentage",
                         taxValue: 0,
-                      };
-                      append(newItem);
+                      });
                     });
                   }
                   setIsOpen(false);
