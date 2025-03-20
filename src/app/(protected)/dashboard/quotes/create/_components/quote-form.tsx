@@ -925,18 +925,20 @@ export function QuoteForm() {
                   </div>
                   <div className="flex items-center gap-2">
                     <ProductSelectorModal
-                      onSelect={(product) => {
-                        append({
-                          name: product.name,
-                          description: product.description || "",
-                          quantity: 1,
-                          unitPrice: product.price,
-                          productId: product.id,
-                          total: product.price,
-                          discountType: "percentage",
-                          discountValue: 0,
-                          taxType: "percentage",
-                          taxValue: 0,
+                      onSelect={(products) => {
+                        products.forEach((product) => {
+                          append({
+                            name: product.name,
+                            description: product.description || "",
+                            quantity: 1,
+                            unitPrice: product.price,
+                            productId: product.id,
+                            total: product.price,
+                            discountType: "percentage",
+                            discountValue: 0,
+                            taxType: "percentage",
+                            taxValue: 0,
+                          });
                         });
                       }}
                     />

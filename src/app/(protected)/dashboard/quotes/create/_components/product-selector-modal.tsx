@@ -15,9 +15,13 @@ import { Product } from "@prisma/client";
 
 interface ProductSelectorModalProps {
   onSelect: (products: Product[]) => void;
+  append?: (data: any) => void;
 }
 
-export function ProductSelectorModal({ onSelect }: ProductSelectorModalProps) {
+export function ProductSelectorModal({
+  onSelect,
+  append,
+}: ProductSelectorModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(
@@ -31,7 +35,7 @@ export function ProductSelectorModal({ onSelect }: ProductSelectorModalProps) {
     try {
       const response = await fetch("/api/products");
       const products = await response.json();
-      console.log("products======>", products);
+      // console.log("products======>", products);
       setProducts(products);
     } catch (error) {
       console.error("Failed to fetch products:", error);
@@ -91,19 +95,42 @@ export function ProductSelectorModal({ onSelect }: ProductSelectorModalProps) {
                 searchProducts(e.target.value);
               }}
             />
-            <Button
-              type="button"
-              onClick={() => {
-                const selectedProductsList = products.filter((p) =>
-                  selectedProducts.has(p.id)
-                );
-                onSelect(selectedProductsList);
-                setIsOpen(false);
-              }}
-              disabled={selectedProducts.size === 0}
-            >
-              Add Selected
-            </Button>
+            <div className="flex items-center gap-2">
+              {/* {selectedProducts.size > 0 && (
+                <Badge variant="secondary">{selectedProducts.size}</Badge>
+              )} */}
+              <Button
+                type="button"
+                onClick={() => {
+                  const selectedProductsList = products.filter((p) =>
+                    selectedProducts.has(p.id)
+                  );
+                  onSelect(selectedProductsList);
+                  if (append) {
+                    selectedProductsList.forEach((product) => {
+                      const newItem = {
+                        name: product.name,
+                        description: product.description || "",
+                        quantity: 1,
+                        unitPrice: product.price,
+                        productId: product.id,
+                        total: product.price,
+                        discountType: "percentage",
+                        discountValue: 0,
+                        taxType: "percentage",
+                        taxValue: 0,
+                      };
+                      append(newItem);
+                    });
+                  }
+                  setIsOpen(false);
+                }}
+                disabled={selectedProducts.size === 0}
+              >
+                {selectedProducts.size > 0 ? `${selectedProducts.size} - ` : ""}{" "}
+                Add Selected
+              </Button>
+            </div>
           </div>
           <div className="max-h-[400px] overflow-y-auto relative">
             {loading ? (
@@ -158,6 +185,21 @@ export function ProductSelectorModal({ onSelect }: ProductSelectorModalProps) {
                               const newSelected = new Set([product.id]);
                               setSelectedProducts(newSelected);
                               onSelect([product]);
+                              if (append) {
+                                const newItem = {
+                                  name: product.name,
+                                  description: product.description || "",
+                                  quantity: 1,
+                                  unitPrice: product.price,
+                                  productId: product.id,
+                                  total: product.price,
+                                  discountType: "percentage",
+                                  discountValue: 0,
+                                  taxType: "percentage",
+                                  taxValue: 0,
+                                };
+                                append(newItem);
+                              }
                               setIsOpen(false);
                             }}
                           >
