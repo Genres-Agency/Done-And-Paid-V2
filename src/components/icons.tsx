@@ -56,7 +56,7 @@ import {
   FileTextIcon,
   Store,
   Factory,
-  Cog,
+  ServerCog,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -67,7 +67,7 @@ export const Icons = {
   box: Boxes,
   store: Store,
   factory: Factory,
-  tool: Cog,
+  tool: ServerCog,
   logo: Command,
   login: LogIn,
   profile: CircleUserRound,
