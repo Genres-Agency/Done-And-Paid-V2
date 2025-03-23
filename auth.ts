@@ -2,7 +2,7 @@ import { DefaultSession } from "next-auth";
 import type { User, Account } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { UserRole } from "@prisma/client";
+import { UserRole, BusinessType } from "@prisma/client";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import Github from "next-auth/providers/github";
@@ -22,6 +22,7 @@ declare module "next-auth" {
 
   interface User {
     role: UserRole;
+    businessType: BusinessType | null;
   }
 }
 

@@ -18,6 +18,10 @@ const ProtectedLayout = async ({ children }: ProtectedLayoutProps) => {
     return redirect("/");
   }
 
+  if (!user.businessType) {
+    return redirect("/business-type-selection");
+  }
+
   return (
     <html lang="en">
       <body>

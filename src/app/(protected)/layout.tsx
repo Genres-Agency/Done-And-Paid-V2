@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { AppSidebar } from "@/src/app/(protected)/_components/app-sidebar";
-import { BusinessTypeCheck } from "@/src/components/business-type-check";
+import { currentUser } from "@/src/lib/auth";
+import ClientWrapper from "./client-wrapper";
 
 export default async function ProtectedLayout({
   children,
@@ -9,18 +9,15 @@ export default async function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
+  const user = await currentUser();
 
   if (!session) {
     redirect("/auth/login");
   }
 
   return (
-    <div className="flex h-screen">
-      {/* <AppSidebar /> */}
-      <main className="flex-1 overflow-y-auto">
-        <BusinessTypeCheck />
-        {children}
-      </main>
-    </div>
+    <ClientWrapper user={user}>
+      <main>{children}</main>
+    </ClientWrapper>
   );
 }
