@@ -1,12 +1,120 @@
 import { NavItem } from "@/src/types";
-import { UserRole } from "@prisma/client";
+import { UserRole, BusinessType } from "@prisma/client";
 
 export const navItems: NavItem[] = [
+  // Common features for all business types
   {
-    title: "Dashboard",
+    title: "Business Overview",
     url: "/dashboard/overview",
     icon: "dashboard",
     shortcut: ["g", "d"],
+  },
+  // Retail-specific features
+  {
+    title: "Point of Sale",
+    icon: "store",
+    shortcut: ["g", "s"],
+    allowedBusinessTypes: [BusinessType.RETAIL],
+    allowedRoles: [
+      UserRole.ADMIN,
+      UserRole.SUPERADMIN,
+      UserRole.MANAGER,
+      UserRole.SALESPERSON,
+    ],
+    items: [
+      { title: "New Sale", url: "/dashboard/pos/new", disabled: true },
+      { title: "Sales History", url: "/dashboard/pos/history", disabled: true },
+      {
+        title: "Cash Register",
+        url: "/dashboard/pos/register",
+        disabled: true,
+      },
+    ],
+  },
+  // Wholesale-specific features
+  {
+    title: "Bulk Orders",
+    icon: "package",
+    shortcut: ["g", "b"],
+    allowedBusinessTypes: [BusinessType.WHOLESALE],
+    allowedRoles: [
+      UserRole.ADMIN,
+      UserRole.SUPERADMIN,
+      UserRole.MANAGER,
+      UserRole.SALESPERSON,
+    ],
+    items: [
+      {
+        title: "New Bulk Order",
+        url: "/dashboard/bulk-orders/new",
+        disabled: true,
+      },
+      {
+        title: "Order History",
+        url: "/dashboard/bulk-orders/history",
+        disabled: true,
+      },
+      {
+        title: "Price Lists",
+        url: "/dashboard/bulk-orders/price-lists",
+        disabled: true,
+      },
+    ],
+  },
+  // Manufacturing-specific features
+  {
+    title: "Production",
+    icon: "factory",
+    shortcut: ["g", "m"],
+    allowedBusinessTypes: [BusinessType.MANUFACTURING],
+    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.MANAGER],
+    items: [
+      {
+        title: "Production Orders",
+        url: "/dashboard/production/orders",
+        disabled: true,
+      },
+      {
+        title: "Bill of Materials",
+        url: "/dashboard/production/bom",
+        disabled: true,
+      },
+      {
+        title: "Work Orders",
+        url: "/dashboard/production/work-orders",
+        disabled: true,
+      },
+    ],
+  },
+  // Service-specific features
+  {
+    title: "Services",
+    icon: "tool",
+    shortcut: ["g", "v"],
+    allowedBusinessTypes: [BusinessType.SERVICE],
+    allowedRoles: [
+      UserRole.ADMIN,
+      UserRole.SUPERADMIN,
+      UserRole.MANAGER,
+      UserRole.SALESPERSON,
+    ],
+    items: [
+      {
+        title: "Service Bookings",
+        url: "/dashboard/services/bookings",
+        disabled: true,
+      },
+      {
+        title: "Service Catalog",
+        url: "/dashboard/services/catalog",
+        disabled: true,
+      },
+      {
+        title: "Time Tracking",
+        url: "/dashboard/services/time-tracking",
+        disabled: true,
+      },
+    ],
   },
   {
     title: "Invoices",

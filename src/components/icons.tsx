@@ -54,6 +54,9 @@ import {
   BarChart2,
   MessageSquareDashedIcon,
   FileTextIcon,
+  Store,
+  Factory,
+  Cog,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -62,6 +65,9 @@ export const Icons = {
   dashboard: LayoutDashboardIcon,
   chart: LineChart,
   box: Boxes,
+  store: Store,
+  factory: Factory,
+  tool: Cog,
   logo: Command,
   login: LogIn,
   profile: CircleUserRound,

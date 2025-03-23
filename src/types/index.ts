@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { UserRole, BusinessType } from "@prisma/client";
 import { Icons } from "../components/icons";
 
 export interface NavItem {
@@ -15,4 +15,5 @@ export interface NavItem {
   }[];
   disabled?: boolean;
   allowedRoles?: UserRole[];
+  allowedBusinessTypes?: BusinessType[];
 }

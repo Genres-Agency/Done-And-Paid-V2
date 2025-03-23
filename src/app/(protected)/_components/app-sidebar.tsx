@@ -51,7 +51,7 @@ import logoImg from "../../../../public/logo-icon.svg";
 import { LogoutButton } from "@/src/components/auth/logout-button";
 import React from "react";
 import { useSession } from "next-auth/react";
-import { UserRole } from "@prisma/client";
+import { BusinessType, UserRole } from "@prisma/client";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import Image from "next/image";
 
@@ -71,10 +71,25 @@ export function AppSidebar() {
   const filteredNavItems = React.useMemo(() => {
     if (!session?.user?.role) return [];
     return navItems.filter((item) => {
-      if (!item.allowedRoles) return true;
-      return item.allowedRoles.includes(session.user.role as UserRole);
+      // Check role permissions
+      if (
+        item.allowedRoles &&
+        !item.allowedRoles.includes(session.user.role as UserRole)
+      ) {
+        return false;
+      }
+      // Check business type permissions
+      if (item.allowedBusinessTypes && session.user.businessType) {
+        return item.allowedBusinessTypes.includes(
+          session.user.businessType as BusinessType
+        );
+      }
+      // Show items without business type restrictions to all users
+      return (
+        !item.allowedBusinessTypes || item.allowedBusinessTypes.length === 0
+      );
     });
-  }, [session?.user?.role]);
+  }, [session?.user?.role, session?.user?.businessType]);
 
   const renderSkeletonItem = () => (
     <SidebarMenuItem>
