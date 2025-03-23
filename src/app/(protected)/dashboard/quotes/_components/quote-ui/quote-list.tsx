@@ -21,7 +21,7 @@ export default function QuoteList({ quotes }: QuoteListProps) {
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Quotes</h2>
             <p className="text-muted-foreground">
-              Here's a list of your quotes
+              {`Here's a list of your quotes`}
             </p>
           </div>
           <Button asChild>

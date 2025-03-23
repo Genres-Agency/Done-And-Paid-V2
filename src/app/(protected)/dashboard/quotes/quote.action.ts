@@ -218,20 +218,32 @@ export async function saveQuoteDraft(data: CreateQuoteInput & { id?: string }) {
     const draftNumber = `DRAFT-${new Date().getTime()}`;
 
     // Create new draft
+    // Create a new customer if customerId is not provided
+    const customer = data.customerId
+      ? await prisma.customer.findUnique({ where: { id: data.customerId } })
+      : await prisma.customer.create({
+          data: {
+            name: data.customerName,
+            email: data.customerEmail,
+            phoneNumber: data.customerPhone,
+            address: data.customerAddress,
+            company: data.customerCompany,
+            companyLogo: data.customerLogo,
+            taxNumber: data.customerTaxNumber,
+            billingAddress: data.customerBillingAddress,
+            shippingAddress: data.customerShippingAddress,
+            notes: data.customerNotes,
+          },
+        });
+
+    if (!customer) {
+      throw new Error("Failed to create or find customer");
+    }
+
     return await prisma.quote.create({
       data: {
         quoteNumber: draftNumber,
-        customerId: data.customerId,
-        customerName: data.customerName,
-        customerEmail: data.customerEmail,
-        customerPhone: data.customerPhone,
-        customerAddress: data.customerAddress,
-        customerCompany: data.customerCompany,
-        customerLogo: data.customerLogo,
-        customerTaxNumber: data.customerTaxNumber,
-        customerBillingAddress: data.customerBillingAddress,
-        customerShippingAddress: data.customerShippingAddress,
-        customerNotes: data.customerNotes,
+        customerId: customer.id,
         businessName: data.businessName || "",
         businessLogo: data.businessLogo,
         businessAddress: data.businessAddress || "",

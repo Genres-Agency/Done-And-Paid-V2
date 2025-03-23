@@ -221,7 +221,6 @@ export function QuoteForm() {
         customerTaxNumber: values.businessTaxNumber,
         customerBillingAddress: values.billingAddress,
         customerShippingAddress: values.shippingAddress,
-        revisionNumber: 1, // Initial revision number for new quotes
 
         // Business Information
         businessName: values.businessName,
@@ -231,6 +230,7 @@ export function QuoteForm() {
         businessEmail: values.businessEmail,
         // Quote Items
         items: values.items.map((item) => ({
+          name: item.name,
           productId: item.productId || "",
           quantity: item.quantity || 0,
           unitPrice: item.unitPrice || 0,
