@@ -104,6 +104,7 @@ export const config = {
             address: true,
             bio: true,
             isTwoFactorEnabled: true,
+            businessType: true,
           },
         });
 
@@ -128,6 +129,7 @@ export const config = {
           email: true,
           role: true,
           image: true,
+          businessType: true,
         },
       });
 
@@ -140,6 +142,7 @@ export const config = {
         email: existingUser.email,
         role: existingUser.role,
         picture: existingUser.image,
+        businessType: existingUser.businessType,
       };
     },
 

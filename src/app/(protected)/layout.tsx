@@ -14,9 +14,16 @@ export default async function ProtectedLayout({
   if (!session) {
     redirect("/auth/login");
   }
+  console.log("===========>>>>", user?.businessType);
+
+  // Check if user has business type set before rendering
+  if (user?.businessType && !session.user.businessType) {
+    // Update session with the latest business type
+    session.user.businessType = user.businessType;
+  }
 
   return (
-    <ClientWrapper user={user}>
+    <ClientWrapper user={session.user}>
       <main>{children}</main>
     </ClientWrapper>
   );
