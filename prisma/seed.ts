@@ -19,6 +19,7 @@ async function main() {
         password:
           "$2a$10$D32T4lzBzuucgBgqhUzqQ.KU2r.enUML9L0ihVcy8Odn0AdkOsuja", // "aaaaaa"
         role: UserRole.SUPERADMIN,
+        businessType: "RETAIL",
         phoneNumber: "+1234567890",
         address: "123 Admin Street",
         bio: "System administrator",
@@ -32,6 +33,7 @@ async function main() {
         password:
           "$2a$10$D32T4lzBzuucgBgqhUzqQ.KU2r.enUML9L0ihVcy8Odn0AdkOsuja",
         role: UserRole.MANAGER,
+        businessType: "WHOLESALE",
         phoneNumber: "+1234567891",
         address: "456 Manager Avenue",
         bio: "Business manager",
@@ -44,6 +46,7 @@ async function main() {
         password:
           "$2a$10$D32T4lzBzuucgBgqhUzqQ.KU2r.enUML9L0ihVcy8Odn0AdkOsuja",
         role: UserRole.ACCOUNTANT,
+        businessType: "SERVICE",
         phoneNumber: "+1234567892",
         address: "789 Finance Street",
         bio: "Financial accountant",

@@ -81,11 +81,11 @@ export function QuoteForm() {
     defaultValues: {
       items: [
         {
+          productId: "",
           name: "",
-          description: "",
           quantity: 1,
           unitPrice: 0,
-          productId: "",
+          description: "",
           total: 0,
           discountType: "percentage",
           discountValue: 0,
@@ -208,11 +208,20 @@ export function QuoteForm() {
         return;
       }
 
+      // Create quote using server action with all form data
       const quote = await createQuote({
         // Customer Information
         customerId: "", // This will be set by the server action after upserting the customer
-        revisionNumber: 1, // Initial revision number for new quotes
         customerName: values.customerName,
+        customerEmail: values.customerEmail,
+        customerPhone: values.customerPhone,
+        customerAddress: values.customerAddress,
+        customerCompany: values.businessName,
+        customerLogo: previewCustomerLogo || undefined,
+        customerTaxNumber: values.businessTaxNumber,
+        customerBillingAddress: values.billingAddress,
+        customerShippingAddress: values.shippingAddress,
+        revisionNumber: 1, // Initial revision number for new quotes
 
         // Business Information
         businessName: values.businessName,

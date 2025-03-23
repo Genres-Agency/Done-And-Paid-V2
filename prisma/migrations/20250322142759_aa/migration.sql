@@ -11,6 +11,9 @@ CREATE TYPE "PaymentMethod" AS ENUM ('CASH', 'BANK_TRANSFER', 'CREDIT_CARD', 'DE
 CREATE TYPE "TransactionType" AS ENUM ('INCOME', 'EXPENSE', 'REFUND');
 
 -- CreateEnum
+CREATE TYPE "BusinessType" AS ENUM ('RETAIL', 'WHOLESALE', 'MANUFACTURING', 'SERVICE');
+
+-- CreateEnum
 CREATE TYPE "QuoteStatus" AS ENUM ('DRAFT', 'PENDING', 'APPROVED', 'REJECTED', 'CONVERTED', 'EXPIRED');
 
 -- CreateEnum
@@ -23,6 +26,7 @@ CREATE TABLE "User" (
     "email" TEXT,
     "password" TEXT,
     "role" "UserRole" NOT NULL DEFAULT 'USER',
+    "businessType" "BusinessType",
     "image" TEXT,
     "phoneNumber" TEXT,
     "address" TEXT,
@@ -231,6 +235,7 @@ CREATE TABLE "Quote" (
     "convertedToInvoice" BOOLEAN NOT NULL DEFAULT false,
     "invoiceId" TEXT,
     "validityPeriod" INTEGER NOT NULL DEFAULT 30,
+    "revisionNumber" INTEGER DEFAULT 1,
     "createdById" TEXT NOT NULL,
     "approvedById" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

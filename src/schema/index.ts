@@ -10,6 +10,12 @@ export const LoginSchema = z.object({
   }),
 });
 
+export const BusinessTypeSchema = z.object({
+  businessType: z.enum(["RETAIL", "WHOLESALE", "MANUFACTURING", "SERVICE"], {
+    required_error: "Business type is required",
+  }),
+});
+
 export const RegisterSchema = z
   .object({
     email: z.string().email({
