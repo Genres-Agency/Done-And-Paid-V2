@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,8 +45,18 @@ const BusinessTypeSelectionPage = () => {
     }
   };
 
-  if (session?.user?.businessType) {
-    router.push("/dashboard");
+  useEffect(() => {
+    if (!session) {
+      router.push("/auth/login");
+      return;
+    }
+    if (session?.user?.businessType) {
+      router.push("/dashboard");
+      return;
+    }
+  }, [session, router]);
+
+  if (!session || session?.user?.businessType) {
     return null;
   }
 

@@ -29,6 +29,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     role: UserRole;
+    businessType: BusinessType | null;
   }
 }
 export const config = {
@@ -92,28 +93,12 @@ export const config = {
 
     async session({ token, session }: { token: JWT; session: Session }) {
       if (token.sub && session.user) {
-        const user = await db.user.findUnique({
-          where: { id: token.sub },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            image: true,
-            phoneNumber: true,
-            address: true,
-            bio: true,
-            isTwoFactorEnabled: true,
-            businessType: true,
-          },
-        });
-
-        if (user) {
-          session.user = {
-            ...session.user,
-            ...user,
-          };
-        }
+        session.user.id = token.sub;
+        session.user.role = token.role;
+        session.user.businessType = token.businessType as BusinessType | null;
+        session.user.email = token.email;
+        session.user.name = token.name;
+        session.user.image = token.picture;
       }
       return session;
     },
