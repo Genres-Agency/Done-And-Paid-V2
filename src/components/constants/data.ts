@@ -117,6 +117,21 @@ export const navItems: NavItem[] = [
     ],
   },
   {
+    title: "Projects",
+    icon: "briefcase",
+    shortcut: ["g", "j"],
+    allowedBusinessTypes: [BusinessType.SERVICE],
+    allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.MANAGER],
+    items: [
+      { title: "All Projects", url: "/dashboard/projects" },
+      {
+        title: "Project Submissions",
+        url: "/dashboard/project-submission",
+        disabled: true,
+      },
+    ],
+  },
+  {
     title: "Invoices",
     icon: "file",
     // url: "/dashboard/invoices",

@@ -51,25 +51,26 @@ enum BusinessType {
 }
 
 model User {
-  id                 String        @id @default(cuid())
+  id                 String              @id @default(cuid())
   name               String?
-  email              String?       @unique
+  email              String?             @unique
   password           String?
-  role               UserRole      @default(USER)
+  role               UserRole            @default(USER)
   businessType       BusinessType?
   accounts           Account[]
   image              String?
   phoneNumber        String?
   address            String?
   bio                String?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  isTwoFactorEnabled Boolean       @default(false)
-  invoicesCreated    Invoice[]     @relation("CreatedBy")
-  invoicesApproved   Invoice[]     @relation("ApprovedBy")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  isTwoFactorEnabled Boolean             @default(false)
+  invoicesCreated    Invoice[]           @relation("CreatedBy")
+  invoicesApproved   Invoice[]           @relation("ApprovedBy")
   transactions       Transaction[]
-  quotesCreated      Quote[]       @relation("QuoteCreatedBy")
-  quotesApproved     Quote[]       @relation("QuoteApprovedBy")
+  quotesCreated      Quote[]             @relation("QuoteCreatedBy")
+  quotesApproved     Quote[]             @relation("QuoteApprovedBy")
+  ProjectSubmission  ProjectSubmission[]
 }
 
 model Account {
@@ -362,4 +363,31 @@ model Media {
   mimeType    String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+enum ProjectStatus {
+  PENDING
+  APPROVED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model ProjectSubmission {
+  id             String        @id @default(cuid())
+  title          String
+  description    String
+  clientName     String
+  clientEmail    String
+  clientPhone    String?
+  budget         Float?
+  timeline       DateTime?
+  requirements   String?
+  status         ProjectStatus @default(PENDING)
+  attachments    Json?
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  assignedUserId String?
+  assignedUser   User?         @relation(fields: [assignedUserId], references: [id])
 }

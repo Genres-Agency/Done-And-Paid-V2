@@ -57,6 +57,7 @@ import {
   Store,
   Factory,
   ServerCog,
+  Briefcase,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -160,6 +161,7 @@ export const Icons = {
   ),
   twitter: Twitter,
   check: Check,
+  briefcase: Briefcase,
   news: Newspaper,
   category: FolderTree,
   users: Users,
