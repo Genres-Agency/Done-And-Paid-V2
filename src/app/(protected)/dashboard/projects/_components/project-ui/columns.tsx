@@ -4,8 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ProjectStatus } from "@prisma/client";
 import { Badge } from "@/src/components/ui/badge";
 import { format } from "date-fns";
-import { DataTableColumnHeader } from "../../../_components/table/data-table-column-header";
-import { DataTableRowActions } from "../../../_components/table/data-table-row-actions";
+import { DataTableColumnHeader } from "../../../../_components/table/data-table-column-header";
+import { DataTableRowActions } from "../../../../_components/table/data-table-row-actions";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/src/components/ui/alert-dialog";
-import { deleteProject } from "../project.action";
+import { deleteProject } from "../../project.action";
 
 type Project = {
   id: string;
@@ -110,15 +110,6 @@ export const columns: ColumnDef<Project>[] = [
       return assignedUser?.name || "-";
     },
   },
-  //   {
-  //     accessorKey: "createdAt",
-  //     header: ({ column }) => (
-  //       <DataTableColumnHeader column={column} title="Created At" />
-  //     ),
-  //     cell: ({ row }) => {
-  //       return format(new Date(row.getValue("createdAt")), "MMM dd, yyyy");
-  //     },
-  //   },
   {
     id: "actions",
     cell: ({ row }) => {

@@ -123,6 +123,7 @@ export const navItems: NavItem[] = [
     allowedBusinessTypes: [BusinessType.SERVICE],
     allowedRoles: [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.MANAGER],
     items: [
+      { title: "Project Overview", url: "/dashboard/projects/overview" },
       { title: "All Projects", url: "/dashboard/projects" },
       {
         title: "Project Submissions",

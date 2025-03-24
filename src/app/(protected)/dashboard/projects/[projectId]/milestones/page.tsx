@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
-import { MilestoneManagement } from "../../_components/milestone-management";
+import { MilestoneManagement } from "../../_components/project-ui/milestone-management";
 
 export default function ProjectMilestones({
   params,

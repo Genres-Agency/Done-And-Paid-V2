@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/src/lib/database.connection";
+import prisma from "@/prisma";
 import { ProjectStatus } from "@prisma/client";
 
 export async function createProject(data: {
@@ -14,7 +14,7 @@ export async function createProject(data: {
   requirements?: string;
 }) {
   try {
-    const project = await db.projectSubmission.create({
+    const project = await prisma.projectSubmission.create({
       data: {
         ...data,
         status: "PENDING",
@@ -41,7 +41,7 @@ export async function updateProject(
   }
 ) {
   try {
-    const project = await db.projectSubmission.update({
+    const project = await prisma.projectSubmission.update({
       where: { id: projectId },
       data,
     });
@@ -54,7 +54,7 @@ export async function updateProject(
 
 export async function deleteProject(projectId: string) {
   try {
-    await db.projectSubmission.delete({
+    await prisma.projectSubmission.delete({
       where: { id: projectId },
     });
     return { success: true };
@@ -66,7 +66,7 @@ export async function deleteProject(projectId: string) {
 
 export async function getProject(projectId: string) {
   try {
-    const project = await db.projectSubmission.findUnique({
+    const project = await prisma.projectSubmission.findUnique({
       where: { id: projectId },
       include: {
         assignedUser: true,
@@ -88,7 +88,7 @@ export async function updateProjectStatus(
   status: ProjectStatus
 ) {
   try {
-    const updatedProject = await db.projectSubmission.update({
+    const updatedProject = await prisma.projectSubmission.update({
       where: { id: projectId },
       data: { status },
     });
@@ -100,35 +100,39 @@ export async function updateProjectStatus(
 }
 
 export async function getProjectStats() {
-  const projects = await db.projectSubmission.findMany({
+  const projects = await prisma.projectSubmission.findMany({
     include: {
       assignedUser: true,
       milestones: true,
     },
   });
 
-  const totalProjects = projects.length;
-  const completedProjects = projects.filter(
+  const total = projects.length;
+  const completed = projects.filter(
     (project) => project.status === "COMPLETED"
   ).length;
-  const pendingProjects = projects.filter(
+  const pending = projects.filter(
     (project) => project.status === "PENDING"
   ).length;
-  const assignedProjects = projects.filter(
-    (project) => project.assignedUserId
+  const inProgress = projects.filter(
+    (project) => project.status === "IN_PROGRESS"
+  ).length;
+  const cancelled = projects.filter(
+    (project) => project.status === "CANCELLED"
   ).length;
 
   return {
-    totalProjects,
-    completedProjects,
-    pendingProjects,
-    assignedProjects,
+    total,
+    completed,
+    pending,
+    inProgress,
+    cancelled,
   };
 }
 
 export async function assignProjectToUser(projectId: string, userId: string) {
   try {
-    const updatedProject = await db.projectSubmission.update({
+    const updatedProject = await prisma.projectSubmission.update({
       where: { id: projectId },
       data: { assignedUserId: userId },
     });
@@ -136,5 +140,48 @@ export async function assignProjectToUser(projectId: string, userId: string) {
   } catch (error) {
     console.error("Error assigning project:", error);
     return { success: false, error: "Failed to assign project" };
+  }
+}
+
+export async function getProjects() {
+  try {
+    const projects = await prisma.projectSubmission.findMany({
+      include: {
+        assignedUser: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        milestones: {
+          orderBy: {
+            endDate: "asc",
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return projects.map((project) => ({
+      id: project.id,
+      title: project.title,
+      description: project.description,
+      clientName: project.clientName,
+      clientEmail: project.clientEmail,
+      clientPhone: project.clientPhone,
+      budget: project.budget,
+      timeline: project.timeline,
+      requirements: project.requirements,
+      status: project.status,
+      createdAt: project.createdAt,
+      assignedUser: project.assignedUser,
+      milestones: project.milestones,
+    }));
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    throw new Error("Failed to fetch projects");
   }
 }
