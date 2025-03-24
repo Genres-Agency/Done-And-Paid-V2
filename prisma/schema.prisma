@@ -373,6 +373,37 @@ enum ProjectStatus {
   CANCELLED
 }
 
+model Project {
+  id           String            @id @default(cuid())
+  title        String
+  description  String
+  status       ProjectStatus     @default(PENDING)
+  budget       Float?
+  startDate    DateTime?
+  endDate      DateTime?
+  milestones   Milestone[]
+  submission   ProjectSubmission @relation(fields: [submissionId], references: [id])
+  submissionId String            @unique
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model Milestone {
+  id                  String             @id @default(cuid())
+  title               String
+  description         String?
+  startDate           DateTime?
+  endDate             DateTime?
+  status              ProjectStatus      @default(PENDING)
+  tasks               Json?
+  project             Project            @relation(fields: [projectId], references: [id])
+  projectId           String
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  ProjectSubmission   ProjectSubmission? @relation(fields: [projectSubmissionId], references: [id])
+  projectSubmissionId String?
+}
+
 model ProjectSubmission {
   id             String        @id @default(cuid())
   title          String
@@ -386,6 +417,8 @@ model ProjectSubmission {
   status         ProjectStatus @default(PENDING)
   attachments    Json?
   notes          String?
+  project        Project?
+  milestones     Milestone[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   assignedUserId String?

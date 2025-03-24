@@ -19,6 +19,33 @@ export async function updateProjectStatus(
   }
 }
 
+export async function getProjectStats() {
+  const projects = await db.projectSubmission.findMany({
+    include: {
+      assignedUser: true,
+      milestones: true,
+    },
+  });
+
+  const totalProjects = projects.length;
+  const completedProjects = projects.filter(
+    (project) => project.status === "COMPLETED"
+  ).length;
+  const pendingProjects = projects.filter(
+    (project) => project.status === "PENDING"
+  ).length;
+  const assignedProjects = projects.filter(
+    (project) => project.assignedUserId
+  ).length;
+
+  return {
+    totalProjects,
+    completedProjects,
+    pendingProjects,
+    assignedProjects,
+  };
+}
+
 export async function assignProjectToUser(projectId: string, userId: string) {
   try {
     const updatedProject = await db.projectSubmission.update({

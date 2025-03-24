@@ -1,6 +1,7 @@
 import { DataTable } from "../../_components/table/data-table";
 import { columns } from "./_components/columns";
 import { db } from "@/src/lib/database.connection";
+import { ProjectStats } from "./_components/project-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,7 @@ export default async function ProjectsPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
       </div>
+      <ProjectStats />
       <DataTable columns={columns} data={projects} searchKey="clientName" />
     </div>
   );

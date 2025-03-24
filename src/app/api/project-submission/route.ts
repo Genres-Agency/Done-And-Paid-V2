@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       ? parseFloat(validatedData.budget)
       : null;
 
-    // Create the project submission
+    // Create the project submission and associated project
     const projectSubmission = await db.projectSubmission.create({
       data: {
         title: validatedData.title,
@@ -49,6 +49,19 @@ export async function POST(req: Request) {
         timeline: validatedData.timeline,
         requirements: validatedData.requirements,
         status: "PENDING",
+        project: {
+          create: {
+            title: validatedData.title,
+            description: validatedData.description,
+            budget: budget,
+            startDate: new Date(),
+            endDate: validatedData.timeline,
+            status: "PENDING",
+          },
+        },
+      },
+      include: {
+        project: true,
       },
     });
 
