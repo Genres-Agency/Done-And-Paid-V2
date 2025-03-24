@@ -18,7 +18,10 @@ const projectSubmissionSchema = z.object({
   }),
   clientPhone: z.string().optional(),
   budget: z.string().optional(),
-  timeline: z.date().optional(),
+  timeline: z
+    .string()
+    .transform((str) => (str ? new Date(str) : undefined))
+    .optional(),
   requirements: z.string().optional(),
 });
 

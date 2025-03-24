@@ -57,6 +57,7 @@ export default function ProjectSubmissionForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
+      // Timeline is already coerced to Date by zod
       const response = await fetch("/api/project-submission", {
         method: "POST",
         headers: {
