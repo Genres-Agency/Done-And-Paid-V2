@@ -6,6 +6,20 @@ import { Badge } from "@/src/components/ui/badge";
 import { format } from "date-fns";
 import { DataTableColumnHeader } from "../../../_components/table/data-table-column-header";
 import { DataTableRowActions } from "../../../_components/table/data-table-row-actions";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/src/components/ui/alert-dialog";
+import { deleteProject } from "../project.action";
 
 type Project = {
   id: string;
@@ -96,17 +110,82 @@ export const columns: ColumnDef<Project>[] = [
       return assignedUser?.name || "-";
     },
   },
-  {
-    accessorKey: "createdAt",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created At" />
-    ),
-    cell: ({ row }) => {
-      return format(new Date(row.getValue("createdAt")), "MMM dd, yyyy");
-    },
-  },
+  //   {
+  //     accessorKey: "createdAt",
+  //     header: ({ column }) => (
+  //       <DataTableColumnHeader column={column} title="Created At" />
+  //     ),
+  //     cell: ({ row }) => {
+  //       return format(new Date(row.getValue("createdAt")), "MMM dd, yyyy");
+  //     },
+  //   },
   {
     id: "actions",
-    cell: ({ row }) => <DataTableRowActions row={row} />,
+    cell: ({ row }) => {
+      const router = useRouter();
+      const project = row.original;
+      const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+      const handleDelete = async () => {
+        try {
+          const result = await deleteProject(project.id);
+          if (!result.success) {
+            throw new Error(result.error);
+          }
+          toast.success("Project deleted successfully");
+          router.refresh();
+        } catch (error) {
+          toast.error("Error deleting project");
+          console.error("Error deleting project:", error);
+        }
+        setShowDeleteDialog(false);
+      };
+
+      return (
+        <>
+          <DataTableRowActions
+            row={row}
+            actions={[
+              {
+                label: "View Details",
+                onClick: () => router.push(`/dashboard/projects/${project.id}`),
+              },
+              {
+                label: "Edit",
+                onClick: () =>
+                  router.push(`/dashboard/projects/${project.id}/edit`),
+              },
+              {
+                label: "Delete",
+                onClick: () => setShowDeleteDialog(true),
+              },
+            ]}
+          />
+          <AlertDialog
+            open={showDeleteDialog}
+            onOpenChange={setShowDeleteDialog}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the
+                  project.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      );
+    },
   },
 ];

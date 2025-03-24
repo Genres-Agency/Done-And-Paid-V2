@@ -54,7 +54,9 @@ export async function POST(req: Request) {
     });
 
     const aiResponse = completion.choices[0].message.content;
-    const milestones = JSON.parse(aiResponse).milestones;
+    const milestones = JSON.parse(
+      aiResponse || '{"milestones": []}'
+    ).milestones;
 
     // Create milestones in the database
     const createdMilestones = await Promise.all(
