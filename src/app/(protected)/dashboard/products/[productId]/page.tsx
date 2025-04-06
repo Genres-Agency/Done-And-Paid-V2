@@ -4,13 +4,14 @@ import ProductContent from "./_components/product-content";
 import PageContainer from "../../../_components/page-container";
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     productId: string;
-  };
+  }>;
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getProductById(params.productId);
+  const { productId } = await params;
+  const product = await getProductById(productId);
 
   if (!product) {
     notFound();

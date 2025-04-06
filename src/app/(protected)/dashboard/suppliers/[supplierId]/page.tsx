@@ -4,13 +4,14 @@ import SupplierContent from "./_components/supplier-content";
 import PageContainer from "../../../_components/page-container";
 
 interface SupplierPageProps {
-  params: {
+  params: Promise<{
     supplierId: string;
-  };
+  }>;
 }
 
 export default async function SupplierPage({ params }: SupplierPageProps) {
-  const supplier = await getSupplierById(params.supplierId);
+  const { supplierId } = await params;
+  const supplier = await getSupplierById(supplierId);
 
   if (!supplier) {
     notFound();

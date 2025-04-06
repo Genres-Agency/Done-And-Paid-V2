@@ -1,3 +1,5 @@
+// app/(protected)/dashboard/products/[productId]/edit/page.tsx
+
 import { notFound } from "next/navigation";
 import ProductForm from "../../_components/product-form";
 import { getProductById } from "../../product.action";
@@ -7,15 +9,16 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 interface EditProductPageProps {
-  params: {
+  params: Promise<{
     productId: string;
-  };
+  }>;
 }
 
 export default async function EditProductPage({
   params,
 }: EditProductPageProps) {
-  const product = await getProductById(params.productId);
+  const { productId } = await params;
+  const product = await getProductById(productId);
 
   if (!product) {
     notFound();
@@ -27,7 +30,7 @@ export default async function EditProductPage({
         <div className="flex items-center justify-between gap-4 w-full">
           <h1 className="text-3xl font-bold">Edit Product</h1>
           <Button variant="ghost" className="flex items-center gap-2" asChild>
-            <Link href={`/dashboard/products/${params.productId}`}>
+            <Link href={`/dashboard/products/${productId}`}>
               <ArrowLeft className="h-4 w-4" /> Back to Product
             </Link>
           </Button>

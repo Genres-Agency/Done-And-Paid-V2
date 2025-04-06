@@ -56,69 +56,68 @@ export const columns: ColumnDef<Supplier>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
-      const router = useRouter();
-      const supplier = row.original;
-      const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
-      const handleDelete = async () => {
-        try {
-          // TODO: Implement delete functionality
-          toast.success("Supplier deleted successfully");
-          router.refresh();
-        } catch (error) {
-          toast.error("Error deleting supplier");
-          console.error("Error deleting supplier:", error);
-        }
-        setShowDeleteDialog(false);
-      };
-
-      return (
-        <>
-          <DataTableRowActions
-            row={row}
-            actions={[
-              {
-                label: "View Details",
-                onClick: () =>
-                  router.push(`/dashboard/suppliers/${supplier.id}`),
-              },
-              {
-                label: "Edit",
-                onClick: () =>
-                  router.push(`/dashboard/suppliers/${supplier.id}/edit`),
-              },
-              {
-                label: "Delete",
-                onClick: () => setShowDeleteDialog(true),
-              },
-            ]}
-          />
-          <AlertDialog
-            open={showDeleteDialog}
-            onOpenChange={setShowDeleteDialog}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  supplier.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDelete}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </>
-      );
-    },
+    cell: ({ row }) => <ActionCell row={row} />,
   },
 ];
+
+// Create a separate component for the actions cell
+const ActionCell = ({ row }: { row: any }) => {
+  const router = useRouter();
+  const supplier = row.original;
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      // TODO: Implement delete functionality
+      toast.success("Supplier deleted successfully");
+      router.refresh();
+    } catch (error) {
+      toast.error("Error deleting supplier");
+      console.error("Error deleting supplier:", error);
+    }
+    setShowDeleteDialog(false);
+  };
+
+  return (
+    <>
+      <DataTableRowActions
+        row={row}
+        actions={[
+          {
+            label: "View Details",
+            onClick: () => router.push(`/dashboard/suppliers/${supplier.id}`),
+          },
+          {
+            label: "Edit",
+            onClick: () =>
+              router.push(`/dashboard/suppliers/${supplier.id}/edit`),
+          },
+          {
+            label: "Delete",
+            onClick: () => setShowDeleteDialog(true),
+          },
+        ]}
+      />
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              supplier.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+};

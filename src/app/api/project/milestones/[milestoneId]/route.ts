@@ -3,10 +3,10 @@ import { NextResponse } from "next/server";
 
 export async function PUT(
   req: Request,
-  { params }: { params: { milestoneId: string } }
+  { params }: { params: Promise<{ milestoneId: string }> }
 ) {
   try {
-    const { milestoneId } = params;
+    const { milestoneId } = await params;
     const { title, description, startDate, endDate, status, tasks } =
       await req.json();
 
@@ -31,7 +31,20 @@ export async function PUT(
         startDate,
         endDate,
         status,
-        tasks,
+        tasks: tasks
+          ? {
+              deleteMany: {},
+              create: tasks.map(
+                (task: { title: string; completed: boolean }) => ({
+                  title: task.title,
+                  completed: task.completed || false,
+                })
+              ),
+            }
+          : undefined,
+      },
+      include: {
+        tasks: true,
       },
     });
 

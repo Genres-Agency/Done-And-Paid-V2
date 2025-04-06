@@ -7,15 +7,16 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 interface EditSupplierPageProps {
-  params: {
+  params: Promise<{
     supplierId: string;
-  };
+  }>;
 }
 
 export default async function EditSupplierPage({
   params,
 }: EditSupplierPageProps) {
-  const supplier = await getSupplierById(params.supplierId);
+  const { supplierId } = await params;
+  const supplier = await getSupplierById(supplierId);
 
   if (!supplier) {
     notFound();
@@ -27,7 +28,7 @@ export default async function EditSupplierPage({
         <div className="flex items-center justify-between gap-4 w-full">
           <h1 className="text-3xl font-bold">Edit Supplier</h1>
           <Button variant="ghost" className="flex items-center gap-2" asChild>
-            <Link href={`/dashboard/suppliers/${params.supplierId}`}>
+            <Link href={`/dashboard/suppliers/${supplierId}`}>
               <ArrowLeft className="h-4 w-4" /> Back to Supplier
             </Link>
           </Button>

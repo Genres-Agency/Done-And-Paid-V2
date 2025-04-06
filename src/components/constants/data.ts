@@ -87,35 +87,35 @@ export const navItems: NavItem[] = [
     ],
   },
   // Service-specific features
-  {
-    title: "Services",
-    icon: "tool",
-    shortcut: ["g", "v"],
-    allowedBusinessTypes: [BusinessType.SERVICE],
-    allowedRoles: [
-      UserRole.ADMIN,
-      UserRole.SUPERADMIN,
-      UserRole.MANAGER,
-      UserRole.SALESPERSON,
-    ],
-    items: [
-      {
-        title: "Service Bookings",
-        url: "/dashboard/services/bookings",
-        disabled: true,
-      },
-      {
-        title: "Service Catalog",
-        url: "/dashboard/services/catalog",
-        disabled: true,
-      },
-      {
-        title: "Time Tracking",
-        url: "/dashboard/services/time-tracking",
-        disabled: true,
-      },
-    ],
-  },
+  // {
+  //   title: "Services",
+  //   icon: "tool",
+  //   shortcut: ["g", "v"],
+  //   allowedBusinessTypes: [BusinessType.SERVICE],
+  //   allowedRoles: [
+  //     UserRole.ADMIN,
+  //     UserRole.SUPERADMIN,
+  //     UserRole.MANAGER,
+  //     UserRole.SALESPERSON,
+  //   ],
+  //   items: [
+  //     {
+  //       title: "Service Bookings",
+  //       url: "/dashboard/services/bookings",
+  //       disabled: true,
+  //     },
+  //     {
+  //       title: "Service Catalog",
+  //       url: "/dashboard/services/catalog",
+  //       disabled: true,
+  //     },
+  //     {
+  //       title: "Time Tracking",
+  //       url: "/dashboard/services/time-tracking",
+  //       disabled: true,
+  //     },
+  //   ],
+  // },
   {
     title: "Projects",
     icon: "briefcase",

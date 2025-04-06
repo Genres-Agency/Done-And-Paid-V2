@@ -116,15 +116,19 @@ export async function POST(req: Request) {
           data: {
             title: milestone.title,
             description: milestone.description,
-            tasks: milestone.tasks
-              ? milestone.tasks.map((task: string) => ({
-                  id: Math.random().toString(36).substr(2, 9),
-                  title: task,
-                  completed: false,
-                }))
-              : [],
+            tasks: {
+              create: milestone.tasks
+                ? milestone.tasks.map((task: string) => ({
+                    title: task,
+                    completed: false,
+                  }))
+                : [],
+            },
             projectId: projectSubmission.project?.id || "",
             status: "PENDING",
+          },
+          include: {
+            tasks: true,
           },
         });
 

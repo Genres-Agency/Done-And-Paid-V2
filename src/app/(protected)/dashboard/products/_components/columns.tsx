@@ -25,6 +25,68 @@ type ProductWithDetails = Product & {
   inventory: Inventory | null;
 };
 
+// Create a separate component for the actions cell
+const ActionCell = ({ row }: { row: any }) => {
+  const router = useRouter();
+  const product = row.original;
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      await deleteProduct(product.id);
+      toast.success("Product deleted successfully");
+      router.refresh();
+    } catch (error) {
+      toast.error("Invalid supplier ID");
+      console.error("Error deleting product:", error);
+    }
+    setShowDeleteDialog(false);
+  };
+
+  return (
+    <>
+      <DataTableRowActions
+        row={row}
+        actions={[
+          {
+            label: "View Details",
+            onClick: () => router.push(`/dashboard/products/${product.id}`),
+          },
+          {
+            label: "Edit",
+            onClick: () =>
+              router.push(`/dashboard/products/${product.id}/edit`),
+          },
+          {
+            label: "Delete",
+            onClick: () => setShowDeleteDialog(true),
+          },
+        ]}
+      />
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              product.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+};
+
 export const columns: ColumnDef<ProductWithDetails, any>[] = [
   {
     accessorKey: "name",
@@ -80,68 +142,6 @@ export const columns: ColumnDef<ProductWithDetails, any>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
-      const router = useRouter();
-      const product = row.original;
-      const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
-      const handleDelete = async () => {
-        try {
-          await deleteProduct(product.id);
-          toast.success("Product deleted successfully");
-          router.refresh();
-        } catch (error) {
-          toast.error("Invalid supplier ID");
-          console.error("Error deleting product:", error);
-        }
-        setShowDeleteDialog(false);
-      };
-
-      return (
-        <>
-          <DataTableRowActions
-            row={row}
-            actions={[
-              {
-                label: "View Details",
-                onClick: () => router.push(`/dashboard/products/${product.id}`),
-              },
-              {
-                label: "Edit",
-                onClick: () =>
-                  router.push(`/dashboard/products/${product.id}/edit`),
-              },
-              {
-                label: "Delete",
-                onClick: () => setShowDeleteDialog(true),
-              },
-            ]}
-          />
-          <AlertDialog
-            open={showDeleteDialog}
-            onOpenChange={setShowDeleteDialog}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  product.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDelete}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </>
-      );
-    },
+    cell: ({ row }) => <ActionCell row={row} />,
   },
 ];

@@ -3,9 +3,10 @@ import { db } from "@/src/lib/database.connection";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
+    const { productId } = await params;
     const body = await request.json();
     const {
       name,
@@ -20,7 +21,7 @@ export async function PATCH(
 
     const product = await db.product.update({
       where: {
-        id: params.productId,
+        id: productId,
       },
       data: {
         name,

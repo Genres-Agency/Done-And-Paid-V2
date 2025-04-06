@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import prisma from "@/prisma";
 export async function GET(
   req: Request,
-  { params }: { params: { invoiceNumber: string } }
+  { params }: { params: Promise<{ invoiceNumber: string }> }
 ) {
   try {
+    const { invoiceNumber } = await params;
     const invoice = await prisma.invoice.findUnique({
       where: {
-        invoiceNumber: params.invoiceNumber,
+        invoiceNumber: invoiceNumber,
       },
       include: {
         customer: {

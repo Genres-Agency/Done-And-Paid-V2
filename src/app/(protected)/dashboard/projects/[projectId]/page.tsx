@@ -49,9 +49,10 @@ async function getProject(projectId: string) {
 export default async function ProjectPage({
   params,
 }: {
-  params: { projectId: string };
+  params: Promise<{ projectId: string }>;
 }) {
-  const project = await getProject(params.projectId);
+  const { projectId } = await params;
+  const project = await getProject(projectId);
 
   if (!project) {
     notFound();
@@ -62,17 +63,17 @@ export default async function ProjectPage({
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">{project.title}</h2>
         <div className="flex items-center gap-4">
-          <Link href={`/dashboard/projects/${params.projectId}/edit`}>
+          <Link href={`/dashboard/projects/${projectId}/edit`}>
             <Button variant="outline">Edit Project</Button>
           </Link>
-          <Link href={`/dashboard/projects/${params.projectId}/milestones`}>
+          <Link href={`/dashboard/projects/${projectId}/milestones`}>
             <Button variant="outline">Generate Milestones</Button>
           </Link>
           <form
             action={async (formData: FormData) => {
               "use server";
               const status = formData.get("status") as ProjectStatus;
-              await updateProjectStatus(params.projectId, status);
+              await updateProjectStatus(projectId, status);
             }}
           >
             <Select name="status" defaultValue={project.status}>

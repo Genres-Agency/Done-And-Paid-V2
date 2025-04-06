@@ -97,8 +97,8 @@ export default function ProjectSubmissionForm() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Submit Your Project</h1>
         <p className="text-muted-foreground mt-2">
-          Fill out the form below to submit your project request. We'll review
-          your submission and get back to you soon.
+          {`Fill out the form below to submit your project request. We'll review
+          your submission and get back to you soon.`}
         </p>
       </div>
 

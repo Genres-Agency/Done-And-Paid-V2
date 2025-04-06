@@ -16,9 +16,10 @@ async function getProjectDetails(projectId: string) {
 export default async function ProjectMilestones({
   params,
 }: {
-  params: { projectId: string };
+  params: Promise<{ projectId: string }>;
 }) {
-  const projectData = await getProjectDetails(params.projectId);
+  const { projectId } = await params;
+  const projectData = await getProjectDetails(projectId);
 
   if (!projectData) {
     throw new Error("Project data not found");
@@ -34,7 +35,7 @@ export default async function ProjectMilestones({
   return (
     <Suspense fallback={<MilestonesLoading />}>
       <MilestoneClient
-        projectId={params.projectId}
+        projectId={projectId}
         initialDescription={combinedDescription}
       />
     </Suspense>
