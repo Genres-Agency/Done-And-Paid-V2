@@ -108,7 +108,7 @@ export function MilestoneClient({
             onClick={generateMilestones}
             disabled={isGenerating || !description}
           >
-            {isGenerating ? "Generating..." : "Generate Milestones"}
+            {isGenerating ? "Generating Milestones..." : "Generate Milestones"}
           </Button>
         </CardContent>
       </Card>
