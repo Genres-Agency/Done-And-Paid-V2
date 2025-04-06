@@ -5,12 +5,33 @@ export async function GET() {
   try {
     const projects = await db.projectSubmission.findMany({
       include: {
-        assignedUser: true,
-        project: {
-          include: {
-            milestones: true,
+        assignedUser: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            image: true,
           },
         },
+        project: {
+          include: {
+            milestones: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                startDate: true,
+                endDate: true,
+                status: true,
+                tasks: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        },
+        milestones: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -48,16 +69,31 @@ export async function POST(request: Request) {
         budget: budget ? parseFloat(budget) : null,
         timeline: timeline ? new Date(timeline) : null,
         requirements,
+        status: "PENDING",
         project: {
           create: {
             title,
             description,
             status: "PENDING",
+            startDate: timeline ? new Date(timeline) : null,
           },
         },
       },
       include: {
-        project: true,
+        project: {
+          include: {
+            milestones: true,
+          },
+        },
+        assignedUser: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            image: true,
+          },
+        },
       },
     });
 

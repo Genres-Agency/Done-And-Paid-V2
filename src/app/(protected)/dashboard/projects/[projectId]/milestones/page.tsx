@@ -1,147 +1,42 @@
-"use client";
+import { Suspense } from "react";
+import { MilestoneClient } from "./milestone-client";
+import MilestonesLoading from "./loading";
+import { getProject } from "../../project.action";
 
-import { useState, useEffect } from "react";
-import { Milestone } from "@/src/types/milestone";
-import { toast } from "sonner";
-import { Button } from "@/src/components/ui/button";
-import { Textarea } from "@/src/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/src/components/ui/card";
-import { MilestoneManagement } from "../../_components/project-ui/milestone-management";
+async function getProjectDetails(projectId: string) {
+  const result = await getProject(projectId);
 
-export default function ProjectMilestones({
+  if (!result.success) {
+    throw new Error(result.error || "Failed to fetch project details");
+  }
+
+  return result.data;
+}
+
+export default async function ProjectMilestones({
   params,
 }: {
   params: { projectId: string };
 }) {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [description, setDescription] = useState("");
-  const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const projectData = await getProjectDetails(params.projectId);
 
-  useEffect(() => {
-    const fetchProjectDetails = async () => {
-      try {
-        const response = await fetch(`/api/project/${params.projectId}`);
-        const data = await response.json();
+  if (!projectData) {
+    throw new Error("Project data not found");
+  }
 
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch project details");
-        }
-
-        // Combine project description and requirements
-        const combinedDescription = [
-          data.data.description,
-          data.data.requirements ? `\n\nRequirements:\n${data.data.requirements}` : "",
-        ].join("");
-
-        setDescription(combinedDescription);
-      } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch project details. Please try again."
-        );
-      }
-    };
-
-    fetchProjectDetails();
-  }, [params.projectId]);
-
-  const generateMilestones = async () => {
-    if (!description) {
-      toast.error("Please enter a project description");
-      return;
-    }
-
-    setIsGenerating(true);
-
-    try {
-      const response = await fetch("/api/project/milestones", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          description,
-          projectId: params.projectId,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to generate milestones");
-      }
-
-      setMilestones(data.data);
-      toast.success("Milestones generated successfully");
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to generate milestones. Please try again."
-      );
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const updateMilestoneStatus = async (milestone: Milestone) => {
-    try {
-      const response = await fetch(`/api/project/milestones/${milestone.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(milestone),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update milestone");
-      }
-
-      setMilestones((prevMilestones) =>
-        prevMilestones.map((m) => (m.id === milestone.id ? milestone : m))
-      );
-
-      toast.success("Milestone updated successfully");
-    } catch (error) {
-      toast.error("Failed to update milestone");
-    }
-  };
+  const combinedDescription = [
+    projectData.description ?? "",
+    projectData.requirements
+      ? `\n\nRequirements:\n${projectData.requirements}`
+      : "",
+  ].join("");
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <h1 className="text-3xl font-bold mb-6">Project Milestones</h1>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Generate Milestones</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter project description to generate milestones..."
-            className="min-h-[100px]"
-          />
-          <Button
-            onClick={generateMilestones}
-            disabled={isGenerating || !description}
-          >
-            {isGenerating ? "Generating..." : "Generate Milestones"}
-          </Button>
-        </CardContent>
-      </Card>
-
-      <MilestoneManagement
-        initialMilestones={milestones}
-        onUpdateStatus={updateMilestoneStatus}
+    <Suspense fallback={<MilestonesLoading />}>
+      <MilestoneClient
+        projectId={params.projectId}
+        initialDescription={combinedDescription}
       />
-    </div>
+    </Suspense>
   );
 }
