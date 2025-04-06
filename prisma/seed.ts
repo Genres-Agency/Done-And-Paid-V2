@@ -28,6 +28,20 @@ async function main() {
     }),
     prisma.user.create({
       data: {
+        name: "Admin 2",
+        email: "admin2@gmail.com",
+        password:
+          "$2a$10$D32T4lzBzuucgBgqhUzqQ.KU2r.enUML9L0ihVcy8Odn0AdkOsuja", // "aaaaaa"
+        role: UserRole.SUPERADMIN,
+        businessType: "SERVICE",
+        phoneNumber: "+8801719199967",
+        address: "123 Admin Street",
+        bio: "System administrator",
+        isTwoFactorEnabled: true,
+      },
+    }),
+    prisma.user.create({
+      data: {
         name: "Manager User",
         email: "manager@example.com",
         password:
