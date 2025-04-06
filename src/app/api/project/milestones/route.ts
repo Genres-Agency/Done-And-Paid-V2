@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     }
 
     // Get project details
-    const project = await db.project.findUnique({
+    const project = await db.projectSubmission.findUnique({
       where: { id: projectId },
     });
 
