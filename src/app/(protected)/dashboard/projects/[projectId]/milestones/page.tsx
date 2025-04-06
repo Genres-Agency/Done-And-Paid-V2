@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Milestone } from "@/src/types/milestone";
 import { toast } from "sonner";
 import { Button } from "@/src/components/ui/button";
@@ -21,6 +21,35 @@ export default function ProjectMilestones({
   const [isGenerating, setIsGenerating] = useState(false);
   const [description, setDescription] = useState("");
   const [milestones, setMilestones] = useState<Milestone[]>([]);
+
+  useEffect(() => {
+    const fetchProjectDetails = async () => {
+      try {
+        const response = await fetch(`/api/project/${params.projectId}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch project details");
+        }
+
+        // Combine project description and requirements
+        const combinedDescription = [
+          data.data.description,
+          data.data.requirements ? `\n\nRequirements:\n${data.data.requirements}` : "",
+        ].join("");
+
+        setDescription(combinedDescription);
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch project details. Please try again."
+        );
+      }
+    };
+
+    fetchProjectDetails();
+  }, [params.projectId]);
 
   const generateMilestones = async () => {
     if (!description) {
