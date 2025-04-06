@@ -28,16 +28,33 @@ export async function POST(req: Request) {
       );
     }
 
-    // Get project details
-    const project = await db.projectSubmission.findUnique({
+    // Get project submission details
+    const projectSubmission = await db.projectSubmission.findUnique({
       where: { id: projectId },
+      include: {
+        project: true,
+      },
     });
 
-    if (!project) {
+    if (!projectSubmission) {
       return NextResponse.json(
-        { message: "Project not found" },
+        { message: "Project submission not found" },
         { status: 404 }
       );
+    }
+
+    // Check if project exists for this submission
+    if (!projectSubmission.project) {
+      // Create a new project for this submission
+      const newProject = await db.project.create({
+        data: {
+          title: projectSubmission.title,
+          description: projectSubmission.description,
+          submissionId: projectSubmission.id,
+          status: "PENDING",
+        },
+      });
+      projectSubmission.project = newProject;
     }
 
     // Generate milestones using OpenAI
@@ -54,22 +71,73 @@ export async function POST(req: Request) {
     });
 
     const aiResponse = completion.choices[0].message.content;
-    const milestones = JSON.parse(
-      aiResponse || '{"milestones": []}'
-    ).milestones;
+
+    let parsedResponse;
+    try {
+      // Clean the AI response by removing markdown formatting
+      const cleanedResponse =
+        aiResponse
+          ?.replace(/```json\n?/g, "")
+          ?.replace(/```/g, "")
+          ?.trim() || '{"milestones": []}';
+
+      // Attempt to parse the cleaned response
+      parsedResponse = JSON.parse(cleanedResponse);
+
+      // Validate the response structure
+      if (
+        !parsedResponse.milestones ||
+        !Array.isArray(parsedResponse.milestones)
+      ) {
+        throw new Error("Invalid milestone format");
+      }
+
+      // Validate each milestone object
+      parsedResponse.milestones.forEach((milestone: MilestoneResponse) => {
+        if (
+          !milestone.title ||
+          !milestone.description ||
+          !Array.isArray(milestone.tasks)
+        ) {
+          throw new Error("Invalid milestone data structure");
+        }
+      });
+    } catch (parseError) {
+      console.error("Error parsing AI response:", parseError);
+      throw new Error("Failed to parse milestone data");
+    }
+
+    const milestones = parsedResponse.milestones;
 
     // Create milestones in the database
     const createdMilestones = await Promise.all(
-      milestones.map(async (milestone: any) => {
-        return await db.milestone.create({
+      milestones.map(async (milestone: MilestoneResponse) => {
+        const createdMilestone = await db.milestone.create({
           data: {
             title: milestone.title,
             description: milestone.description,
-            tasks: milestone.tasks,
-            projectId: projectId,
+            tasks: milestone.tasks
+              ? milestone.tasks.map((task: string) => ({
+                  id: Math.random().toString(36).substr(2, 9),
+                  title: task,
+                  completed: false,
+                }))
+              : [],
+            projectId: projectSubmission.project?.id || "",
             status: "PENDING",
           },
         });
+
+        // Add the progress field required by the client
+        return {
+          ...createdMilestone,
+          progress: 0, // Initial progress is 0 for new milestones
+          tasks: ((createdMilestone.tasks as any[]) || []).map((task: any) => ({
+            id: task.id,
+            title: task.title,
+            completed: task.completed,
+          })),
+        };
       })
     );
 
@@ -87,4 +155,15 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+}
+
+interface MilestoneResponse {
+  title: string;
+  description: string;
+  estimatedDuration: string;
+  tasks: string[];
+}
+
+interface ParsedResponse {
+  milestones: MilestoneResponse[];
 }

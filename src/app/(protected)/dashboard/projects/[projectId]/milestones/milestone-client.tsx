@@ -25,6 +25,9 @@ export function MilestoneClient({
   const [isGenerating, setIsGenerating] = useState(false);
   const [description, setDescription] = useState(initialDescription);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [generatedMilestones, setGeneratedMilestones] = useState<Milestone[]>(
+    []
+  );
 
   const generateMilestones = async () => {
     if (!description) {
@@ -52,7 +55,8 @@ export function MilestoneClient({
         throw new Error(data.message || "Failed to generate milestones");
       }
 
-      setMilestones(data.data);
+      setGeneratedMilestones(data.data);
+      setMilestones((prevMilestones) => [...prevMilestones, ...data.data]);
       toast.success("Milestones generated successfully");
     } catch (error) {
       toast.error(
@@ -113,10 +117,23 @@ export function MilestoneClient({
         </CardContent>
       </Card>
 
-      <MilestoneManagement
-        initialMilestones={milestones}
-        onUpdateStatus={updateMilestoneStatus}
-      />
+      {milestones.length > 0 && (
+        <div className="space-y-4">
+          {generatedMilestones.length > 0 && (
+            <div className="flex items-center gap-2 py-2">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-sm text-muted-foreground">
+                Newly Generated Milestones
+              </span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+          )}
+          <MilestoneManagement
+            initialMilestones={milestones}
+            onUpdateStatus={updateMilestoneStatus}
+          />
+        </div>
+      )}
     </div>
   );
 }
