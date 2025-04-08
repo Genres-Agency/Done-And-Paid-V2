@@ -18,6 +18,7 @@ import { Input } from "@/src/components/ui/input";
 import { Textarea } from "@/src/components/ui/textarea";
 import { toast } from "sonner";
 import { DateTimePicker } from "@/src/components/DateTimePicker";
+import { SuccessModal } from "./_components/SuccessModal";
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -40,6 +41,8 @@ const formSchema = z.object({
 
 export default function ProjectSubmissionForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,7 +60,6 @@ export default function ProjectSubmissionForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
-      // Timeline is already coerced to Date by zod
       const response = await fetch("/api/project-submission", {
         method: "POST",
         headers: {
@@ -70,7 +72,6 @@ export default function ProjectSubmissionForm() {
 
       if (!response.ok) {
         if (response.status === 400 && data.errors) {
-          // Handle validation errors from the API
           data.errors.forEach((error: { message: string }) => {
             toast.error(error.message);
           });
@@ -80,6 +81,8 @@ export default function ProjectSubmissionForm() {
       }
 
       toast.success("Your project has been submitted successfully.");
+      setSubmittedEmail(values.clientEmail);
+      setShowSuccessModal(true);
       form.reset();
     } catch (error) {
       toast.error(
@@ -93,155 +96,163 @@ export default function ProjectSubmissionForm() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Submit Your Project</h1>
-        <p className="text-muted-foreground mt-2">
-          {`Fill out the form below to submit your project request. We'll review
-          your submission and get back to you soon.`}
-        </p>
+    <>
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">Submit Your Project</h1>
+          <p className="text-muted-foreground mt-2">
+            {`Fill out the form below to submit your project request. We'll review
+            your submission and get back to you soon.`}
+          </p>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter project title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Describe your project in detail"
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="clientName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Your Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your full name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="clientEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Address</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your email address" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="clientPhone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your phone number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="budget"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Budget (Optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Enter your budget"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Please enter your budget in USD
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="timeline"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Expected Timeline (Optional)</FormLabel>
+                  <FormControl>
+                    <DateTimePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    When would you like this project to be completed?
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="requirements"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Additional Requirements (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Any specific requirements or preferences"
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Submitting..." : "Submit Project"}
+            </Button>
+          </form>
+        </Form>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Project Title</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter project title" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Project Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Describe your project in detail"
-                    className="min-h-[100px]"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="clientName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Your Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your full name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="clientEmail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Address</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your email address" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="clientPhone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone Number (Optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your phone number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="budget"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Budget (Optional)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Enter your budget"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Please enter your budget in USD
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="timeline"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Expected Timeline (Optional)</FormLabel>
-                <FormControl>
-                  <DateTimePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormDescription>
-                  When would you like this project to be completed?
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="requirements"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Additional Requirements (Optional)</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Any specific requirements or preferences"
-                    className="min-h-[100px]"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit Project"}
-          </Button>
-        </form>
-      </Form>
-    </div>
+      <SuccessModal
+        showSuccessModal={showSuccessModal}
+        setShowSuccessModal={setShowSuccessModal}
+        submittedEmail={submittedEmail}
+      />
+    </>
   );
 }
