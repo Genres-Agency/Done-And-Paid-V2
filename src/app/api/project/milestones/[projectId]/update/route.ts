@@ -3,16 +3,16 @@ import { NextResponse } from "next/server";
 
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ milestoneId: string }> }
+  { params }: { params: { projectId: string } }
 ) {
   try {
-    const { milestoneId } = await params;
+    const { projectId } = params;
     const { title, description, startDate, endDate, status, tasks } =
       await req.json();
 
     // Check if milestone exists
     const existingMilestone = await db.milestone.findUnique({
-      where: { id: milestoneId },
+      where: { id: projectId },
     });
 
     if (!existingMilestone) {
@@ -24,7 +24,7 @@ export async function PUT(
 
     // Update milestone
     const updatedMilestone = await db.milestone.update({
-      where: { id: milestoneId },
+      where: { id: projectId },
       data: {
         title,
         description,
