@@ -207,7 +207,8 @@ export function MilestoneClient({
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="Enter project description to generate milestones..."
-                        className="min-h-[100px]"
+                        rows={15}
+                        className="min-h-[250px]"
                         disabled={isGenerating}
                       />
                       {isGenerating && (

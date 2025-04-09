@@ -44,17 +44,17 @@ export default async function ProjectMilestones({
 
   const combinedDescription = [
     `Project Title: ${projectData.title}\n`,
-    `\nDescription: ${projectData.description ?? "No description provided"}\n`,
+    `\nDescription: ${projectData.description ?? "No description provided"}`,
     projectData.requirements
       ? `Additional Requirements:\n${projectData.requirements}\n`
       : "",
+    `\nProject Details:\n`,
+    `- Budget: ${formatBudget(projectData.budget)}\n`,
+    `- Timeline: ${formatDate(projectData.timeline)}\n`,
     `\nClient Information:\n`,
     `- Name: ${projectData.clientName}\n`,
     `- Email: ${projectData.clientEmail}\n`,
     `- Phone: ${projectData.clientPhone ?? "Not provided"}\n`,
-    `\nProject Details:\n`,
-    `- Budget: ${formatBudget(projectData.budget)}\n`,
-    `- Timeline: ${formatDate(projectData.timeline)}\n`,
     projectData.notes ? `\nAdditional Notes:\n${projectData.notes}` : "",
   ].join("");
 
